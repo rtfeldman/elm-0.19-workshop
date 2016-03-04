@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Like GitHub, but funkier.",
   "scripts": {
-    "build": "elm-make FunkHub.elm --output elm.js"
+    "build": "elm-make FunkHub.elm --output elm.js",
+    "watch": "npm run build && chokidar \"**/*.elm\" -c \"npm run build\"",
+    "install": "elm-package install --yes && npm run build"
   },
   "repository": {
     "type": "git",
@@ -14,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/rtfeldman/elm-workshop/issues"
   },
-  "homepage": "https://github.com/rtfeldman/elm-workshop#readme"
+  "homepage": "https://github.com/rtfeldman/elm-workshop#readme",
+  "devDependencies": {
+    "chokidar-cli": "1.2.0"
+  }
 }
