@@ -1,0 +1,18 @@
+{
+  "name": "funk-hub",
+  "version": "1.0.0",
+  "description": "Like GitHub, but funkier.",
+  "scripts": {
+    "build": "elm-make FunkHub.elm --output elm.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rtfeldman/elm-workshop.git"
+  },
+  "author": "Richard Feldman",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/rtfeldman/elm-workshop/issues"
+  },
+  "homepage": "https://github.com/rtfeldman/elm-workshop#readme"
+}
