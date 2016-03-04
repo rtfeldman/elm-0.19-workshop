@@ -9,6 +9,8 @@ http://nodejs.org
 
 Visit http://elm-lang.org/install to get set up.
 
+Not required, but **highly** recommended: [install elm-format](https://github.com/avh4/elm-format#installation-) and integrate it into your editor so that it runs on save.
+
 ## Install the Project
 
 Run this at the terminal:
