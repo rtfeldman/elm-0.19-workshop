@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "Like GitHub, but funkier.",
-    "repository": "https://github.com/evancz/start-app.git",
+    "repository": "https://github.com/rtfeldman/elm-workshop.git",
     "license": "BSD-3-Clause",
     "source-directories": [
         "src",
