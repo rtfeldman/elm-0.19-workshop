@@ -1,4 +1,4 @@
-Stage 3
+Stage 4
 =======
 
 ## Install the Project
@@ -7,12 +7,6 @@ Run this at the terminal:
 
 ```bash
 npm install
-```
-
-## Run Tests
-
-```bash
-npm test
 ```
 
 ## Engage Auto-Rebuilding

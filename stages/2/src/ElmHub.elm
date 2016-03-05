@@ -79,14 +79,6 @@ view address model =
     ]
 
 
-onInput address wrap =
-  on "input" targetValue (\val -> Signal.message address (wrap val))
-
-
-defaultValue str =
-  property "defaultValue" (Json.Encode.string str)
-
-
 viewSearchResult : Address Action -> SearchResult -> Html
 viewSearchResult address result =
   li

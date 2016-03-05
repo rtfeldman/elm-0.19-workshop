@@ -9,12 +9,6 @@ Run this at the terminal:
 npm install
 ```
 
-## Run Tests
-
-```bash
-npm test
-```
-
 ## Engage Auto-Rebuilding
 
 ```bash
