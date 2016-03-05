@@ -22,9 +22,44 @@ app =
   StartApp.start
     { view = view
     , update = update
-    , init = ( initialModel, Effects.none )
+    , init = ( initialModel, Effects.task (searchFeed initialModel.query) )
     , inputs = []
     }
+
+
+port tasks : Signal (Task Effects.Never ())
+port tasks =
+  app.tasks
+
+
+searchFeed : String -> Task x Action
+searchFeed query =
+  let
+    -- See https://developer.github.com/v3/search/#example for how to customize!
+    url =
+      "https://api.github.com/search/repositories?q="
+        ++ query
+        ++ "+language:elm&sort=stars&order=desc"
+
+    task =
+      Http.get responseDecoder url
+        |> Task.map SetResults
+  in
+    Task.onError task (\_ -> Task.succeed (SetResults []))
+
+
+responseDecoder : Decoder (List SearchResult)
+responseDecoder =
+  "items" := Json.Decode.list searchResultDecoder
+
+
+searchResultDecoder : Decoder SearchResult
+searchResultDecoder =
+  Json.Decode.object3
+    SearchResult
+    ("id" := Json.Decode.int)
+    ("full_name" := Json.Decode.string)
+    ("stargazers_count" := Json.Decode.int)
 
 
 type alias Model =
@@ -47,28 +82,7 @@ type alias ResultId =
 initialModel : Model
 initialModel =
   { query = "tutorial"
-  , results =
-      [ { id = 1
-        , name = "TheSeamau5/elm-checkerboardgrid-tutorial"
-        , stars = 66
-        }
-      , { id = 2
-        , name = "grzegorzbalcerek/elm-by-example"
-        , stars = 41
-        }
-      , { id = 3
-        , name = "sporto/elm-tutorial-app"
-        , stars = 35
-        }
-      , { id = 4
-        , name = "jvoigtlaender/Elm-Tutorium"
-        , stars = 10
-        }
-      , { id = 5
-        , name = "sporto/elm-tutorial-assets"
-        , stars = 7
-        }
-      ]
+  , results = []
   }
 
 
@@ -81,9 +95,11 @@ view address model =
         [ h1 [] [ text "ElmHub" ]
         , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
         ]
+    , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
+    , button [ class "search-button", onClick address Search ] [ text "Search" ]
     , ul
         [ class "results" ]
-        (List.map (viewSearchResult address) model.results)
+        (List.map viewSearchResult model.results)
     ]
 
 
@@ -95,8 +111,8 @@ defaultValue str =
   property "defaultValue" (Json.Encode.string str)
 
 
-viewSearchResult : Address Action -> SearchResult -> Html
-viewSearchResult address result =
+viewSearchResult : SearchResult -> Html
+viewSearchResult result =
   li
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
@@ -106,28 +122,39 @@ viewSearchResult address result =
         , target "_blank"
         ]
         [ text result.name ]
-    , button
-        -- TODO add an onClick handler that sends a HideById action
-        [ class "hide-result" ]
-        [ text "X" ]
     ]
 
 
 type Action
-  = SetQuery String
+  = Search
+  | SetQuery String
   | HideById ResultId
+  | SetResults (List SearchResult)
 
 
 update : Action -> Model -> ( Model, Effects Action )
 update action model =
   case action of
+    Search ->
+      ( model, Effects.task (searchFeed (Debug.log "searching for" model.query)) )
+
     SetQuery query ->
       ( { model | query = query }, Effects.none )
 
+    SetResults results ->
+      let
+        newModel =
+          { model | results = results }
+      in
+        ( newModel, Effects.none )
+
     HideById idToHide ->
       let
-        -- TODO build a new model without the given ID present anymore.
+        newResults =
+          model.results
+            |> List.filter (\{ id } -> id /= idToHide)
+
         newModel =
-          model
+          { model | results = newResults }
       in
         ( newModel, Effects.none )
