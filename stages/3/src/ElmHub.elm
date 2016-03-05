@@ -55,10 +55,11 @@ responseDecoder =
 
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
-  Json.Decode.object2
+  Json.Decode.object3
     SearchResult
     ("id" := Json.Decode.int)
     ("name" := Json.Decode.string)
+    ("stargazers_count" := Json.Decode.int)
 
 
 type alias Model =
@@ -70,6 +71,7 @@ type alias Model =
 type alias SearchResult =
   { id : ResultId
   , name : String
+  , stars : Int
   }
 
 
@@ -107,7 +109,11 @@ defaultValue str =
 
 viewSearchResult : SearchResult -> Html
 viewSearchResult result =
-  div [] [ text result.name ]
+  div
+    []
+    [ div [ class "star-count" ] [ text (toString result.stars) ]
+    , div [] [ text result.name ]
+    ]
 
 
 type Action
