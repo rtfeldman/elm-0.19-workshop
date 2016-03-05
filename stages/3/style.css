@@ -10,7 +10,6 @@ header {
   position: relative;
   padding: 6px 12px;
   background-color: rgb(96, 181, 204);
-  margin-bottom: 36px;
 }
 
 h1 {
@@ -30,6 +29,8 @@ h1 {
 
 .results {
   list-style-image: url('http://img-cache.cdn.gaiaonline.com/76bd5c99d8f2236e9d3672510e933fdf/http://i278.photobucket.com/albums/kk81/d3m3nt3dpr3p/Tiny-Star-Icon.png');
+  list-style-position: inside;
+  padding: 0;
 }
 
 .results li {
@@ -54,6 +55,8 @@ h1 {
 .search-query {
   padding: 8px;
   font-size: 24px;
+  margin-bottom: 18px;
+  margin-top: 36px;
 }
 
 .search-button {
