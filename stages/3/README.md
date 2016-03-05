@@ -19,7 +19,13 @@ Run this at the terminal:
 npm install
 ```
 
-## Automatically Rebuild
+## Run Tests
+
+```bash
+npm test
+```
+
+## Engage Auto-Rebuilding
 
 ```bash
 npm run watch

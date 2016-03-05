@@ -1,10 +1,10 @@
 {
-  "name": "funk-hub",
+  "name": "elm-hub",
   "version": "1.0.0",
-  "description": "Like GitHub, but funkier.",
+  "description": "Like GitHub, but for Elm stuff.",
   "scripts": {
-    "build": "elm-make src/FunkHub.elm --output elm.js",
-    "watch": "elm-live src/FunkHub.elm --open -- --output=elm.js",
+    "build": "elm-make src/ElmHub.elm --output elm.js",
+    "watch": "elm-live src/ElmHub.elm --open -- --output=elm.js",
     "test": "elm-test test/TestRunner.elm",
     "install": "elm-package install --yes && npm run build"
   },
