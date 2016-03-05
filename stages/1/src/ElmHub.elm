@@ -3,8 +3,7 @@ module ElmHub (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import StartApp
-import Http
+import StartApp.Simple as StartApp
 import Task exposing (Task)
 import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
@@ -12,54 +11,12 @@ import Json.Encode
 import Signal exposing (Address)
 
 
-main : Signal Html
 main =
-  app.html
-
-
-app : StartApp.App Model
-app =
   StartApp.start
     { view = view
     , update = update
-    , init = ( initialModel, Effects.task (searchFeed initialModel.query) )
-    , inputs = []
+    , model = initialModel
     }
-
-
-port tasks : Signal (Task Effects.Never ())
-port tasks =
-  app.tasks
-
-
-searchFeed : String -> Task x Action
-searchFeed query =
-  let
-    -- See https://developer.github.com/v3/search/#example for how to customize!
-    url =
-      "https://api.github.com/search/repositories?q="
-        ++ query
-        ++ "+language:elm&sort=stars&order=desc"
-
-    task =
-      Http.get responseDecoder url
-        |> Task.map SetResults
-  in
-    Task.onError task (\_ -> Task.succeed (SetResults []))
-
-
-responseDecoder : Decoder (List SearchResult)
-responseDecoder =
-  "items" := Json.Decode.list searchResultDecoder
-
-
-searchResultDecoder : Decoder SearchResult
-searchResultDecoder =
-  Json.Decode.object3
-    SearchResult
-    ("id" := Json.Decode.int)
-    ("full_name" := Json.Decode.string)
-    ("stargazers_count" := Json.Decode.int)
 
 
 type alias Model =
@@ -82,11 +39,31 @@ type alias ResultId =
 initialModel : Model
 initialModel =
   { query = "tutorial"
-  , results = []
+  , results =
+      [ { id = 1
+        , name = "TheSeamau5/elm-checkerboardgrid-tutorial"
+        , stars = 66
+        }
+      , { id = 2
+        , name = "grzegorzbalcerek/elm-by-example"
+        , stars = 41
+        }
+      , { id = 3
+        , name = "sporto/elm-tutorial-app"
+        , stars = 35
+        }
+      , { id = 4
+        , name = "jvoigtlaender/Elm-Tutorium"
+        , stars = 10
+        }
+      , { id = 5
+        , name = "sporto/elm-tutorial-assets"
+        , stars = 7
+        }
+      ]
   }
 
 
-view : Address Action -> Model -> Html
 view address model =
   div
     [ class "content" ]
@@ -95,20 +72,10 @@ view address model =
         [ h1 [] [ text "ElmHub" ]
         , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
         ]
-    , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
-    , button [ class "search-button", onClick address Search ] [ text "Search" ]
     , ul
         [ class "results" ]
-        (List.map viewSearchResult model.results)
+        [{- TODO use model.results and viewSearchResults to display results -}]
     ]
-
-
-onInput address wrap =
-  on "input" targetValue (\val -> Signal.message address (wrap val))
-
-
-defaultValue str =
-  property "defaultValue" (Json.Encode.string str)
 
 
 viewSearchResult : SearchResult -> Html
@@ -116,45 +83,10 @@ viewSearchResult result =
   li
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
-    , a
-        [ href ("https://github.com/" ++ result.name)
-        , class "result-name"
-        , target "_blank"
-        ]
-        [ text result.name ]
+      -- TODO replace the following span with a link that opens in a new window!
+    , span [ class "result-name" ] [ text result.name ]
     ]
 
 
-type Action
-  = Search
-  | SetQuery String
-  | HideById ResultId
-  | SetResults (List SearchResult)
-
-
-update : Action -> Model -> ( Model, Effects Action )
 update action model =
-  case action of
-    Search ->
-      ( model, Effects.task (searchFeed (Debug.log "searching for" model.query)) )
-
-    SetQuery query ->
-      ( { model | query = query }, Effects.none )
-
-    SetResults results ->
-      let
-        newModel =
-          { model | results = results }
-      in
-        ( newModel, Effects.none )
-
-    HideById idToHide ->
-      let
-        newResults =
-          model.results
-            |> List.filter (\{ id } -> id /= idToHide)
-
-        newModel =
-          { model | results = newResults }
-      in
-        ( newModel, Effects.none )
+  model

@@ -4,7 +4,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import StartApp
-import Http
 import Task exposing (Task)
 import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
@@ -81,6 +80,8 @@ view address model =
         [ h1 [] [ text "ElmHub" ]
         , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
         ]
+    , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
+    , button [ class "search-button" ] [ text "Search" ]
     , ul
         [ class "results" ]
         (List.map (viewSearchResult address) model.results)
