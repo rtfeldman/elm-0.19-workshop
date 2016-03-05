@@ -89,11 +89,15 @@ initialModel =
 view : Address Action -> Model -> Html
 view address model =
   div
-    []
-    [ h1 [] [ text "ElmHub" ]
-    , input [ onInput address SetQuery, defaultValue model.query ] []
-    , button [ onClick address Search ] [ text "Search" ]
-    , div
+    [ class "content" ]
+    [ header
+        []
+        [ h1 [] [ text "ElmHub" ]
+        , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
+        ]
+    , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
+    , button [ class "search-button", onClick address Search ] [ text "Search" ]
+    , ul
         [ class "results" ]
         (List.map viewSearchResult model.results)
     ]
@@ -109,10 +113,10 @@ defaultValue str =
 
 viewSearchResult : SearchResult -> Html
 viewSearchResult result =
-  div
+  li
     []
-    [ div [ class "star-count" ] [ text (toString result.stars) ]
-    , div [] [ text result.name ]
+    [ span [ class "star-count" ] [ text (toString result.stars) ]
+    , a [ href "", class "result-name" ] [ text result.name ]
     ]
 
 
