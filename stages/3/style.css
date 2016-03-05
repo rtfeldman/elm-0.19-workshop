@@ -59,5 +59,13 @@ h1 {
 .search-button {
   padding: 8px 16px;
   font-size: 24px;
+  color: white;
+  border: 1px solid #ccc;
+  background-color: rgb(96, 181, 204);
   margin-left: 12px
+}
+
+.search-button:hover {
+  color: rgb(96, 181, 204);
+  background-color: white;
 }
