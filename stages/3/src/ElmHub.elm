@@ -43,6 +43,10 @@ type alias ResultId =
   Int
 
 
+
+{- See https://developer.github.com/v3/search/#example -}
+
+
 initialModel : Model
 initialModel =
   { query = "tutorial"

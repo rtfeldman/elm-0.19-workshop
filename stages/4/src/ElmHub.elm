@@ -57,6 +57,7 @@ searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
   Json.Decode.object3
     SearchResult
+    -- See https://developer.github.com/v3/search/#example
     ("TODO what field goes here?" := Json.Decode.int)
     ("TODO what field goes here?" := Json.Decode.string)
     ("TODO what field goes here?" := Json.Decode.int)
