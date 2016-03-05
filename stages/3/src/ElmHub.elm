@@ -58,7 +58,7 @@ searchResultDecoder =
   Json.Decode.object3
     SearchResult
     ("id" := Json.Decode.int)
-    ("name" := Json.Decode.string)
+    ("full_name" := Json.Decode.string)
     ("stargazers_count" := Json.Decode.int)
 
 
@@ -116,7 +116,12 @@ viewSearchResult result =
   li
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
-    , a [ href "", class "result-name" ] [ text result.name ]
+    , a
+        [ href ("https://github.com/" ++ result.name)
+        , class "result-name"
+        , target "_blank"
+        ]
+        [ text result.name ]
     ]
 
 

@@ -21,8 +21,8 @@ all =
         <| let
             response =
               """{ "items": [
-                { "id": 5, "name": "foo", "stargazers_count": 42 },
-                { "id": 3, "name": "bar", "stargazers_count": 77 }
+                { "id": 5, "full_name": "foo", "stargazers_count": 42 },
+                { "id": 3, "full_name": "bar", "stargazers_count": 77 }
               ] }"""
            in
             assertEqual
