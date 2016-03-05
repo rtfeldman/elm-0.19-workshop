@@ -8,6 +8,7 @@ import Http
 import Task exposing (Task)
 import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
+import Json.Encode
 import Signal exposing (Address)
 
 
@@ -21,7 +22,7 @@ app =
   StartApp.start
     { view = view
     , update = update
-    , init = ( initialModel, Effects.task (searchFeed "") )
+    , init = ( initialModel, Effects.task (searchFeed initialModel.query) )
     , inputs = []
     }
 
@@ -36,7 +37,9 @@ searchFeed query =
   let
     -- See https://developer.github.com/v3/search/#example for how to customize!
     url =
-      "https://api.github.com/search/repositories?q=tutorial+language:elm&sort=stars&order=desc"
+      "https://api.github.com/search/repositories?q="
+        ++ query
+        ++ "+language:elm&sort=stars&order=desc"
 
     task =
       Http.get responseDecoder url
@@ -59,7 +62,9 @@ searchResultDecoder =
 
 
 type alias Model =
-  { results : List SearchResult }
+  { query : String
+  , results : List SearchResult
+  }
 
 
 type alias SearchResult =
@@ -74,7 +79,9 @@ type alias ResultId =
 
 initialModel : Model
 initialModel =
-  { results = [] }
+  { query = "tutorial"
+  , results = []
+  }
 
 
 view : Address Action -> Model -> Html
@@ -82,10 +89,20 @@ view address model =
   div
     []
     [ h1 [] [ text "ElmHub" ]
+    , input [ onInput address SetQuery, defaultValue model.query ] []
+    , button [ onClick address Search ] [ text "Search" ]
     , div
         [ class "results" ]
         (List.map viewSearchResult model.results)
     ]
+
+
+onInput address wrap =
+  on "input" targetValue (\val -> Signal.message address (wrap val))
+
+
+defaultValue str =
+  property "defaultValue" (Json.Encode.string str)
 
 
 viewSearchResult : SearchResult -> Html
@@ -94,7 +111,8 @@ viewSearchResult result =
 
 
 type Action
-  = Search String
+  = Search
+  | SetQuery String
   | HideById ResultId
   | SetResults (List SearchResult)
 
@@ -102,8 +120,11 @@ type Action
 update : Action -> Model -> ( Model, Effects Action )
 update action model =
   case action of
-    Search query ->
-      ( model, Effects.task (searchFeed query) )
+    Search ->
+      ( model, Effects.task (searchFeed (Debug.log "searching for" model.query)) )
+
+    SetQuery query ->
+      ( { model | query = query }, Effects.none )
 
     SetResults results ->
       let
