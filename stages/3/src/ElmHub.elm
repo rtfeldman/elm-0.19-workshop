@@ -34,6 +34,7 @@ port tasks =
 searchFeed : String -> Task x Action
 searchFeed query =
   let
+    -- See https://developer.github.com/v3/search/#example for how to customize!
     url =
       "https://api.github.com/search/repositories?q=tutorial+language:elm&sort=stars&order=desc"
 
