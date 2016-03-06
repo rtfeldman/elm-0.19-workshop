@@ -21,8 +21,6 @@ searchFeed address query =
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
 
-    -- These only talk to JavaScript ports now. They don't
-    -- actually do any actions themselves.
     task =
       Signal.send address query
         |> Task.map (\_ -> DoNothing)
