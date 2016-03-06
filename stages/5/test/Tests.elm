@@ -16,13 +16,12 @@ all =
            in
             assertEqual
               (decodeString responseDecoder emptyResponse)
-              (Ok [])
+              ({- TODO: what goes here? -})
     , test "they can decode responses with results in them"
         <| let
             response =
               """{ "items": [
-                { "id": 5, "full_name": "foo", "stargazers_count": 42 },
-                { "id": 3, "full_name": "bar", "stargazers_count": 77 }
+                      /* TODO: dummy JSON goes here */
               ] }"""
            in
             assertEqual
