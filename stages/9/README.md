@@ -7,6 +7,12 @@ To run tests:
 npm test
 ```
 
+To compile CSS:
+
+```bash
+npm run css
+```
+
 To engage Auto-Rebuilding:
 
 ```bash
