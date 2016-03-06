@@ -1,15 +1,7 @@
 Stage 2
 =======
 
-## Install the Project
-
-Run this at the terminal:
-
-```bash
-npm install
-```
-
-## Engage Auto-Rebuilding
+To engage Auto-Rebuilding:
 
 ```bash
 npm run watch
