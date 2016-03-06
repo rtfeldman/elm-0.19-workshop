@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Like GitHub, but for Elm stuff.",
   "scripts": {
-    "build": "elm-make src/ElmHub.elm --output elm.js",
-    "watch": "../../node_modules/.bin/elm-live src/ElmHub.elm --open -- --output=elm.js",
-    "install": "npm run build"
+    "install": "node install.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +16,7 @@
   },
   "homepage": "https://github.com/rtfeldman/elm-workshop#readme",
   "devDependencies": {
-    "elm-live": "2.0.4"
+    "elm-live": "2.0.4",
+    "elm-test": "0.16.1-alpha3"
   }
 }
