@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/rtfeldman/elm-workshop#readme",
   "devDependencies": {
+    "elm-css": "0.4.0",
     "elm-live": "2.0.4",
     "elm-test": "0.16.1-alpha3"
   }
