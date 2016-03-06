@@ -3,7 +3,6 @@ module ElmHub (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import StartApp
 import Http
 import Task exposing (Task)
 import Effects exposing (Effects)
