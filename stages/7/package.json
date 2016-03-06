@@ -1,0 +1,25 @@
+{
+  "name": "elm-hub",
+  "version": "1.0.0",
+  "description": "Like GitHub, but for Elm stuff.",
+  "scripts": {
+    "build": "elm-make src/Main.elm --output elm.js",
+    "watch": "../../node_modules/.bin/elm-live src/Main.elm --open -- --output=elm.js",
+    "test": "node test.js",
+    "install": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rtfeldman/elm-workshop.git"
+  },
+  "author": "Richard Feldman",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/rtfeldman/elm-workshop/issues"
+  },
+  "homepage": "https://github.com/rtfeldman/elm-workshop#readme",
+  "devDependencies": {
+    "elm-live": "2.0.4",
+    "elm-test": "0.16.1-alpha3"
+  }
+}
