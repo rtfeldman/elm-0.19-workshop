@@ -4,7 +4,7 @@
   "description": "Like GitHub, but for Elm stuff.",
   "scripts": {
     "build": "elm-make src/ElmHub.elm --output elm.js",
-    "watch": "../../node_modules/.bin/elm-live src/ElmHub.elm --open -- --output=elm.js",
+    "watch": "node watch.js",
     "install": "npm run build"
   },
   "repository": {
