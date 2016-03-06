@@ -7,4 +7,10 @@ fs.readdirSync("stages").forEach(function(stage) {
 
   console.log("Installing packages for " + cwd);
   execSync("elm-package install --yes", { cwd: cwd });
+
+  var testCwd = path.join(cwd, "test");
+
+  if (fs.existsSync(testCwd)) {
+    execSync("elm-package install --yes", { cwd: testCwd });
+  }
 });

@@ -5,7 +5,7 @@
   "scripts": {
     "build": "elm-make src/Main.elm --output elm.js",
     "watch": "../../node_modules/.bin/elm-live src/Main.elm --open -- --output=elm.js",
-    "test": "../../node_modules/.bin/elm-test test/TestRunner.elm",
+    "test": "node test.js",
     "install": "npm run build"
   },
   "repository": {
