@@ -1,15 +1,15 @@
-module ElmHub (..) where
+module Component.ElmHub (..) where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import StartApp
 import Http
 import Task exposing (Task)
 import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
 import Json.Encode
 import Signal exposing (Address)
+import Component.SearchResult exposing (ResultId)
 
 
 searchFeed : String -> Task x Action
@@ -28,35 +28,25 @@ searchFeed query =
     Task.onError task (\_ -> Task.succeed (SetResults []))
 
 
-responseDecoder : Decoder (List SearchResult)
+responseDecoder : Decoder (List Component.SearchResult.Model)
 responseDecoder =
   "items" := Json.Decode.list searchResultDecoder
 
 
-searchResultDecoder : Decoder SearchResult
+searchResultDecoder : Decoder Component.SearchResult.Model
 searchResultDecoder =
-  Json.Decode.object3
-    SearchResult
+  Json.Decode.object4
+    Component.SearchResult.Model
     ("id" := Json.Decode.int)
     ("full_name" := Json.Decode.string)
     ("stargazers_count" := Json.Decode.int)
+    (Json.Decode.succeed True)
 
 
 type alias Model =
   { query : String
-  , results : List SearchResult
+  , results : List Component.SearchResult.Model
   }
-
-
-type alias SearchResult =
-  { id : ResultId
-  , name : String
-  , stars : Int
-  }
-
-
-type alias ResultId =
-  Int
 
 
 initialModel : Model
@@ -91,28 +81,18 @@ defaultValue str =
   property "defaultValue" (Json.Encode.string str)
 
 
-viewSearchResult : Address Action -> SearchResult -> Html
+viewSearchResult : Address Action -> Component.SearchResult.Model -> Html
 viewSearchResult address result =
-  li
-    []
-    [ span [ class "star-count" ] [ text (toString result.stars) ]
-    , a
-        [ href ("https://github.com/" ++ result.name)
-        , class "result-name"
-        , target "_blank"
-        ]
-        [ text result.name ]
-    , button
-        [ class "hide-result", onClick address (HideById result.id) ]
-        [ text "X" ]
-    ]
+  Component.SearchResult.view
+    (Signal.forwardTo address (UpdateSearchResult result.id))
+    result
 
 
 type Action
   = Search
   | SetQuery String
-  | HideById ResultId
-  | SetResults (List SearchResult)
+  | SetResults (List Component.SearchResult.Model)
+  | UpdateSearchResult ResultId Component.SearchResult.Action
 
 
 update : Action -> Model -> ( Model, Effects Action )
@@ -131,13 +111,26 @@ update action model =
       in
         ( newModel, Effects.none )
 
-    HideById idToHide ->
+    UpdateSearchResult id childAction ->
       let
-        newResults =
+        updateResult childModel =
+          if childModel.id == id then
+            let
+              ( newChildModel, childEffects ) =
+                Component.SearchResult.update childAction childModel
+            in
+              ( newChildModel
+              , Effects.map (UpdateSearchResult id) childEffects
+              )
+          else
+            ( childModel, Effects.none )
+
+        ( newResults, effects ) =
           model.results
-            |> List.filter (\{ id } -> id /= idToHide)
+            |> List.map updateResult
+            |> List.unzip
 
         newModel =
           { model | results = newResults }
       in
-        ( newModel, Effects.none )
+        ( newModel, Effects.batch effects )
