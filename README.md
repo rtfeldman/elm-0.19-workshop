@@ -20,15 +20,15 @@ git clone https://github.com/rtfeldman/elm-workshop.git
 cd elm-workshop
 ```
 
-## Install dependencies
+## Install supporting tools
 
 Run this at the terminal:
 
 ```bash
-npm install
+npm install -g elm-live@2.0.4 elm-test@0.16.1-alpha3 elm-css@0.4.0
 ```
 
-This will probably take several minutes.
+This could take several minutes.
 
 ## Start with Stage 1
 

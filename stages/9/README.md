@@ -1,20 +1,23 @@
 Stage 5
 =======
 
-To run tests:
+## Installation
 
 ```bash
-npm test
+$ elm package install
 ```
 
-To compile CSS:
+(Answer `y` at the prompt. In rare cases a known issue can cause the download
+to fail; in that case, just run `elm package install` again.)
+
+## Building
 
 ```bash
-npm run css
+$ elm live Main.elm --open -- --output=elm.js
 ```
 
-To engage Auto-Rebuilding:
+## Compiling CSS
 
 ```bash
-npm run watch
+$ elm test css/Stylesheets.elm
 ```

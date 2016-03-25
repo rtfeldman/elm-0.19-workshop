@@ -4,8 +4,7 @@
     "repository": "https://github.com/rtfeldman/elm-workshop.git",
     "license": "BSD-3-Clause",
     "source-directories": [
-        "src",
-        "css"
+        "."
     ],
     "exposed-modules": [],
     "dependencies": {

@@ -1,14 +1,24 @@
 Stage 5
 =======
 
-To run tests:
+## Installation
 
 ```bash
-npm test
+$ elm package install
 ```
 
-To engage Auto-Rebuilding:
+(Answer `y` at the prompt. In rare cases a known issue can cause the download
+to fail; in that case, just run `elm package install` again.)
+
+## Building
 
 ```bash
-npm run watch
+$ elm live Main.elm --open -- --output=elm.js
+```
+
+## Running Tests
+
+```bash
+$ cd test
+$ elm test TestRunner.elm
 ```
