@@ -20,5 +20,6 @@ $ elm live Main.elm --open -- --output=elm.js
 
 ```bash
 $ cd test
+$ elm package install
 $ elm test TestRunner.elm
 ```
