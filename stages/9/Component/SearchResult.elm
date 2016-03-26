@@ -37,9 +37,7 @@ view address model =
     <| if model.expanded then
         [ span [ class "star-count" ] [ text (toString model.stars) ]
         , a
-            [ href ("https://github.com/" ++ model.name)
-            , target "_blank"
-            ]
+            [ href ("https://github.com/" ++ model.name), target "_blank" ]
             [ text model.name ]
         , button
             -- TODO when the user clicks, send a Collapse action

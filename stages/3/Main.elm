@@ -7,14 +7,6 @@ import StartApp.Simple as StartApp
 import Signal exposing (Address)
 
 
-main =
-  StartApp.start
-    { view = view
-    , update = update
-    , model = initialModel
-    }
-
-
 type alias Model =
   { query : String
   , results : List SearchResult
@@ -100,3 +92,11 @@ update action model =
   -- TODO if we receive a DELETE_BY_ID action,
   -- build a new model without the given ID present anymore.
   model
+
+
+main =
+  StartApp.start
+    { view = view
+    , update = update
+    , model = initialModel
+    }

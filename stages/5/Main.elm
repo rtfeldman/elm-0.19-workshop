@@ -118,9 +118,7 @@ viewSearchResult address result =
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
     , a
-        [ href ("https://github.com/" ++ result.name)
-        , target "_blank"
-        ]
+        [ href ("https://github.com/" ++ result.name), target "_blank" ]
         [ text result.name ]
     , button
         [ class "hide-result", onClick address (DeleteById result.id) ]

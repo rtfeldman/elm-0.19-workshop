@@ -3,27 +3,9 @@ module Main (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import StartApp
-import Task exposing (Task)
-import Effects exposing (Effects)
-import Json.Decode exposing (Decoder, (:=))
+import StartApp.Simple as StartApp
 import Json.Encode
 import Signal exposing (Address)
-
-
-main : Signal Html
-main =
-  app.html
-
-
-app : StartApp.App Model
-app =
-  StartApp.start
-    { view = view
-    , update = update
-    , init = ( initialModel, Effects.none )
-    , inputs = []
-    }
 
 
 type alias Model =
@@ -84,7 +66,12 @@ view address model =
         [ h1 [] [ text "ElmHub" ]
         , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
         ]
-    , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
+    , input
+        [ class "search-query"
+          -- TODO when we receive onInput, set the query in the model
+        , defaultValue model.query
+        ]
+        []
     , button [ class "search-button" ] [ text "Search" ]
     , ul
         [ class "results" ]
@@ -92,6 +79,7 @@ view address model =
     ]
 
 
+onInput : Address Action -> (String -> Action) -> Attribute
 onInput address wrap =
   on "input" targetValue (\val -> Signal.message address (wrap val))
 
@@ -106,9 +94,7 @@ viewSearchResult address result =
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
     , a
-        [ href ("https://github.com/" ++ result.name)
-        , target "_blank"
-        ]
+        [ href ("https://github.com/" ++ result.name), target "_blank" ]
         [ text result.name ]
     , button
         -- TODO add an onClick handler that sends a DeleteById action
@@ -122,8 +108,16 @@ type Action
   | DeleteById ResultId
 
 
-update : Action -> Model -> ( Model, Effects Action )
+update : Action -> Model -> Model
 update action model =
   -- TODO write a case-expression that makes SetQuery set the query
   -- and DeleteById delete the appropriate result
-  ( model, Effects.none )
+  model
+
+
+main =
+  StartApp.start
+    { view = view
+    , update = update
+    , model = initialModel
+    }
