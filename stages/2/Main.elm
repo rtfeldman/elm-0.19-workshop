@@ -85,9 +85,7 @@ viewSearchResult address result =
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
     , a
-        [ href ("https://github.com/" ++ result.name)
-        , target "_blank"
-        ]
+        [ href ("https://github.com/" ++ result.name), target "_blank" ]
         [ text result.name ]
     , button
         -- TODO add an onClick handler that sends a DELETE_BY_ID action

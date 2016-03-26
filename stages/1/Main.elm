@@ -2,16 +2,10 @@ module Main (..) where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import StartApp.Simple as StartApp
-import Signal exposing (Address)
 
 
 main =
-  StartApp.start
-    { view = view
-    , update = update
-    , model = initialModel
-    }
+  view model
 
 
 type alias Model =
@@ -35,8 +29,8 @@ type alias ResultId =
 {- See https://developer.github.com/v3/search/#example -}
 
 
-initialModel : Model
-initialModel =
+model : Model
+model =
   { query = "tutorial"
   , results =
       [ { id = 1
@@ -63,14 +57,14 @@ initialModel =
   }
 
 
-view : Address Action -> Model -> Html
-view address model =
+view : Model -> Html
+view model =
   div
     [ class "content" ]
     [ header
         []
-        [ -- TODO add the equivalent of <h1>ElmHub</h1> right before the tagline
-          span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
+        [ h1 [] [ text "ElmHub" ]
+        , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
         ]
     , ul
         [ class "results" ]
@@ -83,17 +77,8 @@ viewSearchResult result =
   li
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
-      -- TODO replace the following with a link to the appropriate GitHub repo.
+    , a
+        [ href ("https://github.com/" ++ result.name), target "_blank" ]
+        [ text result.name ]
     , text result.name
     ]
-
-
-type alias Action =
-  { actionType : String
-  , payload : Int
-  }
-
-
-update : Action -> Model -> Model
-update action model =
-  model
