@@ -110,8 +110,8 @@ type Action
 
 update : Action -> Model -> Model
 update action model =
-  -- TODO write a case-expression that makes SetQuery set the query
-  -- and DeleteById delete the appropriate result
+  -- TODO if we get a SetQuery action, use it to set the model's query field,
+  -- and if we get a DeleteById action, delete the appropriate result
   model
 
 
