@@ -97,7 +97,7 @@ view address model =
         , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
         ]
     , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
-    , button [ class "search-button", onClick address Search ] [ text "Search" ]
+    , button [ class "search-button" {- TODO on click, run a search -} ] [ text "Search" ]
     , ul
         [ class "results" ]
         (List.map (viewSearchResult address) model.results)
@@ -137,7 +137,7 @@ update : Action -> Model -> ( Model, Effects Action )
 update action model =
   case action of
     Search ->
-      ( model, Effects.task (searchFeed model.query) )
+      ( model, Effects.none {- TODO use searchFeed to run a search -} )
 
     SetQuery query ->
       ( { model | query = query }, Effects.none )
