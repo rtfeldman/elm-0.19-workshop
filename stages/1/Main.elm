@@ -30,6 +30,10 @@ type alias ResultId =
   Int
 
 
+
+{- See https://developer.github.com/v3/search/#example -}
+
+
 initialModel : Model
 initialModel =
   { query = "tutorial"
@@ -58,13 +62,14 @@ initialModel =
   }
 
 
-view address model =
+view : Address Action -> Model -> Html
+view model =
   div
     [ class "content" ]
     [ header
         []
-        [ h1 [] [ text "ElmHub" ]
-        , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
+        [ -- TODO add the equivalent of <h1>ElmHub</h1> right before the tagline
+          span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
         ]
     , ul
         [ class "results" ]
@@ -72,14 +77,11 @@ view address model =
     ]
 
 
+viewSearchResult : SearchResult -> Html
 viewSearchResult result =
   li
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
-      -- TODO replace the following span with a link that opens in a new window!
+      -- TODO replace the following with a link that opens in a new window!
     , text result.name
     ]
-
-
-update action model =
-  model

@@ -4,10 +4,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import StartApp.Simple as StartApp
-import Task exposing (Task)
-import Effects exposing (Effects)
-import Json.Decode exposing (Decoder, (:=))
-import Json.Encode
 import Signal exposing (Address)
 
 
