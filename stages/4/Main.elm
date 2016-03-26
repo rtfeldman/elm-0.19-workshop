@@ -155,8 +155,7 @@ update action model =
     HideById idToHide ->
       let
         newResults =
-          model.results
-            |> List.filter (\{ id } -> id /= idToHide)
+          List.filter (\{ id } -> id /= idToHide) model.results
 
         newModel =
           { model | results = newResults }

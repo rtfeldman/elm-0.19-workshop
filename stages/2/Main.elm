@@ -91,26 +91,19 @@ viewSearchResult address result =
         ]
         [ text result.name ]
     , button
-        -- TODO add an onClick handler that sends a HideById action
+        -- TODO add an onClick handler that sends a HIDE_BY_ID action
         [ class "hide-result" ]
         [ text "X" ]
     ]
 
 
 type alias Action =
-  { actionType : String
-  , payload : Int
+  { -- TODO implement this type alias
   }
 
 
 update : Action -> Model -> Model
 update action model =
-  if action.actionType == "HIDE_BY_ID" then
-    let
-      -- TODO build a new model without the given ID present anymore.
-      newModel =
-        model
-    in
-      newModel
-  else
-    model
+  -- TODO if we receive a HIDE_BY_ID action,
+  -- build a new model without the given ID present anymore.
+  model
