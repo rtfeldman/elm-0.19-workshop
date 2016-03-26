@@ -38,7 +38,6 @@ view address model =
         [ span [ class "star-count" ] [ text (toString model.stars) ]
         , a
             [ href ("https://github.com/" ++ model.name)
-            , class "result-name"
             , target "_blank"
             ]
             [ text model.name ]

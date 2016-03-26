@@ -107,7 +107,6 @@ viewSearchResult address result =
     [ span [ class "star-count" ] [ text (toString result.stars) ]
     , a
         [ href ("https://github.com/" ++ result.name)
-        , class "result-name"
         , target "_blank"
         ]
         [ text result.name ]
