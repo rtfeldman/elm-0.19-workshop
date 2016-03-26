@@ -7,7 +7,7 @@ Getting Started
 
 2. Add an [editor plugin](http://elm-lang.org/install#syntax-highlighting) for your editor of choice.
 
-3. Not required, but **highly** recommended: [install elm-format](https://github.com/avh4/elm-format#installation-) and integrate it into your editor so that it runs on save. (This one takes awhile to install!)
+3. Not required, but **highly** recommended: [install elm-format](https://github.com/avh4/elm-format#installation-) and integrate it into your editor so that it runs on save.
 
 4. Run the following command to install everything else:
 
