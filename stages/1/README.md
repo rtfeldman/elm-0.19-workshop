@@ -4,7 +4,7 @@ Stage 1
 ## Installation
 
 ```bash
-$ elm package install
+elm package install
 ```
 
 (Answer `y` at the prompt. In rare cases a known issue can cause the download
@@ -13,5 +13,5 @@ to fail; in that case, just run `elm package install` again.)
 ## Building
 
 ```bash
-$ elm live Main.elm --open -- --output=elm.js
+elm live Main.elm --open -- --output=elm.js
 ```

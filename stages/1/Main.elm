@@ -4,11 +4,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import StartApp.Simple as StartApp
-import Task exposing (Task)
-import Effects exposing (Effects)
-import Json.Decode exposing (Decoder, (:=))
-import Json.Encode
-import Signal exposing (Address)
 
 
 main =
@@ -78,13 +73,12 @@ view address model =
     ]
 
 
-viewSearchResult : SearchResult -> Html
 viewSearchResult result =
   li
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
       -- TODO replace the following span with a link that opens in a new window!
-    , span [ class "result-name" ] [ text result.name ]
+    , text result.name
     ]
 
 
