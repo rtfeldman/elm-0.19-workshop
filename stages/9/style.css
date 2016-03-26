@@ -40,15 +40,15 @@ h1 {
 
 .star-count {
   font-weight: bold;
+  margin-right: 16px;
 }
 
-.result-name {
+a {
   color: rgb(96, 181, 204);
-  margin-left: 16px;
   text-decoration: none;
 }
 
-.result-name:hover{
+a:hover {
   text-decoration: underline;
 }
 
@@ -88,19 +88,4 @@ h1 {
 
 button:focus, input:focus {
   outline: none;
-}
-
-.expand-result {
-  padding: 4px 8px;
-  font-size: 16px;
-  color: white;
-  border: 1px solid #ccc;
-  background-color: rgb(96, 181, 204);
-  margin-left: 12px;
-  cursor: pointer;
-}
-
-.expand-result:hover {
-  color: rgb(96, 181, 204);
-  background-color: white;
 }

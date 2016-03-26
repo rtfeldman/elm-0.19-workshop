@@ -2,6 +2,7 @@ module Main (..) where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import StartApp.Simple as StartApp
 
 

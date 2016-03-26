@@ -40,15 +40,15 @@ h1 {
 
 .star-count {
   font-weight: bold;
+  margin-right: 16px;
 }
 
-.result-name {
+a {
   color: rgb(96, 181, 204);
-  margin-left: 16px;
   text-decoration: none;
 }
 
-.result-name:hover{
+a:hover {
   text-decoration: underline;
 }
 
