@@ -5,9 +5,11 @@ Getting Started
 
 1. Install [Node.js](http://nodejs.org) 4.0.0 or higher
 
-2. Not required, but **highly** recommended: [install elm-format](https://github.com/avh4/elm-format#installation-) and integrate it into your editor so that it runs on save.
+2. Add an [editor plugin](http://elm-lang.org/install#syntax-highlighting) for your editor of choice.
 
-3. Run the following command to install everything else:
+3. Not required, but **highly** recommended: [install elm-format](https://github.com/avh4/elm-format#installation-) and integrate it into your editor so that it runs on save.
+
+4. Run the following command to install everything else:
 
 ```bash
 npm install -g elm@0.16.0 elm-live@2.0.4 elm-test@0.16.1-alpha3 elm-css@0.4.0
