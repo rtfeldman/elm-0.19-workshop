@@ -1,15 +1,19 @@
 Getting Started
 ===============
 
-## Install Nodejs 4.0.0 or higher
+## Installation
 
-http://nodejs.org
+1. Install [Node.js](http://nodejs.org) 4.0.0 or higher
 
-## Install Elm
+2. Not required, but **highly** recommended: [install elm-format](https://github.com/avh4/elm-format#installation-) and integrate it into your editor so that it runs on save.
 
-Visit http://elm-lang.org/install to get set up.
+3. Run the following command to install everything else:
 
-Not required, but **highly** recommended: [install elm-format](https://github.com/avh4/elm-format#installation-) and integrate it into your editor so that it runs on save.
+```bash
+npm install -g elm@0.16.0 elm-live@2.0.4 elm-test@0.16.1-alpha3 elm-css@0.4.0
+```
+
+This command could take several minutes to complete.
 
 ## Clone this repository
 
@@ -19,16 +23,6 @@ Run this at the terminal:
 git clone https://github.com/rtfeldman/elm-workshop.git
 cd elm-workshop
 ```
-
-## Install supporting tools
-
-Run this at the terminal:
-
-```bash
-npm install -g elm-live@2.0.4 elm-test@0.16.1-alpha3 elm-css@0.4.0
-```
-
-This could take several minutes.
 
 ## Start with Stage 1
 
