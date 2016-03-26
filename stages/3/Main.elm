@@ -111,7 +111,7 @@ viewSearchResult address result =
         ]
         [ text result.name ]
     , button
-        -- TODO add an onClick handler that sends a HideById action
+        -- TODO add an onClick handler that sends a DeleteById action
         [ class "hide-result" ]
         [ text "X" ]
     ]
@@ -119,19 +119,11 @@ viewSearchResult address result =
 
 type Action
   = SetQuery String
-  | HideById ResultId
+  | DeleteById ResultId
 
 
 update : Action -> Model -> ( Model, Effects Action )
 update action model =
-  case action of
-    SetQuery query ->
-      ( { model | query = query }, Effects.none )
-
-    HideById idToHide ->
-      let
-        -- TODO build a new model without the given ID present anymore.
-        newModel =
-          model
-      in
-        ( newModel, Effects.none )
+  -- TODO write a case-expression that makes SetQuery set the query
+  -- and DeleteById delete the appropriate result
+  ( model, Effects.none )

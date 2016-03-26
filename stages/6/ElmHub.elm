@@ -101,7 +101,7 @@ viewSearchResult address result =
         ]
         [ text result.name ]
     , button
-        [ class "hide-result", onClick address (HideById result.id) ]
+        [ class "hide-result", onClick address (DeleteById result.id) ]
         [ text "X" ]
     ]
 
@@ -109,7 +109,7 @@ viewSearchResult address result =
 type Action
   = Search
   | SetQuery String
-  | HideById ResultId
+  | DeleteById ResultId
   | SetResults (List SearchResult)
 
 
@@ -129,7 +129,7 @@ update action model =
       in
         ( newModel, Effects.none )
 
-    HideById idToHide ->
+    DeleteById idToHide ->
       let
         newResults =
           model.results
