@@ -2,17 +2,6 @@ module Main (..) where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
-import StartApp.Simple as StartApp
-import Signal exposing (Address)
-
-
-main =
-  StartApp.start
-    { view = view
-    , update = update
-    , model = initialModel
-    }
 
 
 type alias Model =
@@ -32,12 +21,9 @@ type alias ResultId =
   Int
 
 
-
-{- See https://developer.github.com/v3/search/#example -}
-
-
-initialModel : Model
-initialModel =
+{-| TODO add a type annotation to this function
+-}
+model =
   { query = "tutorial"
   , results =
       [ { id = 1
@@ -64,8 +50,9 @@ initialModel =
   }
 
 
-view : Address Action -> Model -> Html
-view address model =
+{-| TODO add a type annotation to this function
+-}
+view model =
   div
     [ class "content" ]
     [ header
@@ -75,32 +62,24 @@ view address model =
         ]
     , ul
         [ class "results" ]
-        (List.map (viewSearchResult address) model.results)
+        [{- TODO use model.results and viewSearchResults to display results -}]
     ]
 
 
-viewSearchResult : Address Action -> SearchResult -> Html
-viewSearchResult address result =
+{-| TODO add a type annotation to this function
+-}
+viewSearchResult result =
   li
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
     , a
         [ href ("https://github.com/" ++ result.name), target "_blank" ]
         [ text result.name ]
-    , button
-        -- TODO add an onClick handler that sends a DELETE_BY_ID action
-        [ class "hide-result" ]
-        [ text "X" ]
+    , text result.name
     ]
 
 
-type alias Action =
-  { -- TODO implement this type alias
-  }
-
-
-update : Action -> Model -> Model
-update action model =
-  -- TODO if we receive a DELETE_BY_ID action,
-  -- build a new model without the given ID present anymore.
-  model
+{-| TODO add a type annotation to this function
+-}
+main =
+  view model

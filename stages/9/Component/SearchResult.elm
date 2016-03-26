@@ -26,12 +26,8 @@ type Action
 
 update : Action -> Model -> ( Model, Effects Action )
 update action model =
-  case action of
-    Expand ->
-      ( { model | expanded = True }, Effects.none )
-
-    Collapse ->
-      ( { model | expanded = False }, Effects.none )
+  -- TODO make expand and collapse work
+  ( model, Effects.none )
 
 
 view : Address Action -> Model -> Html
@@ -46,11 +42,13 @@ view address model =
             ]
             [ text model.name ]
         , button
-            [ class "hide-result", onClick address Collapse ]
+            -- TODO when the user clicks, send a Collapse action
+            [ class "hide-result" ]
             [ text "X" ]
         ]
        else
         [ button
-            [ class "expand-result", onClick address Expand ]
+            -- TODO when the user clicks, send an Expand action
+            [ class "expand-result" ]
             [ text "Show" ]
         ]

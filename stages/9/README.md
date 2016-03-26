@@ -16,8 +16,10 @@ to fail; in that case, just run `elm package install` again.)
 elm live Main.elm --open -- --output=elm.js
 ```
 
-## Compiling CSS
+## Running Tests
 
 ```bash
-elm test css/Stylesheets.elm
+cd test
+elm package install
+elm test TestRunner.elm
 ```

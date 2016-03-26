@@ -40,7 +40,7 @@ all =
                 ]
               )
     , (claim "they can decode individual search results"
-        `that` ({- TODO call encodeAndDecode -})
+        `that` (\( id, name, stars ) -> encodeAndDecode id name stars)
         `is` (\( id, name, stars ) -> Ok (SearchResult id name stars))
         `for` tuple3 ( int, string, int )
       )
@@ -51,13 +51,13 @@ all =
 
 encodeAndDecode : Int -> String -> Int -> Result String SearchResult
 encodeAndDecode id name stars =
-  -- TODO: finish turning this into a JSON String,
-  -- then Decode it with searchResultDecoder
   [ ( "id", Encode.int id )
   , ( "full_name", Encode.string name )
   , ( "stargazers_count", Encode.int stars )
   ]
     |> Encode.object
+    |> Encode.encode 0
+    |> Decode.decodeString searchResultDecoder
 
 
 defaultSeed =

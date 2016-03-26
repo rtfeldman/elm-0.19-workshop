@@ -3,26 +3,15 @@ module Main (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import StartApp
-import Task exposing (Task)
-import Effects exposing (Effects)
-import Json.Decode exposing (Decoder, (:=))
-import Json.Encode
+import StartApp.Simple as StartApp
 import Signal exposing (Address)
 
 
-main : Signal Html
 main =
-  app.html
-
-
-app : StartApp.App Model
-app =
   StartApp.start
     { view = view
     , update = update
-    , init = ( initialModel, Effects.none )
-    , inputs = []
+    , model = initialModel
     }
 
 
@@ -41,10 +30,6 @@ type alias SearchResult =
 
 type alias ResultId =
   Int
-
-
-
-{- See https://developer.github.com/v3/search/#example -}
 
 
 initialModel : Model
@@ -84,20 +69,10 @@ view address model =
         [ h1 [] [ text "ElmHub" ]
         , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
         ]
-    , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
-    , button [ class "search-button" ] [ text "Search" ]
     , ul
         [ class "results" ]
         (List.map (viewSearchResult address) model.results)
     ]
-
-
-onInput address wrap =
-  on "input" targetValue (\val -> Signal.message address (wrap val))
-
-
-defaultValue str =
-  property "defaultValue" (Json.Encode.string str)
 
 
 viewSearchResult : Address Action -> SearchResult -> Html
@@ -106,24 +81,22 @@ viewSearchResult address result =
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
     , a
-        [ href ("https://github.com/" ++ result.name)
-        , target "_blank"
-        ]
+        [ href ("https://github.com/" ++ result.name), target "_blank" ]
         [ text result.name ]
     , button
-        -- TODO add an onClick handler that sends a DeleteById action
+        -- TODO add an onClick handler that sends a DELETE_BY_ID action
         [ class "hide-result" ]
         [ text "X" ]
     ]
 
 
-type Action
-  = SetQuery String
-  | DeleteById ResultId
+type alias Action =
+  { -- TODO implement this type alias
+  }
 
 
-update : Action -> Model -> ( Model, Effects Action )
+update : Action -> Model -> Model
 update action model =
-  -- TODO write a case-expression that makes SetQuery set the query
-  -- and DeleteById delete the appropriate result
-  ( model, Effects.none )
+  -- TODO if we receive a DELETE_BY_ID action,
+  -- build a new model without the given ID present anymore.
+  model

@@ -1,4 +1,4 @@
-Stage 2
+Stage 1
 =======
 
 ## Installation
