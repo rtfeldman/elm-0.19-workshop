@@ -3,6 +3,7 @@ module Main (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import StartApp.Simple as StartApp
+import Signal exposing (Address)
 
 
 main =
@@ -63,7 +64,7 @@ initialModel =
 
 
 view : Address Action -> Model -> Html
-view model =
+view address model =
   div
     [ class "content" ]
     [ header
@@ -82,6 +83,17 @@ viewSearchResult result =
   li
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
-      -- TODO replace the following with a link that opens in a new window!
+      -- TODO replace the following with a link to the appropriate GitHub repo.
     , text result.name
     ]
+
+
+type alias Action =
+  { actionType : String
+  , payload : Int
+  }
+
+
+update : Action -> Model -> Model
+update action model =
+  model
