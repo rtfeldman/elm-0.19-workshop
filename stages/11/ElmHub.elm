@@ -1,4 +1,4 @@
-module Component.ElmHub (..) where
+module ElmHub (..) where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -10,7 +10,8 @@ import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
 import Json.Encode
 import Signal exposing (Address)
-import Component.SearchResult exposing (ResultId)
+import Dict exposing (Dict)
+import SearchResult
 
 
 searchFeed : String -> Task x Action
@@ -20,7 +21,7 @@ searchFeed query =
     url =
       "https://api.github.com/search/repositories?q="
         ++ query
-        ++ "+language:elm&sort=stars&order=desc"
+        ++ "+language:elm"
 
     task =
       Http.get responseDecoder url
@@ -29,31 +30,21 @@ searchFeed query =
     Task.onError task (\_ -> Task.succeed (SetResults []))
 
 
-responseDecoder : Decoder (List Component.SearchResult.Model)
+responseDecoder : Decoder (List SearchResult.Model)
 responseDecoder =
-  "items" := Json.Decode.list searchResultDecoder
-
-
-searchResultDecoder : Decoder Component.SearchResult.Model
-searchResultDecoder =
-  Json.Decode.object4
-    Component.SearchResult.Model
-    ("id" := Json.Decode.int)
-    ("full_name" := Json.Decode.string)
-    ("stargazers_count" := Json.Decode.int)
-    (Json.Decode.succeed True)
+  "items" := Json.Decode.list SearchResult.decoder
 
 
 type alias Model =
   { query : String
-  , results : List Component.SearchResult.Model
+  , results : Dict SearchResult.ResultId SearchResult.Model
   }
 
 
 initialModel : Model
 initialModel =
   { query = "tutorial"
-  , results = []
+  , results = Dict.empty
   }
 
 
@@ -74,22 +65,24 @@ view address model =
     ]
 
 
-viewSearchResults : Address Action -> List Component.SearchResult.Model -> List Html
+viewSearchResults : Address Action -> Dict SearchResult.ResultId SearchResult.Model -> List Html
 viewSearchResults address results =
   results
+    |> Dict.values
+    |> List.sortBy (.stars >> negate)
     |> filterResults
-    |> List.map (lazy2 viewSearchResult address)
+    |> List.map (lazy3 SearchResult.view address DeleteById)
 
 
-filterResults : List Component.SearchResult.Model -> List Component.SearchResult.Model
+filterResults : List SearchResult.Model -> List SearchResult.Model
 filterResults results =
   case results of
     [] ->
       []
 
-    first :: rest ->
-      if first.stars > 0 then
-        first :: (filterResults rest)
+    result :: rest ->
+      if result.stars > 0 then
+        result :: (filterResults rest)
       else
         filterResults rest
 
@@ -102,18 +95,11 @@ defaultValue str =
   property "defaultValue" (Json.Encode.string str)
 
 
-viewSearchResult : Address Action -> Component.SearchResult.Model -> Html
-viewSearchResult address result =
-  Component.SearchResult.view
-    (Signal.forwardTo address (UpdateSearchResult result.id))
-    (Debug.log "rendering result..." result)
-
-
 type Action
   = Search
   | SetQuery String
-  | SetResults (List Component.SearchResult.Model)
-  | UpdateSearchResult ResultId Component.SearchResult.Action
+  | DeleteById SearchResult.ResultId
+  | SetResults (List SearchResult.Model)
 
 
 update : Action -> Model -> ( Model, Effects Action )
@@ -127,31 +113,17 @@ update action model =
 
     SetResults results ->
       let
+        resultsById : Dict SearchResult.ResultId SearchResult.Model
+        resultsById =
+          results
+            |> List.map (\result -> ( result.id, result ))
+            |> Dict.fromList
+      in
+        ( { model | results = resultsById }, Effects.none )
+
+    DeleteById id ->
+      let
         newModel =
-          { model | results = results }
+          { model | results = Dict.remove id model.results }
       in
         ( newModel, Effects.none )
-
-    UpdateSearchResult id childAction ->
-      let
-        updateResult childModel =
-          if childModel.id == id then
-            let
-              ( newChildModel, childEffects ) =
-                Component.SearchResult.update childAction childModel
-            in
-              ( newChildModel
-              , Effects.map (UpdateSearchResult id) childEffects
-              )
-          else
-            ( childModel, Effects.none )
-
-        ( newResults, effects ) =
-          model.results
-            |> List.map updateResult
-            |> List.unzip
-
-        newModel =
-          { model | results = newResults }
-      in
-        ( newModel, Effects.batch effects )
