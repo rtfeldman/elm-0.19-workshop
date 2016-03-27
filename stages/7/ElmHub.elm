@@ -11,8 +11,8 @@ import Json.Encode
 import Signal exposing (Address)
 
 
-searchFeed : String -> Task x Action
-searchFeed query =
+searchFeed : Address String -> String -> Task x Action
+searchFeed address query =
   let
     -- See https://developer.github.com/v3/search/#example for how to customize!
     url =
@@ -20,11 +20,13 @@ searchFeed query =
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
 
+    -- These only talk to JavaScript ports now. They don't
+    -- actually do any actions themselves.
     task =
-      Http.get responseDecoder url
-        |> Task.map SetResults
+      Signal.send address query
+        |> Task.map (\_ -> DoNothing)
   in
-    Task.onError task (\_ -> Task.succeed (SetResults []))
+    Task.onError task (\_ -> Task.succeed DoNothing)
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -109,13 +111,14 @@ type Action
   | SetQuery String
   | DeleteById ResultId
   | SetResults (List SearchResult)
+  | DoNothing
 
 
-update : Action -> Model -> ( Model, Effects Action )
-update action model =
+update : Address String -> Action -> Model -> ( Model, Effects Action )
+update searchAddress action model =
   case action of
     Search ->
-      ( model, Effects.task (searchFeed model.query) )
+      ( model, Effects.task (searchFeed searchAddress model.query) )
 
     SetQuery query ->
       ( { model | query = query }, Effects.none )
@@ -137,3 +140,6 @@ update action model =
           { model | results = newResults }
       in
         ( newModel, Effects.none )
+
+    DoNothing ->
+      ( model, Effects.none )
