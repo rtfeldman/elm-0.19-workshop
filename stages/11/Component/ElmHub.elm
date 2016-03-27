@@ -82,21 +82,16 @@ viewSearchResults address results =
 
 
 filterResults : List Component.SearchResult.Model -> List Component.SearchResult.Model
-filterResults =
-  filterResultsHelp []
-
-
-filterResultsHelp : List Component.SearchResult.Model -> List Component.SearchResult.Model -> List Component.SearchResult.Model
-filterResultsHelp output results =
+filterResults results =
   case results of
     [] ->
-      output
+      []
 
     first :: rest ->
       if first.stars > 0 then
-        filterResultsHelp (first :: output) rest
+        first :: (filterResults rest)
       else
-        filterResultsHelp output rest
+        filterResults rest
 
 
 onInput address wrap =
@@ -111,7 +106,7 @@ viewSearchResult : Address Action -> Component.SearchResult.Model -> Html
 viewSearchResult address result =
   Component.SearchResult.view
     (Signal.forwardTo address (UpdateSearchResult result.id))
-    result
+    (Debug.log "rendering result..." result)
 
 
 type Action

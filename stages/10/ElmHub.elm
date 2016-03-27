@@ -3,7 +3,6 @@ module ElmHub (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Html.Lazy exposing (..)
 import Http
 import Task exposing (Task)
 import Effects exposing (Effects)
@@ -33,7 +32,8 @@ searchFeed query =
 responseDecoder : Decoder (List SearchResult.Model)
 responseDecoder =
   -- TODO use SearchResult's decoder
-  Json.Decode.succeed []
+  --Json.Decode.succeed []
+  ("items" := Json.Decode.list SearchResult.decoder)
 
 
 type alias Model =
@@ -71,7 +71,15 @@ viewSearchResults address results =
   results
     |> Dict.values
     |> List.sortBy (.stars >> negate)
-    |> List.map (SearchResult.view address)
+    |> filterResults
+    |> List.map (SearchResult.view address DeleteById)
+
+
+filterResults : List SearchResult.Model -> List SearchResult.Model
+filterResults results =
+  -- TODO filter out repos with 0 stars
+  -- using a case-expression rather than List.filter
+  results
 
 
 onInput address wrap =

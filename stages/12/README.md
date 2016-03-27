@@ -1,4 +1,4 @@
-Stage 11
+Stage 12
 ========
 
 ## Installation
@@ -16,10 +16,8 @@ to fail; in that case, just run `elm package install` again.)
 elm live Main.elm --open -- --output=elm.js
 ```
 
-## Running Tests
+## Compiling CSS
 
 ```bash
-cd test
-elm package install
-elm test TestRunner.elm
+elm css css/Stylesheets.elm
 ```
