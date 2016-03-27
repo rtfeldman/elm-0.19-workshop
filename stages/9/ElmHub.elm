@@ -71,7 +71,7 @@ viewSearchResults address results =
   results
     |> Dict.values
     |> List.sortBy (.stars >> negate)
-    |> List.map (\_ -> div [] [ text "TODO replace this line view logic from SearchResult" ])
+    |> List.map (\_ -> div [] [ text "TODO replace this line with view logic from SearchResult" ])
 
 
 onInput address wrap =
