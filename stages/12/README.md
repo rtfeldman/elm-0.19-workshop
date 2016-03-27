@@ -15,11 +15,3 @@ to fail; in that case, just run `elm package install` again.)
 ```bash
 elm live Main.elm --open -- --output=elm.js
 ```
-
-## Running Tests
-
-```bash
-cd test
-elm package install
-elm test TestRunner.elm
-```
