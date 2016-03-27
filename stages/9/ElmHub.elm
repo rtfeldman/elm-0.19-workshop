@@ -32,7 +32,7 @@ searchFeed query =
 
 responseDecoder : Decoder (List SearchResult.Model)
 responseDecoder =
-  -- TODO use SearchResult's decoder
+  -- TODO make use of SearchResult's decoder
   Json.Decode.succeed []
 
 
@@ -71,7 +71,7 @@ viewSearchResults address results =
   results
     |> Dict.values
     |> List.sortBy (.stars >> negate)
-    |> List.map (SearchResult.view address)
+    |> List.map (\_ -> div [] [ text "TODO replace this line view logic from SearchResult" ])
 
 
 onInput address wrap =

@@ -31,9 +31,7 @@ searchFeed query =
 
 responseDecoder : Decoder (List SearchResult.Model)
 responseDecoder =
-  -- TODO use SearchResult's decoder
-  --Json.Decode.succeed []
-  ("items" := Json.Decode.list SearchResult.decoder)
+  "items" := Json.Decode.list SearchResult.decoder
 
 
 type alias Model =
