@@ -3,6 +3,7 @@ module ElmHub (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.Lazy exposing (..)
 import Http
 import Task exposing (Task)
 import Effects exposing (Effects)
@@ -88,7 +89,15 @@ viewSearchResults address results =
   results
     |> Dict.values
     |> List.sortBy (.stars >> negate)
+    |> filterResults
     |> List.map (viewSearchResult address)
+
+
+filterResults : List SearchResult -> List SearchResult
+filterResults results =
+  -- TODO filter out repos with 0 stars
+  -- using a case-expression rather than List.filter
+  []
 
 
 onInput address wrap =
@@ -105,7 +114,15 @@ viewSearchResult address result =
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
     , a
-        [ href ("https://github.com/" ++ result.name), target "_blank" ]
+        [ href
+            ("https://github.com/"
+              ++ (Debug.log "Viewing" result.name)
+             {- TODO we should no longer see this
+             console output when typing in the search box!
+             -}
+            )
+        , target "_blank"
+        ]
         [ text result.name ]
     , button
         [ class "hide-result", onClick address (DeleteById result.id) ]
