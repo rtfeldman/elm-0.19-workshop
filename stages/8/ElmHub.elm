@@ -129,9 +129,9 @@ update action model =
 
     SetResults results ->
       let
-        -- TODO convert results list into a Dict
         resultsById : Dict ResultId SearchResult
         resultsById =
+          -- TODO convert results list into a Dict
           Dict.empty
       in
         ( { model | results = resultsById }, Effects.none )
