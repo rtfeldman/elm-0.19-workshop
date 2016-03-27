@@ -19,5 +19,5 @@ elm live Main.elm --open -- --output=elm.js
 ## Compiling CSS
 
 ```bash
-elm test css/Stylesheets.elm
+elm css css/Stylesheets.elm
 ```

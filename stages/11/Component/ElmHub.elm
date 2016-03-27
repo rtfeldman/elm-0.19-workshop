@@ -3,6 +3,7 @@ module Component.ElmHub (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.Lazy exposing (..)
 import Http
 import Task exposing (Task)
 import Effects exposing (Effects)
@@ -69,8 +70,33 @@ view address model =
     , button [ class "search-button", onClick address Search ] [ text "Search" ]
     , ul
         [ class "results" ]
-        (List.map (viewSearchResult address) model.results)
+        (viewSearchResults address model.results)
     ]
+
+
+viewSearchResults : Address Action -> List Component.SearchResult.Model -> List Html
+viewSearchResults address results =
+  results
+    |> filterResults
+    |> List.map (lazy2 viewSearchResult address)
+
+
+filterResults : List Component.SearchResult.Model -> List Component.SearchResult.Model
+filterResults =
+  filterResultsHelp []
+
+
+filterResultsHelp : List Component.SearchResult.Model -> List Component.SearchResult.Model -> List Component.SearchResult.Model
+filterResultsHelp output results =
+  case results of
+    [] ->
+      output
+
+    first :: rest ->
+      if first.stars > 0 then
+        filterResultsHelp (first :: output) rest
+      else
+        filterResultsHelp output rest
 
 
 onInput address wrap =
