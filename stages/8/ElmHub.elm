@@ -9,6 +9,7 @@ import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
 import Json.Encode
 import Signal exposing (Address)
+import Dict exposing (Dict)
 
 
 searchFeed : String -> Task x Action
@@ -18,7 +19,7 @@ searchFeed query =
     url =
       "https://api.github.com/search/repositories?q="
         ++ query
-        ++ "+language:elm&sort=stars&order=desc"
+        ++ "+language:elm"
 
     task =
       Http.get responseDecoder url
@@ -43,7 +44,7 @@ searchResultDecoder =
 
 type alias Model =
   { query : String
-  , results : List SearchResult
+  , results : Dict ResultId SearchResult
   }
 
 
@@ -61,7 +62,7 @@ type alias ResultId =
 initialModel : Model
 initialModel =
   { query = "tutorial"
-  , results = []
+  , results = Dict.empty
   }
 
 
@@ -78,8 +79,14 @@ view address model =
     , button [ class "search-button", onClick address Search ] [ text "Search" ]
     , ul
         [ class "results" ]
-        (List.map (viewSearchResult address) model.results)
+        (viewSearchResults address model.results)
     ]
+
+
+viewSearchResults : Address Action -> Dict ResultId SearchResult -> List Html
+viewSearchResults address results =
+  -- TODO sort by star count and render
+  []
 
 
 onInput address wrap =
@@ -122,18 +129,13 @@ update action model =
 
     SetResults results ->
       let
-        newModel =
-          { model | results = results }
+        -- TODO convert results list into a Dict
+        resultsById : Dict ResultId SearchResult
+        resultsById =
+          Dict.empty
       in
-        ( newModel, Effects.none )
+        ( { model | results = resultsById }, Effects.none )
 
-    DeleteById idToHide ->
-      let
-        newResults =
-          model.results
-            |> List.filter (\{ id } -> id /= idToHide)
-
-        newModel =
-          { model | results = newResults }
-      in
-        ( newModel, Effects.none )
+    DeleteById id ->
+      -- TODO delete the result with the given id
+      ( model, Effects.none )
