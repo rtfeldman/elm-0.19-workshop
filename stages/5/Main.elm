@@ -40,12 +40,8 @@ searchFeed query =
       "https://api.github.com/search/repositories?q="
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
-
-    task =
-      Http.get responseDecoder url
-        |> Task.map SetResults
   in
-    Task.onError task (\_ -> Task.succeed (SetResults []))
+    performAction SetResults (\_ -> SetResults []) (Http.get responseDecoder url)
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -61,6 +57,15 @@ searchResultDecoder =
     ("TODO what field goes here?" := Json.Decode.int)
     ("TODO what field goes here?" := Json.Decode.string)
     ("TODO what field goes here?" := Json.Decode.int)
+
+
+performAction : (a -> b) -> (y -> b) -> Task y a -> Task x b
+performAction successToAction errorToAction task =
+  let
+    successTask =
+      Task.map successToAction task
+  in
+    Task.onError successTask (\err -> Task.succeed (errorToAction err))
 
 
 type alias Model =
