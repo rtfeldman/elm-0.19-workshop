@@ -1,5 +1,6 @@
 module ElmHub (..) where
 
+import Auth
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -16,7 +17,9 @@ searchFeed query =
   let
     -- See https://developer.github.com/v3/search/#example for how to customize!
     url =
-      "https://api.github.com/search/repositories?q="
+      "https://api.github.com/search/repositories?access_token="
+        ++ Auth.token
+        ++ "&q="
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
 
