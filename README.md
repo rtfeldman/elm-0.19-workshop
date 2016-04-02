@@ -49,6 +49,17 @@ token =
 still important! `Auth.elm` is in `.gitignore` to avoid accidentally checking in
 an API secret, and you should [delete this token](https://github.com/settings/tokens) when the workshop is over.
 
+
+## Verify Setup
+
+```bash
+elm package install
+```
+
+```bash
+elm live Main.elm --open --output=elm.js
+```
+
 ## Start with Part 1
 
 Run this at the terminal:
