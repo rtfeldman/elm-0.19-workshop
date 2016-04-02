@@ -33,7 +33,21 @@ the Search API, these steps can be done either on your personal GitHub account o
 
 1. Visit https://github.com/settings/tokens/new
 2. Enter "Elm Workshop" under "Token description" and leave everything else blank.
-3. Create the token and copy it into `Auth.elm`.
+3. Create the token and copy it into a new file called `Auth.elm`:
+
+*Auth.elm*
+
+```elm
+module Auth (token) where
+
+
+token =
+  -- Your token should go here instead of this sample token:
+  "abcdef1234567890abcdef1234567890abcdef12"
+```
+
+*Note:* Auth.elm is in `.gitignore` to avoid accidentally checking in an API
+secret.
 
 ## Start with Stage 1
 
