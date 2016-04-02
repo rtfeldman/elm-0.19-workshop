@@ -52,13 +52,23 @@ an API secret, and you should [delete this token](https://github.com/settings/to
 
 ## Verify Setup
 
+Run this to install packages:
+
 ```bash
 elm package install
 ```
 
+Once that succeeds, run this to verify everything:
+
 ```bash
 elm live Main.elm --open --output=elm.js
 ```
+
+A browser should open, and you should see this in it:
+
+![](https://cloud.githubusercontent.com/assets/1094080/14227327/db89d3a0-f8af-11e5-8c37-c3e8afaa9d03.png)
+
+If things aren't working, the instructor will be happy to help!
 
 ## Start with Part 1
 
