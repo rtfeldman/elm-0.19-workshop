@@ -2,12 +2,13 @@ module ElmHub (..) where
 
 import Auth
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (class, target, href, property)
 import Html.Events exposing (..)
 import Http
 import Task exposing (Task)
 import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
+import Json.Decode.Pipeline exposing (..)
 import Json.Encode
 import Signal exposing (Address)
 
@@ -37,11 +38,10 @@ responseDecoder =
 
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
-  Json.Decode.object3
-    SearchResult
-    ("id" := Json.Decode.int)
-    ("full_name" := Json.Decode.string)
-    ("stargazers_count" := Json.Decode.int)
+  decode SearchResult
+    |> required "id" Json.Decode.int
+    |> required "full_name" Json.Decode.string
+    |> required "stargazers_count" Json.Decode.int
 
 
 type alias Model =

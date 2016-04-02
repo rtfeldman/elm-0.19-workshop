@@ -9,6 +9,7 @@ import Http
 import Task exposing (Task)
 import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
+import Json.Decode.Pipeline exposing (..)
 import Json.Encode
 import Signal exposing (Address)
 
@@ -54,12 +55,12 @@ responseDecoder =
 
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
-  Json.Decode.object3
-    SearchResult
-    -- See https://developer.github.com/v3/search/#example
-    ("TODO what field goes here?" := Json.Decode.int)
-    ("TODO what field goes here?" := Json.Decode.string)
-    ("TODO what field goes here?" := Json.Decode.int)
+  -- See https://developer.github.com/v3/search/#example
+  -- TODO replace these `hardcoded` with calls to `require`
+  decode SearchResult
+    |> hardcoded 0
+    |> hardcoded ""
+    |> hardcoded 0
 
 
 performAction : (a -> b) -> (y -> b) -> Task y a -> Task x b
