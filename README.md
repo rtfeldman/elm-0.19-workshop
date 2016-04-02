@@ -35,7 +35,7 @@ the Search API, these steps can be done either on your personal GitHub account o
 2. Enter "Elm Workshop" under "Token description" and leave everything else blank.
 3. Create the token and copy it into a new file called `Auth.elm`:
 
-*Auth.elm*
+#### Auth.elm
 
 ```elm
 module Auth (token) where
