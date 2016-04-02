@@ -47,7 +47,7 @@ token =
 ```
 
 *Note:* Auth.elm is in `.gitignore` to avoid accidentally checking in an API
-secret.
+secret. To be safe, you should [delete this token](https://github.com/settings/tokens) when the workshop is over.
 
 ## Start with Part 1
 
