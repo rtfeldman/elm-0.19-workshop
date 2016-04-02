@@ -1,5 +1,5 @@
-Stage 7
-=======
+Part 7
+======
 
 ## Installation
 

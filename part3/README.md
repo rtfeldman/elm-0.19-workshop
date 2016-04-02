@@ -1,5 +1,5 @@
-Stage 3
-=======
+Part 3
+======
 
 ## Installation
 

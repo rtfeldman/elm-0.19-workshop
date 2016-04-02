@@ -1,5 +1,5 @@
-Stage 5
-=======
+Part 5
+======
 
 ## Installation
 

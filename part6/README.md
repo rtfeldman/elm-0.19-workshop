@@ -1,5 +1,5 @@
-Stage 6
-=======
+Part 6
+======
 
 ## Installation
 

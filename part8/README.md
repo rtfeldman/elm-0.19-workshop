@@ -1,5 +1,5 @@
-Stage 8
-=======
+Part 8
+======
 
 ## Installation
 
