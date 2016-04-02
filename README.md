@@ -46,8 +46,9 @@ token =
   "abcdef1234567890abcdef1234567890abcdef12"
 ```
 
-*Note:* Auth.elm is in `.gitignore` to avoid accidentally checking in an API
-secret. To be safe, you should [delete this token](https://github.com/settings/tokens) when the workshop is over.
+**Note:** Even for a token that has no permissions, good security habits are
+still important! `Auth.elm` is in `.gitignore` to avoid accidentally checking in
+an API secret, and you should [delete this token](https://github.com/settings/tokens) when the workshop is over.
 
 ## Start with Part 1
 
