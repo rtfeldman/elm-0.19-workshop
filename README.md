@@ -49,12 +49,12 @@ token =
 *Note:* Auth.elm is in `.gitignore` to avoid accidentally checking in an API
 secret.
 
-## Start with Stage 1
+## Start with Part 1
 
 Run this at the terminal:
 
 ```bash
-cd stages/1
+cd part1
 ```
 
-Now head over to the [README for stage 1](https://github.com/rtfeldman/elm-workshop/tree/master/stages/1)!
+Now head over to the [README for Part 1](https://github.com/rtfeldman/elm-workshop/tree/master/part1)!

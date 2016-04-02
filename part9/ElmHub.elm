@@ -5,6 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Lazy exposing (..)
 import Http
+import Auth
 import Task exposing (Task)
 import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
@@ -19,9 +20,11 @@ searchFeed query =
   let
     -- See https://developer.github.com/v3/search/#example for how to customize!
     url =
-      "https://api.github.com/search/repositories?q="
+      "https://api.github.com/search/repositories?access_token="
+        ++ Auth.token
+        ++ "&q="
         ++ query
-        ++ "+language:elm"
+        ++ "+language:elm&sort=stars&order=desc"
 
     task =
       Http.get responseDecoder url

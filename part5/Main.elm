@@ -3,6 +3,7 @@ module Main (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Auth
 import StartApp
 import Http
 import Task exposing (Task)
@@ -37,7 +38,9 @@ searchFeed query =
   let
     -- See https://developer.github.com/v3/search/#example for how to customize!
     url =
-      "https://api.github.com/search/repositories?q="
+      "https://api.github.com/search/repositories?access_token="
+        ++ Auth.token
+        ++ "&q="
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
   in

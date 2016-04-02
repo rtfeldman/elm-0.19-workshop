@@ -2,6 +2,7 @@ module Main (..) where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Auth
 
 
 type alias Model =

@@ -3,6 +3,7 @@ module Main (..) where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Auth
 import StartApp.Simple as StartApp
 import Signal exposing (Address)
 
