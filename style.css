@@ -90,3 +90,9 @@ a:hover {
 button:focus, input:focus {
   outline: none;
 }
+
+.error {
+  background-color: #FF9632;
+  padding: 20px;
+  box-sizing: border-box;
+}

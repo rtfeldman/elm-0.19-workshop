@@ -37,7 +37,7 @@ responseDecoder =
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
   decode SearchResult
-    |> required "id" Json.Decode.int
+    |> required "idaa" Json.Decode.int
     |> required "full_name" Json.Decode.string
     |> required "stargazers_count" Json.Decode.int
 
@@ -56,7 +56,7 @@ performAction successToAction errorToAction task =
 type alias Model =
   { query : String
   , results : List SearchResult
-  , errorMessage : String
+  , errorMessage : Maybe String
   }
 
 
@@ -75,7 +75,7 @@ initialModel : Model
 initialModel =
   { query = "tutorial"
   , results = []
-  , errorMessage = ""
+  , errorMessage = Nothing
   }
 
 
@@ -90,10 +90,21 @@ view address model =
         ]
     , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
     , button [ class "search-button", onClick address Search ] [ text "Search" ]
+    , viewErrorMessage model.errorMessage
     , ul
         [ class "results" ]
         (List.map (viewSearchResult address) model.results)
     ]
+
+
+viewErrorMessage : Maybe String -> Html
+viewErrorMessage errorMessage =
+  case errorMessage of
+    Just message ->
+      div [ class "error" ] [ text message ]
+
+    Nothing ->
+      text ""
 
 
 onInput address wrap =
@@ -132,16 +143,20 @@ update action model =
     Search ->
       ( model, Effects.task (searchFeed model.query) )
 
-    HandleSearchResponse response ->
-      -- TODO update the model to incorporate these search results.
-      -- Hint: where would you look to find out the type of `response` here?
-      ( model, Effects.none )
+    HandleSearchResponse results ->
+      ( { model | results = results }, Effects.none )
 
     HandleSearchError error ->
-      -- TODO if decoding failed, store the message in model.errorMessage
-      -- Hint: look for "decode" in the documentation for this union type:
-      -- http://package.elm-lang.org/packages/evancz/elm-http/3.0.0/Http#Error
-      ( model, Effects.none )
+      let
+        errorMessage =
+          case error of
+            Http.UnexpectedPayload message ->
+              Just message
+
+            _ ->
+              Nothing
+      in
+        ( { model | errorMessage = errorMessage }, Effects.none )
 
     SetQuery query ->
       ( { model | query = query }, Effects.none )
