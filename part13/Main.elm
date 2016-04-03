@@ -1,7 +1,7 @@
 module Main (..) where
 
 import StartApp
-import Component.ElmHub exposing (..)
+import ElmHub exposing (..)
 import Effects exposing (Effects)
 import Task exposing (Task)
 import Html exposing (Html)
