@@ -16,19 +16,17 @@ import Signal exposing (Address)
 searchFeed : String -> Task x Action
 searchFeed query =
   let
-    -- See https://developer.github.com/v3/search/#example for how to customize!
     url =
       "https://api.github.com/search/repositories?access_token="
         ++ Auth.token
         ++ "&q="
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
-
-    task =
-      Http.get responseDecoder url
-        |> Task.map SetResults
   in
-    Task.onError task (\_ -> Task.succeed (SetResults []))
+    performAction
+      (\response -> HandleSearchResponse response)
+      (\error -> HandleSearchError error)
+      (Http.get responseDecoder url)
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -44,9 +42,21 @@ searchResultDecoder =
     |> required "stargazers_count" Json.Decode.int
 
 
+{-| Note: this will be a standard function in Elm 0.17
+-}
+performAction : (a -> b) -> (y -> b) -> Task y a -> Task x b
+performAction successToAction errorToAction task =
+  let
+    successTask =
+      Task.map successToAction task
+  in
+    Task.onError successTask (\err -> Task.succeed (errorToAction err))
+
+
 type alias Model =
   { query : String
   , results : List SearchResult
+  , errorMessage : String
   }
 
 
@@ -65,6 +75,7 @@ initialModel : Model
 initialModel =
   { query = "tutorial"
   , results = []
+  , errorMessage = ""
   }
 
 
@@ -111,7 +122,8 @@ type Action
   = Search
   | SetQuery String
   | DeleteById ResultId
-  | SetResults (List SearchResult)
+  | HandleSearchResponse (List SearchResult)
+  | HandleSearchError Http.Error
 
 
 update : Action -> Model -> ( Model, Effects Action )
@@ -120,15 +132,19 @@ update action model =
     Search ->
       ( model, Effects.task (searchFeed model.query) )
 
+    HandleSearchResponse response ->
+      -- TODO update the model to incorporate these search results.
+      -- Hint: where would you look to find out the type of `response` here?
+      ( model, Effects.none )
+
+    HandleSearchError error ->
+      -- TODO if decoding failed, store the message in model.errorMessage
+      -- Hint: look for "decode" in the documentation for this union type:
+      -- http://package.elm-lang.org/packages/evancz/elm-http/3.0.0/Http#Error
+      ( model, Effects.none )
+
     SetQuery query ->
       ( { model | query = query }, Effects.none )
-
-    SetResults results ->
-      let
-        newModel =
-          { model | results = results }
-      in
-        ( newModel, Effects.none )
 
     DeleteById idToHide ->
       let
