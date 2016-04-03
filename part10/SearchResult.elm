@@ -22,7 +22,7 @@ type alias Model =
 
 decoder : Decoder Model
 decoder =
-  decode SearchResult
+  decode Model
     |> required "id" Json.Decode.int
     |> required "full_name" Json.Decode.string
     |> required "stargazers_count" Json.Decode.int
