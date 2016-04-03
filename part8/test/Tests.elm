@@ -32,4 +32,20 @@ all =
                 , { id = 3, name = "bar", stars = 77 }
                 ]
               )
+    , test "they result in an error for invalid JSON"
+        <| let
+            response =
+              """{ "pizza": [] }"""
+
+            isErrorResult result =
+              case result of
+                Ok _ ->
+                  False
+
+                Err _ ->
+                  True
+           in
+            assertEqual
+              True
+              (isErrorResult (decodeString responseDecoder response))
     ]

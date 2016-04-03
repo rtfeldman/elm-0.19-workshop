@@ -45,5 +45,5 @@ all =
            in
             assertEqual
               True
-              (isError (decodeString responseDecoder response))
+              (isErrorResult (decodeString responseDecoder response))
     ]
