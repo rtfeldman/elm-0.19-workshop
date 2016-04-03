@@ -10,11 +10,10 @@ import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
 import Json.Encode
 import Signal exposing (Address)
-import Dict exposing (Dict)
 
 
-searchFeed : String -> Task x Action
-searchFeed query =
+searchFeed : Address String -> String -> Task x Action
+searchFeed address query =
   let
     -- See https://developer.github.com/v3/search/#example for how to customize!
     url =
@@ -24,11 +23,13 @@ searchFeed query =
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
 
+    -- These only talk to JavaScript ports now. They don't
+    -- actually do any actions themselves.
     task =
-      Http.get responseDecoder url
-        |> Task.map SetResults
+      Signal.send address query
+        |> Task.map (\_ -> DoNothing)
   in
-    Task.onError task (\_ -> Task.succeed (SetResults []))
+    Task.onError task (\_ -> Task.succeed DoNothing)
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -47,7 +48,7 @@ searchResultDecoder =
 
 type alias Model =
   { query : String
-  , results : Dict ResultId SearchResult
+  , results : List SearchResult
   }
 
 
@@ -65,7 +66,7 @@ type alias ResultId =
 initialModel : Model
 initialModel =
   { query = "tutorial"
-  , results = Dict.empty
+  , results = []
   }
 
 
@@ -82,14 +83,8 @@ view address model =
     , button [ class "search-button", onClick address Search ] [ text "Search" ]
     , ul
         [ class "results" ]
-        (viewSearchResults address model.results)
+        (List.map (viewSearchResult address) model.results)
     ]
-
-
-viewSearchResults : Address Action -> Dict ResultId SearchResult -> List Html
-viewSearchResults address results =
-  -- TODO sort by star count and render
-  []
 
 
 onInput address wrap =
@@ -119,26 +114,35 @@ type Action
   | SetQuery String
   | DeleteById ResultId
   | SetResults (List SearchResult)
+  | DoNothing
 
 
-update : Action -> Model -> ( Model, Effects Action )
-update action model =
+update : Address String -> Action -> Model -> ( Model, Effects Action )
+update searchAddress action model =
   case action of
     Search ->
-      ( model, Effects.task (searchFeed model.query) )
+      ( model, Effects.task (searchFeed searchAddress model.query) )
 
     SetQuery query ->
       ( { model | query = query }, Effects.none )
 
     SetResults results ->
       let
-        resultsById : Dict ResultId SearchResult
-        resultsById =
-          -- TODO convert results list into a Dict
-          Dict.empty
+        newModel =
+          { model | results = results }
       in
-        ( { model | results = resultsById }, Effects.none )
+        ( newModel, Effects.none )
 
-    DeleteById id ->
-      -- TODO delete the result with the given id
+    DeleteById idToHide ->
+      let
+        newResults =
+          model.results
+            |> List.filter (\{ id } -> id /= idToHide)
+
+        newModel =
+          { model | results = newResults }
+      in
+        ( newModel, Effects.none )
+
+    DoNothing ->
       ( model, Effects.none )

@@ -28,23 +28,18 @@ decoder =
     ("stargazers_count" := Json.Decode.int)
 
 
-view : Address a -> (Int -> a) -> Model -> Html
-view address delete result =
+view : Address a -> Model -> Html
+view address result =
   li
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
     , a
-        [ href
-            ("https://github.com/"
-              ++ (Debug.log
-                    "TODO we should not see this when typing in the search box!"
-                    result.name
-                 )
-            )
+        [ href ("https://github.com/" ++ result.name)
         , target "_blank"
         ]
         [ text result.name ]
     , button
-        [ class "hide-result", onClick address (delete result.id) ]
+        -- TODO onClick, send a delete action to the address
+        [ class "hide-result" ]
         [ text "X" ]
     ]

@@ -34,7 +34,13 @@ view address delete result =
     []
     [ span [ class "star-count" ] [ text (toString result.stars) ]
     , a
-        [ href ("https://github.com/" ++ result.name)
+        [ href
+            ("https://github.com/"
+              ++ (Debug.log
+                    "TODO we should not see this when typing in the search box!"
+                    result.name
+                 )
+            )
         , target "_blank"
         ]
         [ text result.name ]

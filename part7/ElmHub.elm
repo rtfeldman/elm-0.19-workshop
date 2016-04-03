@@ -1,35 +1,32 @@
 module ElmHub (..) where
 
+import Auth
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (class, target, href, property)
 import Html.Events exposing (..)
 import Http
-import Auth
 import Task exposing (Task)
 import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
+import Json.Decode.Pipeline exposing (..)
 import Json.Encode
 import Signal exposing (Address)
 
 
-searchFeed : Address String -> String -> Task x Action
-searchFeed address query =
+searchFeed : String -> Task x Action
+searchFeed query =
   let
-    -- See https://developer.github.com/v3/search/#example for how to customize!
     url =
       "https://api.github.com/search/repositories?access_token="
         ++ Auth.token
         ++ "&q="
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
-
-    -- These only talk to JavaScript ports now. They don't
-    -- actually do any actions themselves.
-    task =
-      Signal.send address query
-        |> Task.map (\_ -> DoNothing)
   in
-    Task.onError task (\_ -> Task.succeed DoNothing)
+    performAction
+      (\response -> HandleSearchResponse response)
+      (\error -> HandleSearchError error)
+      (Http.get responseDecoder url)
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -39,16 +36,27 @@ responseDecoder =
 
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
-  Json.Decode.object3
-    SearchResult
-    ("id" := Json.Decode.int)
-    ("full_name" := Json.Decode.string)
-    ("stargazers_count" := Json.Decode.int)
+  decode SearchResult
+    |> required "id" Json.Decode.int
+    |> required "full_name" Json.Decode.string
+    |> required "stargazers_count" Json.Decode.int
+
+
+{-| Note: this will be a standard function in Elm 0.17
+-}
+performAction : (a -> b) -> (y -> b) -> Task y a -> Task x b
+performAction successToAction errorToAction task =
+  let
+    successTask =
+      Task.map successToAction task
+  in
+    Task.onError successTask (\err -> Task.succeed (errorToAction err))
 
 
 type alias Model =
   { query : String
   , results : List SearchResult
+  , errorMessage : String
   }
 
 
@@ -67,6 +75,7 @@ initialModel : Model
 initialModel =
   { query = "tutorial"
   , results = []
+  , errorMessage = ""
   }
 
 
@@ -113,25 +122,29 @@ type Action
   = Search
   | SetQuery String
   | DeleteById ResultId
-  | SetResults (List SearchResult)
-  | DoNothing
+  | HandleSearchResponse (List SearchResult)
+  | HandleSearchError Http.Error
 
 
-update : Address String -> Action -> Model -> ( Model, Effects Action )
-update searchAddress action model =
+update : Action -> Model -> ( Model, Effects Action )
+update action model =
   case action of
     Search ->
-      ( model, Effects.task (searchFeed searchAddress model.query) )
+      ( model, Effects.task (searchFeed model.query) )
+
+    HandleSearchResponse response ->
+      -- TODO update the model to incorporate these search results.
+      -- Hint: where would you look to find out the type of `response` here?
+      ( model, Effects.none )
+
+    HandleSearchError error ->
+      -- TODO if decoding failed, store the message in model.errorMessage
+      -- Hint: look for "decode" in the documentation for this union type:
+      -- http://package.elm-lang.org/packages/evancz/elm-http/3.0.0/Http#Error
+      ( model, Effects.none )
 
     SetQuery query ->
       ( { model | query = query }, Effects.none )
-
-    SetResults results ->
-      let
-        newModel =
-          { model | results = results }
-      in
-        ( newModel, Effects.none )
 
     DeleteById idToHide ->
       let
@@ -143,6 +156,3 @@ update searchAddress action model =
           { model | results = newResults }
       in
         ( newModel, Effects.none )
-
-    DoNothing ->
-      ( model, Effects.none )

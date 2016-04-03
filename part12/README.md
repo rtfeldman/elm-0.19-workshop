@@ -1,4 +1,4 @@
-Part 12
+Part 11
 =======
 
 ## Installation
@@ -14,4 +14,10 @@ to fail; in that case, just run `elm package install` again.)
 
 ```bash
 elm live Main.elm --open -- --output=elm.js
+```
+
+## Compiling CSS
+
+```bash
+elm css Stylesheets.elm
 ```
