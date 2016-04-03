@@ -21,3 +21,7 @@ elm live Main.elm --open -- --output=elm.js
 ```bash
 elm css Stylesheets.elm
 ```
+
+## References
+
+* [Elm CSS documentation](http://package.elm-lang.org/packages/rtfeldman/elm-css/1.1.0/)
