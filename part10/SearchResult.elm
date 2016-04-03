@@ -1,9 +1,10 @@
 module SearchResult (..) where
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (class, target, href, property)
 import Html.Events exposing (..)
 import Json.Decode exposing (Decoder, (:=))
+import Json.Decode.Pipeline exposing (..)
 import Signal exposing (Address)
 import Dict exposing (Dict)
 
@@ -21,11 +22,10 @@ type alias Model =
 
 decoder : Decoder Model
 decoder =
-  Json.Decode.object3
-    Model
-    ("id" := Json.Decode.int)
-    ("full_name" := Json.Decode.string)
-    ("stargazers_count" := Json.Decode.int)
+  decode SearchResult
+    |> required "id" Json.Decode.int
+    |> required "full_name" Json.Decode.string
+    |> required "stargazers_count" Json.Decode.int
 
 
 view : Address a -> Model -> Html
