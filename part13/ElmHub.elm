@@ -12,7 +12,7 @@ import Json.Decode exposing (Decoder, (:=))
 import Json.Encode
 import Signal exposing (Address)
 import Dict exposing (Dict)
-import SearchResult
+import SearchResult exposing (ResultId)
 
 
 searchFeed : String -> Task x Action
@@ -68,26 +68,19 @@ view address model =
     ]
 
 
-viewSearchResults : Address Action -> Dict SearchResult.ResultId SearchResult.Model -> List Html
+viewSearchResults : Address Action -> Dict ResultId SearchResult.Model -> List Html
 viewSearchResults address results =
   results
     |> Dict.values
     |> List.sortBy (.stars >> negate)
-    |> filterResults
-    |> List.map (lazy3 SearchResult.view address DeleteById)
+    |> List.map (viewSearchResult address)
 
 
-filterResults : List SearchResult.Model -> List SearchResult.Model
-filterResults results =
-  case results of
-    [] ->
-      []
-
-    result :: rest ->
-      if result.stars > 0 then
-        result :: (filterResults rest)
-      else
-        filterResults rest
+viewSearchResult : Address Action -> SearchResult.Model -> Html
+viewSearchResult address result =
+  SearchResult.view
+    (Signal.forwardTo address (UpdateSearchResult result.id))
+    result
 
 
 onInput address wrap =
@@ -101,8 +94,8 @@ defaultValue str =
 type Action
   = Search
   | SetQuery String
-  | DeleteById SearchResult.ResultId
   | SetResults (List SearchResult.Model)
+  | UpdateSearchResult ResultId SearchResult.Action
 
 
 update : Action -> Model -> ( Model, Effects Action )
@@ -124,9 +117,23 @@ update action model =
       in
         ( { model | results = resultsById }, Effects.none )
 
-    DeleteById id ->
+    UpdateSearchResult id childAction ->
       let
-        newModel =
-          { model | results = Dict.remove id model.results }
+        updated =
+          model.results
+            |> Dict.get id
+            |> Maybe.map (SearchResult.update childAction)
       in
-        ( newModel, Effects.none )
+        case updated of
+          Nothing ->
+            ( model, Effects.none )
+
+          Just ( newChildModel, childEffects ) ->
+            let
+              effects =
+                Effects.map (UpdateSearchResult id) childEffects
+
+              newResults =
+                Dict.insert id newChildModel model.results
+            in
+              ( { model | results = newResults }, effects )

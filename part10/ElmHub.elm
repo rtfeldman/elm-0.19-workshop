@@ -1,7 +1,7 @@
 module ElmHub (..) where
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (class, target, href, property)
 import Html.Events exposing (..)
 import Html.Lazy exposing (..)
 import Http

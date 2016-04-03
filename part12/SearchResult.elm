@@ -1,10 +1,12 @@
-module Component.SearchResult (..) where
+module SearchResult (..) where
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (class, target, href, property)
 import Html.Events exposing (..)
 import Signal exposing (Address)
 import Effects exposing (Effects)
+import Json.Decode exposing (Decoder, (:=))
+import Json.Decode.Pipeline exposing (..)
 
 
 type alias Model =
@@ -24,9 +26,18 @@ type Action
   | Collapse
 
 
+decoder : Decoder Model
+decoder =
+  decode Model
+    |> required "id" Json.Decode.int
+    |> required "full_name" Json.Decode.string
+    |> required "stargazers_count" Json.Decode.int
+    |> hardcoded True
+
+
 update : Action -> Model -> ( Model, Effects Action )
 update action model =
-  -- TODO make expand and collapse work
+  -- TODO implement Expand and Collapse logic
   ( model, Effects.none )
 
 

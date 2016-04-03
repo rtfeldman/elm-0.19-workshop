@@ -15,3 +15,7 @@ to fail; in that case, just run `elm package install` again.)
 ```bash
 elm live Main.elm --open -- --output=elm.js
 ```
+
+## References
+
+* [Elm Architecture Tutorial](https://github.com/evancz/elm-architecture-tutorial)
