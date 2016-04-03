@@ -13,7 +13,7 @@ import Json.Encode
 import Signal exposing (Address)
 
 
-searchFeed : String -> Task x Action
+searchFeed : String -> Effects Action
 searchFeed query =
   let
     url =
@@ -22,11 +22,51 @@ searchFeed query =
         ++ "&q="
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
+
+    -- TODO define task as:
+    --
+    -- task = performAction argument1 argument2 argument3
+    --
+    -- Use these "ingredients" to give `performAction` the arguments it needs:
+    --
+    -- Http.get
+    -- url
+    -- responseDecoder
+    -- HandleSearchResponse
+    -- HandleSearchError
+    --
+    -- Hint: http://package.elm-lang.org/packages/evancz/elm-http/3.0.0/Http#get
+    task =
+      "TODO performAction ..."
   in
-    performAction
-      (\response -> HandleSearchResponse response)
-      (\error -> HandleSearchError error)
-      (Http.get responseDecoder url)
+    -- TODO replace this `Effects.none` with a call to:
+    --
+    -- Effects.task task
+    Effects.none
+
+
+{-| Note: this will be a standard function in the next release of Elm.
+
+Example:
+
+
+type Action =
+  HandleResponse String | HandleError Http.Error
+
+
+performAction
+  (\responseString -> HandleResponse responseString)
+  (\httpError -> HandleError httpError)
+  (Http.getString "https://google.com?q=something")
+
+-}
+performAction : (a -> b) -> (y -> b) -> Task y a -> Task x b
+performAction successToAction errorToAction task =
+  let
+    successTask =
+      Task.map successToAction task
+  in
+    Task.onError successTask (\err -> Task.succeed (errorToAction err))
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -42,21 +82,10 @@ searchResultDecoder =
     |> required "stargazers_count" Json.Decode.int
 
 
-{-| Note: this will be a standard function in Elm 0.17
--}
-performAction : (a -> b) -> (y -> b) -> Task y a -> Task x b
-performAction successToAction errorToAction task =
-  let
-    successTask =
-      Task.map successToAction task
-  in
-    Task.onError successTask (\err -> Task.succeed (errorToAction err))
-
-
 type alias Model =
   { query : String
   , results : List SearchResult
-  , errorMessage : String
+  , errorMessage : Maybe String
   }
 
 
@@ -75,7 +104,7 @@ initialModel : Model
 initialModel =
   { query = "tutorial"
   , results = []
-  , errorMessage = ""
+  , errorMessage = Nothing
   }
 
 
@@ -90,10 +119,21 @@ view address model =
         ]
     , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
     , button [ class "search-button", onClick address Search ] [ text "Search" ]
+    , viewErrorMessage model.errorMessage
     , ul
         [ class "results" ]
         (List.map (viewSearchResult address) model.results)
     ]
+
+
+viewErrorMessage : Maybe String -> Html
+viewErrorMessage errorMessage =
+  case errorMessage of
+    Just message ->
+      div [ class "error" ] [ text message ]
+
+    Nothing ->
+      text ""
 
 
 onInput address wrap =
@@ -130,17 +170,19 @@ update : Action -> Model -> ( Model, Effects Action )
 update action model =
   case action of
     Search ->
-      ( model, Effects.task (searchFeed model.query) )
+      ( model, searchFeed model.query )
 
-    HandleSearchResponse response ->
-      -- TODO update the model to incorporate these search results.
-      -- Hint: where would you look to find out the type of `response` here?
-      ( model, Effects.none )
+    HandleSearchResponse results ->
+      ( { model | results = results }, Effects.none )
 
     HandleSearchError error ->
       -- TODO if decoding failed, store the message in model.errorMessage
-      -- Hint: look for "decode" in the documentation for this union type:
+      --
+      -- Hint 1: look for "decode" in the documentation for this union type:
       -- http://package.elm-lang.org/packages/evancz/elm-http/3.0.0/Http#Error
+      --
+      -- Hint 2: to check if this is working, break responseDecoder
+      -- by changing "stargazers_count" to "description"
       ( model, Effects.none )
 
     SetQuery query ->

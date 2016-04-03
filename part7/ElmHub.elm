@@ -13,7 +13,7 @@ import Json.Encode
 import Signal exposing (Address)
 
 
-searchFeed : String -> Task x Action
+searchFeed : String -> Effects Action
 searchFeed query =
   let
     url =
@@ -22,11 +22,14 @@ searchFeed query =
         ++ "&q="
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
+
+    task =
+      performAction
+        (\response -> HandleSearchResponse response)
+        (\error -> HandleSearchError error)
+        (Http.get responseDecoder url)
   in
-    performAction
-      (\response -> HandleSearchResponse response)
-      (\error -> HandleSearchError error)
-      (Http.get responseDecoder url)
+    Effects.task task
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -37,12 +40,25 @@ responseDecoder =
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
   decode SearchResult
-    |> required "idaa" Json.Decode.int
+    |> required "id" Json.Decode.int
     |> required "full_name" Json.Decode.string
     |> required "stargazers_count" Json.Decode.int
 
 
-{-| Note: this will be a standard function in Elm 0.17
+{-| Note: this will be a standard function in the next release of Elm.
+
+Example:
+
+
+type Action =
+  HandleResponse String | HandleError Http.Error
+
+
+performAction
+  (\responseString -> HandleResponse responseString)
+  (\httpError -> HandleError httpError)
+  (Http.getString "https://google.com?q=something")
+
 -}
 performAction : (a -> b) -> (y -> b) -> Task y a -> Task x b
 performAction successToAction errorToAction task =
@@ -141,7 +157,7 @@ update : Action -> Model -> ( Model, Effects Action )
 update action model =
   case action of
     Search ->
-      ( model, Effects.task (searchFeed model.query) )
+      ( model, searchFeed model.query )
 
     HandleSearchResponse results ->
       ( { model | results = results }, Effects.none )

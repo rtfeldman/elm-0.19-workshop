@@ -17,7 +17,7 @@ app =
   StartApp.start
     { view = view
     , update = update
-    , init = ( initialModel, Effects.task (searchFeed initialModel.query) )
+    , init = ( initialModel, searchFeed initialModel.query )
     , inputs = []
     }
 
