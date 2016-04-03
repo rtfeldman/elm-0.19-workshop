@@ -20,7 +20,7 @@ app =
   StartApp.start
     { view = view
     , update = update search.address
-    , init = ( initialModel, Effects.task (searchFeed search.address initialModel.query) )
+    , init = ( initialModel, searchFeed search.address initialModel.query )
     , inputs = [ responseActions ]
     }
 
@@ -47,12 +47,11 @@ responseActions =
 
 decodeGithubResponse : Json.Encode.Value -> Action
 decodeGithubResponse value =
-  case Json.Decode.decodeValue responseDecoder value of
-    Ok results ->
-      SetResults results
-
-    Err _ ->
-      DoNothing
+  -- TODO use Json.Decode.DecodeValue to decode the response into an Action.
+  --
+  -- Hint: look at ElmHub.elm, specifically the definition of Action and
+  -- the deefinition of responseDecoder
+  SetErrorMessage (Just "TODO decode the response!")
 
 
 port githubResponse : Signal Json.Encode.Value

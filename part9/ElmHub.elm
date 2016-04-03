@@ -1,20 +1,21 @@
 module ElmHub (..) where
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (class, target, href, property)
 import Html.Events exposing (..)
 import Http
 import Auth
 import Task exposing (Task)
 import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
+import Json.Decode.Pipeline exposing (..)
 import Json.Encode
 import Signal exposing (Address)
 import Dict exposing (Dict)
 
 
-searchFeed : String -> Task x Action
-searchFeed query =
+searchFeed : Address String -> String -> Effects Action
+searchFeed address query =
   let
     -- See https://developer.github.com/v3/search/#example for how to customize!
     url =
@@ -24,11 +25,15 @@ searchFeed query =
         ++ query
         ++ "+language:elm&sort=stars&order=desc"
 
+    -- These only talk to JavaScript ports now. They never result in Actions
+    -- actually do any actions themselves.
     task =
-      Http.get responseDecoder url
-        |> Task.map SetResults
+      performAction
+        (\_ -> DoNothing)
+        (\_ -> DoNothing)
+        (Signal.send address query)
   in
-    Task.onError task (\_ -> Task.succeed (SetResults []))
+    Effects.task task
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -38,16 +43,40 @@ responseDecoder =
 
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
-  Json.Decode.object3
-    SearchResult
-    ("id" := Json.Decode.int)
-    ("full_name" := Json.Decode.string)
-    ("stargazers_count" := Json.Decode.int)
+  decode SearchResult
+    |> required "id" Json.Decode.int
+    |> required "full_name" Json.Decode.string
+    |> required "stargazers_count" Json.Decode.int
+
+
+{-| Note: this will be a standard function in the next release of Elm.
+
+Example:
+
+
+type Action =
+  HandleResponse String | HandleError Http.Error
+
+
+performAction
+  (\responseString -> HandleResponse responseString)
+  (\httpError -> HandleError httpError)
+  (Http.getString "https://google.com?q=something")
+
+-}
+performAction : (a -> b) -> (y -> b) -> Task y a -> Task x b
+performAction successToAction errorToAction task =
+  let
+    successTask =
+      Task.map successToAction task
+  in
+    Task.onError successTask (\err -> Task.succeed (errorToAction err))
 
 
 type alias Model =
   { query : String
   , results : Dict ResultId SearchResult
+  , errorMessage : Maybe String
   }
 
 
@@ -66,6 +95,7 @@ initialModel : Model
 initialModel =
   { query = "tutorial"
   , results = Dict.empty
+  , errorMessage = Nothing
   }
 
 
@@ -119,13 +149,15 @@ type Action
   | SetQuery String
   | DeleteById ResultId
   | SetResults (List SearchResult)
+  | SetErrorMessage (Maybe String)
+  | DoNothing
 
 
-update : Action -> Model -> ( Model, Effects Action )
-update action model =
+update : Address String -> Action -> Model -> ( Model, Effects Action )
+update searchAddress action model =
   case action of
     Search ->
-      ( model, Effects.task (searchFeed model.query) )
+      ( model, searchFeed searchAddress model.query )
 
     SetQuery query ->
       ( { model | query = query }, Effects.none )
@@ -141,4 +173,10 @@ update action model =
 
     DeleteById id ->
       -- TODO delete the result with the given id
+      ( model, Effects.none )
+
+    SetErrorMessage errorMessage ->
+      ( { model | errorMessage = errorMessage }, Effects.none )
+
+    DoNothing ->
       ( model, Effects.none )
