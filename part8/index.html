@@ -18,8 +18,7 @@
   // documentation: https://github.com/michael/github
   var github = new Github();
 
-  var app = Elm.embed(
-    Elm.Main,
+  var app = Elm.Main.embed(
     document.getElementById("elm-landing-pad"),
     {githubResponse: []});
 
