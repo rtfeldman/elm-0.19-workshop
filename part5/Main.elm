@@ -1,30 +1,25 @@
-module Main (..) where
+module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, target, href, property)
+import Html.App
+import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
-import Auth
-import StartApp.Simple as StartApp
-import Http
-import Task exposing (Task)
-import Effects exposing (Effects)
-import Json.Decode exposing (Decoder, (:=))
+import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
-import Json.Encode
-import Signal exposing (Address)
 
 
+main : Program Never
 main =
-  StartApp.start
-    { view = view
-    , update = update
-    , model = initialModel
-    }
+    Html.App.beginnerProgram
+        { view = view
+        , update = update
+        , model = initialModel
+        }
 
 
 sampleJson : String
 sampleJson =
-  """
+    """
     {
     "total_count": 40,
     "incomplete_results": false,
@@ -68,114 +63,100 @@ sampleJson =
 
 responseDecoder : Decoder (List SearchResult)
 responseDecoder =
-  "items" := Json.Decode.list searchResultDecoder
+    Json.Decode.at [ "items" ] (Json.Decode.list searchResultDecoder)
 
 
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
-  -- See https://developer.github.com/v3/search/#example
-  -- TODO replace these `hardcoded` with calls to `require`
-  decode SearchResult
-    |> hardcoded 0
-    |> hardcoded ""
-    |> hardcoded 0
+    -- See https://developer.github.com/v3/search/#example
+    -- TODO replace these `hardcoded` with calls to `require`
+    decode SearchResult
+        |> hardcoded 0
+        |> hardcoded ""
+        |> hardcoded 0
 
 
 type alias Model =
-  { query : String
-  , results : List SearchResult
-  }
+    { query : String
+    , results : List SearchResult
+    }
 
 
 type alias SearchResult =
-  { id : ResultId
-  , name : String
-  , stars : Int
-  }
+    { id : ResultId
+    , name : String
+    , stars : Int
+    }
 
 
 type alias ResultId =
-  Int
+    Int
 
 
 initialModel : Model
 initialModel =
-  { query = "tutorial"
-  , results = decodeResults sampleJson
-  }
+    { query = "tutorial"
+    , results = decodeResults sampleJson
+    }
 
 
 decodeResults : String -> List SearchResult
 decodeResults json =
-  case Json.Decode.decodeString responseDecoder json of
-    Ok results ->
-      results
+    case Json.Decode.decodeString responseDecoder json of
+        Ok results ->
+            results
 
-    Err err ->
-      []
+        Err err ->
+            []
 
 
-view : Address Action -> Model -> Html
-view address model =
-  div
-    [ class "content" ]
-    [ header
-        []
-        [ h1 [] [ text "ElmHub" ]
-        , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
+view : Model -> Html Msg
+view model =
+    div [ class "content" ]
+        [ header []
+            [ h1 [] [ text "ElmHub" ]
+            , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
+            ]
+        , input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
+        , button [ class "search-button" ] [ text "Search" ]
+        , ul [ class "results" ]
+            (List.map viewSearchResult model.results)
         ]
-    , input [ class "search-query", onInput address SetQuery, defaultValue model.query ] []
-    , button [ class "search-button" ] [ text "Search" ]
-    , ul
-        [ class "results" ]
-        (List.map (viewSearchResult address) model.results)
-    ]
 
 
-onInput address wrap =
-  on "input" targetValue (\val -> Signal.message address (wrap val))
+viewSearchResult : SearchResult -> Html Msg
+viewSearchResult result =
+    li []
+        [ span [ class "star-count" ] [ text (toString result.stars) ]
+        , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
+            [ text result.name ]
+        , button [ class "hide-result", onClick (DeleteById result.id) ]
+            [ text "X" ]
+        ]
 
 
-defaultValue str =
-  property "defaultValue" (Json.Encode.string str)
+type Msg
+    = SetQuery String
+    | DeleteById ResultId
+    | SetResults (List SearchResult)
 
 
-viewSearchResult : Address Action -> SearchResult -> Html
-viewSearchResult address result =
-  li
-    []
-    [ span [ class "star-count" ] [ text (toString result.stars) ]
-    , a
-        [ href ("https://github.com/" ++ result.name), target "_blank" ]
-        [ text result.name ]
-    , button
-        [ class "hide-result", onClick address (DeleteById result.id) ]
-        [ text "X" ]
-    ]
+update : Msg -> Model -> Model
+update msg model =
+    case msg of
+        SetQuery query ->
+            { model | query = query }
 
+        SetResults results ->
+            let
+                newModel =
+                    { model | results = results }
+            in
+                newModel
 
-type Action
-  = SetQuery String
-  | DeleteById ResultId
-  | SetResults (List SearchResult)
-
-
-update : Action -> Model -> Model
-update action model =
-  case action of
-    SetQuery query ->
-      { model | query = query }
-
-    SetResults results ->
-      let
-        newModel =
-          { model | results = results }
-      in
-        newModel
-
-    DeleteById idToHide ->
-      let
-        newResults =
-          List.filter (\{ id } -> id /= idToHide) model.results
-      in
-        { model | results = newResults }
+        DeleteById idToHide ->
+            let
+                newResults =
+                    List.filter (\{ id } -> id /= idToHide) model.results
+            in
+                { model | results = newResults }
