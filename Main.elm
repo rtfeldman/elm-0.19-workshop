@@ -1,4 +1,4 @@
-module Main (..) where
+module Main exposing (..)
 
 {-| THIS FILE IS NOT PART OF THE WORKSHOP! It is only to verify that you
 have everything set up properly.
@@ -6,126 +6,89 @@ have everything set up properly.
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Html.App
 import Auth
-import StartApp
 import Http
 import Task exposing (Task)
-import Effects exposing (Effects)
 import Json.Decode exposing (Decoder, (:=))
-import Json.Encode
-import Signal exposing (Address)
 
 
-main : Signal Html
+main : Program Never
 main =
-  app.html
-
-
-app : StartApp.App Model
-app =
-  StartApp.start
-    { view = view
-    , update = update
-    , init = ( initialModel, Effects.task searchFeed )
-    , inputs = []
-    }
+    Html.App.program
+        { view = view
+        , update = update
+        , init = ( initialModel, searchFeed )
+        , subscriptions = \_ -> Sub.none
+        }
 
 
 initialModel : Model
 initialModel =
-  { status = "Verifying setup..."
-  }
+    { status = "Verifying setup..."
+    }
 
 
 type alias Model =
-  { status : String }
+    { status : String }
 
 
-port tasks : Signal (Task Effects.Never ())
-port tasks =
-  app.tasks
-
-
-searchFeed : Task x Action
+searchFeed : Cmd Msg
 searchFeed =
-  let
-    url =
-      "https://api.github.com/search/repositories?q=test&access_token="
-        ++ Auth.token
-  in
-    performAction
-      (\_ -> ItWorked)
-      (\err -> ItFailed err)
-      (Http.get (Json.Decode.succeed "") url)
+    Auth.token
+        |> (++) "https://api.github.com/search/repositories?q=test&access_token="
+        |> Http.get (Json.Decode.succeed "")
+        |> Task.perform ItFailed (\_ -> ItWorked)
 
 
-performAction : (a -> b) -> (y -> b) -> Task y a -> Task x b
-performAction successToAction errorToAction task =
-  let
-    successTask =
-      Task.map successToAction task
-  in
-    Task.onError successTask (\err -> Task.succeed (errorToAction err))
-
-
-view : Address Action -> Model -> Html
-view address model =
-  div
-    [ class "content" ]
-    [ header [] [ h1 [] [ text "Elm Workshop" ] ]
-    , div
-        [ style
-            [ ( "font-size", "48px" )
-            , ( "text-align", "center" )
-            , ( "padding", "48px" )
+view : Model -> Html Msg
+view model =
+    div [ class "content" ]
+        [ header [] [ h1 [] [ text "Elm Workshop" ] ]
+        , div
+            [ style
+                [ ( "font-size", "48px" )
+                , ( "text-align", "center" )
+                , ( "padding", "48px" )
+                ]
             ]
+            [ text model.status ]
         ]
-        [ text model.status ]
-    ]
 
 
-onInput address wrap =
-  on "input" targetValue (\val -> Signal.message address (wrap val))
+type Msg
+    = ItWorked
+    | ItFailed Http.Error
 
 
-defaultValue str =
-  property "defaultValue" (Json.Encode.string str)
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        ItWorked ->
+            ( { status = "You're all set!" }, Cmd.none )
 
+        ItFailed err ->
+            let
+                status =
+                    case err of
+                        Http.Timeout ->
+                            "Timed out trying to contact GitHub. Check your Internet connection?"
 
-type Action
-  = ItWorked
-  | ItFailed Http.Error
+                        Http.NetworkError ->
+                            "Network error. Check your Internet connection?"
 
+                        Http.UnexpectedPayload msg ->
+                            "Something is misconfigured: " ++ msg
 
-update : Action -> Model -> ( Model, Effects Action )
-update action model =
-  case action of
-    ItWorked ->
-      ( { status = "You're all set!" }, Effects.none )
+                        Http.BadResponse code msg ->
+                            case code of
+                                401 ->
+                                    "Auth.elm does not have a valid token. :( Try recreating Auth.elm by following the steps in the README under the section “Create a GitHub Personal Access Token”."
 
-    ItFailed err ->
-      let
-        status =
-          case err of
-            Http.Timeout ->
-              "Timed out trying to contact GitHub. Check your Internet connection?"
-
-            Http.NetworkError ->
-              "Network error. Check your Internet connection?"
-
-            Http.UnexpectedPayload msg ->
-              "Something is misconfigured: " ++ msg
-
-            Http.BadResponse code msg ->
-              case code of
-                401 ->
-                  "Auth.elm does not have a valid token. :( Try recreating Auth.elm by following the steps in the README under the section “Create a GitHub Personal Access Token”."
-
-                _ ->
-                  "GitHub's Search API returned an error: "
-                    ++ (toString code)
-                    ++ " "
-                    ++ msg
-      in
-        ( { status = status }, Effects.none )
+                                _ ->
+                                    "GitHub's Search API returned an error: "
+                                        ++ (toString code)
+                                        ++ " "
+                                        ++ msg
+            in
+                ( { status = status }, Cmd.none )

@@ -12,7 +12,7 @@ Getting Started
 4. Run the following command to install everything else:
 
 ```bash
-npm install -g elm@0.16.0 elm-live@2.0.4 elm-test@0.16.1-alpha3 elm-css@0.4.0
+npm install -g elm@0.17.0 elm-live@2.3.0 project-fuzzball-test@1.0.1 elm-css@0.5.0
 ```
 
 This command could take several minutes to complete.
@@ -37,12 +37,12 @@ We'll be using GitHub's [Search API](https://developer.github.com/v3/search/), a
 #### Auth.elm
 
 ```elm
-module Auth (token) where
+module Auth exposing (token)
 
 
 token =
-  -- Your token should go here instead of this sample token:
-  "abcdef1234567890abcdef1234567890abcdef12"
+    -- Your token should go here instead of this sample token:
+    "abcdef1234567890abcdef1234567890abcdef12"
 ```
 
 **Note:** Even for a token that has no permissions, good security habits are
@@ -55,13 +55,13 @@ an API secret, and you should [delete this token](https://github.com/settings/to
 Run this to install packages:
 
 ```bash
-elm package install
+elm-package install --yes
 ```
 
 Once that succeeds, run this to verify everything:
 
 ```bash
-elm live Main.elm --open --output=elm.js
+elm-live Main.elm --open --output=elm.js
 ```
 
 A browser should open, and you should see this in it:
