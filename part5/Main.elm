@@ -103,12 +103,13 @@ initialModel =
 
 decodeResults : String -> List SearchResult
 decodeResults json =
-    case Json.Decode.decodeString responseDecoder json of
-        Ok results ->
-            results
-
-        Err err ->
-            []
+    -- TODO use Json.Decode.decodeString to translate this into either:
+    --
+    -- * the search results, if decoding succeeded
+    -- * an empty list if decoding failed
+    --
+    -- see http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Json-Decode#decodeString
+    []
 
 
 view : Model -> Html Msg
