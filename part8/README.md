@@ -24,11 +24,11 @@ elm-live Main.elm --open --output=elm.js
 ```bash
 cd test
 elm-package install
-elm test TestRunner.elm
+elm-test Test.elm
 ```
 
 ## References
 
 * [Using Elm packages](https://github.com/elm-lang/elm-package/blob/master/README.md#basic-usage)
-* [elm-test documentation](http://package.elm-lang.org/packages/deadfoxygrandpa/elm-test/3.1.1/)
-* [`(<|)` documentation](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Basics#<|)
+* [elm-test documentation](http://package.elm-lang.org/packages/project-fuzzball/test/latest)
+* [`(<|)` documentation](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Basics#<|)
