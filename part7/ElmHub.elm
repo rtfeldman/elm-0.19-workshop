@@ -4,16 +4,15 @@ import Html exposing (..)
 import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
 import Auth
-import Task exposing (Task)
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
 import Json.Encode
 
 
-getQueryUrl : String -> String
-getQueryUrl query =
+getQueryString : String -> String
+getQueryString query =
     -- See https://developer.github.com/v3/search/#example for how to customize!
-    "https://api.github.com/search/repositories?access_token="
+    "access_token="
         ++ Auth.token
         ++ "&q="
         ++ query
@@ -107,7 +106,7 @@ update : (String -> Cmd Msg) -> Msg -> Model -> ( Model, Cmd Msg )
 update searchFeed msg model =
     case msg of
         Search ->
-            ( model, searchFeed (getQueryUrl model.query) )
+            ( model, searchFeed (getQueryString model.query) )
 
         SetQuery query ->
             ( { model | query = query }, Cmd.none )

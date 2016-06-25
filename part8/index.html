@@ -22,9 +22,8 @@
 
   function searchGithub(query) {
     console.log("Searching for", query);
-    var search = github.getSearch(query);
 
-    search.repositories({}, function (err, repositories) {
+    github.getSearch(query).repositories({}, function (err, repositories) {
       console.log("Got response", repositories);
 
       app.ports.githubResponse.send(repositories);
