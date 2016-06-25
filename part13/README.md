@@ -13,7 +13,7 @@ to fail; in that case, just run `elm-package install` again.)
 ## Building
 
 ```bash
-elm-live Main.elm --open -- --output=elm.js
+elm-live Main.elm --open --output=elm.js
 ```
 
 ## Compiling CSS
