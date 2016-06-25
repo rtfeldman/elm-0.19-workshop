@@ -17,6 +17,8 @@ npm install -g elm@0.17.0 elm-live@2.3.0 project-fuzzball-test@1.0.5 elm-css@0.5
 
 This command could take several minutes to complete.
 
+**Note:** Tab characters are syntax errors in Elm code, so if your editor uses them for indentation, definitely switch it to spaces for this workshop!
+
 ## Clone this repository
 
 Run this at the terminal:
