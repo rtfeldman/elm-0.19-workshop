@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.App
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 
 
 type alias Model =
@@ -50,19 +51,27 @@ initialModel =
     }
 
 
-view : Model -> Html Msg
-view model =
-    div [ class "content" ]
-        [ header []
-            [ h1 [] [ text "ElmHub" ]
-            , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
-            ]
-        , ul [ class "results" ]
-            (List.map viewSearchResult model.results)
+elmHubHeader : Html a
+elmHubHeader =
+    header []
+        [ h1 [] [ text "ElmHub" ]
+        , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
         ]
 
 
-viewSearchResult : SearchResult -> Html Msg
+{-| TODO revise this type annotation once we add our onClick handler
+-}
+view : Model -> Html a
+view model =
+    div [ class "content" ]
+        [ elmHubHeader
+        , ul [ class "results" ] (List.map viewSearchResult model.results)
+        ]
+
+
+{-| TODO revise this type annotation once we add our onClick handler
+-}
+viewSearchResult : SearchResult -> Html a
 viewSearchResult result =
     li []
         [ span [ class "star-count" ] [ text (toString result.stars) ]

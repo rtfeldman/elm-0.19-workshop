@@ -10,7 +10,7 @@ import Html.App
 import Auth
 import Http
 import Task exposing (Task)
-import Json.Decode exposing (Decoder, (:=))
+import Json.Decode exposing (Decoder)
 
 
 main : Program Never

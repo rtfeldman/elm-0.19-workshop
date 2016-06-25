@@ -1,57 +1,31 @@
-module Main (..) where
+port module Main exposing (..)
 
-import StartApp
 import ElmHub exposing (..)
-import Effects exposing (Effects)
-import Task exposing (Task)
-import Html exposing (Html)
-import Signal
-import Json.Encode
-import Json.Decode
+import Html.App
+import Json.Decode exposing (Value)
 
 
-main : Signal Html
+main : Program Never
 main =
-  app.html
+    Html.App.program
+        { view = view
+        , update = update githubSearch
+        , init = ( initialModel, githubSearch (getQueryUrl initialModel.query) )
+        , subscriptions = \_ -> githubResponse decodeResponse
+        }
 
 
-app : StartApp.App Model
-app =
-  StartApp.start
-    { view = view
-    , update = update search.address
-    , init = ( initialModel, searchFeed search.address initialModel.query )
-    , inputs = [ responseActions ]
-    }
+decodeResponse : Json.Decode.Value -> Msg
+decodeResponse json =
+    case Json.Decode.decodeValue responseDecoder json of
+        Err err ->
+            SetErrorMessage (Just err)
+
+        Ok results ->
+            SetResults results
 
 
-port tasks : Signal (Task Effects.Never ())
-port tasks =
-  app.tasks
+port githubSearch : String -> Cmd msg
 
 
-search : Signal.Mailbox String
-search =
-  Signal.mailbox ""
-
-
-port githubSearch : Signal String
-port githubSearch =
-  search.signal
-
-
-responseActions : Signal Action
-responseActions =
-  Signal.map decodeGithubResponse githubResponse
-
-
-decodeGithubResponse : Json.Encode.Value -> Action
-decodeGithubResponse value =
-  -- TODO use Json.Decode.DecodeValue to decode the response into an Action.
-  --
-  -- Hint: look at ElmHub.elm, specifically the definition of Action and
-  -- the deefinition of responseDecoder
-  SetErrorMessage (Just "TODO decode the response!")
-
-
-port githubResponse : Signal Json.Encode.Value
+port githubResponse : (Json.Decode.Value -> msg) -> Sub msg

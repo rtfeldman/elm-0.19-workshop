@@ -1,27 +1,13 @@
-module Main (..) where
+module Main exposing (..)
 
-import StartApp
 import ElmHub exposing (..)
-import Effects exposing (Effects)
-import Task exposing (Task)
-import Html exposing (Html)
 
 
-main : Signal Html
+main : Program Never
 main =
-  app.html
-
-
-app : StartApp.App Model
-app =
-  StartApp.start
-    { view = view
-    , update = update
-    , init = ( initialModel, Effects.task (searchFeed initialModel.query) )
-    , inputs = []
-    }
-
-
-port tasks : Signal (Task Effects.Never ())
-port tasks =
-  app.tasks
+    Html.App.program
+        { view = view
+        , update = update
+        , init = ( initialModel, searchFeed initialModel.query )
+        , inputs = []
+        }

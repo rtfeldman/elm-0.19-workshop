@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.App
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick, onInput)
 
 
 type alias Model =
@@ -63,13 +64,12 @@ view model =
             ]
         , input
             [ class "search-query"
-              -- TODO when we receive onInput, set the query in the model
+              -- TODO onInput, set the query in the model
             , defaultValue model.query
             ]
             []
         , button [ class "search-button" ] [ text "Search" ]
-        , ul [ class "results" ]
-            (List.map viewSearchResult model.results)
+        , ul [ class "results" ] (List.map viewSearchResult model.results)
         ]
 
 

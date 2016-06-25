@@ -69,7 +69,7 @@ responseDecoder =
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
     -- See https://developer.github.com/v3/search/#example
-    -- TODO replace these `hardcoded` with calls to `require`
+    -- TODO replace these calls to `hardcoded` with calls to `require`
     decode SearchResult
         |> hardcoded 0
         |> hardcoded ""

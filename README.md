@@ -5,7 +5,7 @@ Getting Started
 
 1. Install [Node.js](http://nodejs.org) 4.0.0 or higher
 
-2. Add an [editor plugin](http://elm-lang.org/install#syntax-highlighting) for your editor of choice.
+2. Add a plugin for your editor of choice: [Atom](https://atom.io/packages/language-elm), [Sublime Text](https://packagecontrol.io/packages/Elm%20Language%20Support), [VS Code](https://github.com/sbrink/vscode-elm), [Light Table](https://github.com/rundis/elm-light), [Vim](https://github.com/lambdatoast/elm.vim), [Emacs](https://github.com/jcollard/elm-mode), [Brackets](https://github.com/lepinay/elm-brackets)
 
 3. Not required, but **highly** recommended: [install elm-format](https://github.com/avh4/elm-format#installation-) and integrate it into your editor so that it runs on save.
 
