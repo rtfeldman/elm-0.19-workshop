@@ -13,12 +13,16 @@ model =
     }
 
 
+elmHubHeader =
+    header []
+        [ -- TODO add the equivalent of <h1>ElmHub</h1> right before this <span>
+          span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
+        ]
+
+
 view model =
     div [ class "content" ]
-        [ header []
-            [ -- TODO add the equivalent of <h1>ElmHub</h1> right before this <span>
-              span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
-            ]
+        [ elmHubHeader
         , ul [ class "results" ]
             [ li []
                 [ span [ class "star-count" ] [{- TODO display the number of stars -}]
