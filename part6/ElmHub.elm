@@ -89,7 +89,7 @@ view model =
         ]
 
 
-viewErrorMessage : Maybe String -> Html a a
+viewErrorMessage : Maybe String -> Html a
 viewErrorMessage errorMessage =
     case errorMessage of
         Just message ->

@@ -1,6 +1,7 @@
-module Auth (token) where
+module Auth exposing (token)
 
 
+token : String
 token =
-  -- Tests don't need a real token.
-  ""
+    -- Tests don't need a real token.
+    ""

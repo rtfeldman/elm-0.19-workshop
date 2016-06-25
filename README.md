@@ -12,7 +12,7 @@ Getting Started
 4. Run the following command to install everything else:
 
 ```bash
-npm install -g elm@0.17.0 elm-live@2.3.0 project-fuzzball-test@1.0.1 elm-css@0.5.0
+npm install -g elm@0.17.0 elm-live@2.3.0 project-fuzzball-test@1.0.5 elm-css@0.5.0
 ```
 
 This command could take several minutes to complete.
