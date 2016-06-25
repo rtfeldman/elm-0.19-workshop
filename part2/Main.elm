@@ -64,7 +64,7 @@ view model =
     div [ class "content" ]
         [ elmHubHeader
         , ul [ class "results" ]
-            [{- TODO use model.results and viewSearchResults to display results -}]
+            [{- TODO use model.results and viewSearchResult to display results -}]
         ]
 
 
