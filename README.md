@@ -15,11 +15,13 @@ Getting Started
 npm install -g elm@0.17.0 elm-live@2.3.0 project-fuzzball-test@1.0.5 elm-css@0.5.0
 ```
 
-**Note:** If you get an `EACCESS` error on OS X, try [this fix](https://docs.npmjs.com/getting-started/fixing-npm-permissions):
+**Note:** If step 4 gives you an `EACCESS` error on OS X, try [this fix](https://docs.npmjs.com/getting-started/fixing-npm-permissions):
 
 ```
 sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
 ```
+
+Then re-run step 4.
 
 ## Clone this repository
 
