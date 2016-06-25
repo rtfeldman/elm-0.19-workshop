@@ -69,6 +69,7 @@ responseDecoder =
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
     -- See https://developer.github.com/v3/search/#example
+    -- and http://package.elm-lang.org/packages/NoRedInk/elm-decode-pipeline/latest
     -- TODO replace these calls to `hardcoded` with calls to `require`
     decode SearchResult
         |> hardcoded 0
