@@ -1,13 +1,31 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import ElmHub exposing (..)
+import Html.App
+import Json.Decode
 
 
 main : Program Never
 main =
     Html.App.program
         { view = view
-        , update = update
-        , init = ( initialModel, searchFeed initialModel.query )
-        , inputs = []
+        , update = update githubSearch
+        , init = ( initialModel, githubSearch (getQueryUrl initialModel.query) )
+        , subscriptions = \_ -> githubResponse decodeResponse
         }
+
+
+decodeResponse : Json.Decode.Value -> Msg
+decodeResponse json =
+    case Json.Decode.decodeValue responseDecoder json of
+        Err err ->
+            SetErrorMessage (Just err)
+
+        Ok results ->
+            SetResults results
+
+
+port githubSearch : String -> Cmd msg
+
+
+port githubResponse : (Json.Decode.Value -> msg) -> Sub msg
