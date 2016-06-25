@@ -15,9 +15,11 @@ Getting Started
 npm install -g elm@0.17.0 elm-live@2.3.0 project-fuzzball-test@1.0.5 elm-css@0.5.0
 ```
 
-This command could take several minutes to complete.
+**Note: If you get an `EACCESS` error on OS X, try [this fix](https://docs.npmjs.com/getting-started/fixing-npm-permissions)
 
-**Note:** Tab characters are syntax errors in Elm code, so if your editor uses them for indentation, definitely switch it to spaces for this workshop!
+```
+sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
+```
 
 ## Clone this repository
 
@@ -27,6 +29,8 @@ Run this at the terminal:
 git clone https://github.com/rtfeldman/elm-workshop.git
 cd elm-workshop
 ```
+
+**Note:** Tab characters are syntax errors in Elm code, so if your editor uses them for indentation, definitely switch it to spaces for this workshop!
 
 ## Create a GitHub Personal Access Token
 
