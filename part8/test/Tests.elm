@@ -23,9 +23,8 @@ main =
                 let
                     response =
                         """{ "items": [
-                        { "id": 5, "full_name": "foo", "stargazers_count": 42 },
-                        { "id": 3, "full_name": "bar", "stargazers_count": 77 }
-                      ] }"""
+                                /* TODO: dummy JSON goes here */
+                             ] }"""
                 in
                     Expect.equal
                         (Ok
@@ -41,14 +40,13 @@ main =
                         """{ "pizza": [] }"""
 
                     isErrorResult result =
-                        case result of
-                            Ok _ ->
-                                False
-
-                            Err _ ->
-                                True
+                        -- TODO return True if the given Result is an Err of some sort,
+                        -- and False if it is an Ok of some sort.
+                        --
+                        -- Result docs: http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Result
+                        False
                 in
-                    Expect.equal True
+                    Expect.true "Expected decoding an invalid response to return an Err."
                         (isErrorResult (decodeString responseDecoder response))
         ]
         |> Runner.run emit

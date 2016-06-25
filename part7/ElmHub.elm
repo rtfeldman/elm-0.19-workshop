@@ -1,26 +1,23 @@
 module ElmHub exposing (..)
 
-import Auth
 import Html exposing (..)
 import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
-import Http
+import Auth
 import Task exposing (Task)
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
+import Json.Encode
 
 
-searchFeed : String -> Cmd Msg
-searchFeed query =
-    let
-        url =
-            "https://api.github.com/search/repositories?access_token="
-                ++ Auth.token
-                ++ "&q="
-                ++ query
-                ++ "+language:elm&sort=stars&order=desc"
-    in
-        Task.perform HandleSearchError HandleSearchResponse (Http.get responseDecoder url)
+getQueryUrl : String -> String
+getQueryUrl query =
+    -- See https://developer.github.com/v3/search/#example for how to customize!
+    "https://api.github.com/search/repositories?access_token="
+        ++ Auth.token
+        ++ "&q="
+        ++ query
+        ++ "+language:elm&sort=stars&order=desc"
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -101,33 +98,25 @@ type Msg
     = Search
     | SetQuery String
     | DeleteById ResultId
-    | HandleSearchResponse (List SearchResult)
-    | HandleSearchError Http.Error
+    | SetResults (List SearchResult)
+    | SetErrorMessage (Maybe String)
+    | DoNothing
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : (String -> Cmd Msg) -> Msg -> Model -> ( Model, Cmd Msg )
+update searchFeed msg model =
     case msg of
         Search ->
-            ( model, searchFeed model.query )
-
-        HandleSearchResponse results ->
-            ( { model | results = results }, Cmd.none )
-
-        HandleSearchError error ->
-            let
-                errorMessage =
-                    case error of
-                        Http.UnexpectedPayload message ->
-                            Just message
-
-                        _ ->
-                            Nothing
-            in
-                ( { model | errorMessage = errorMessage }, Cmd.none )
+            ( model, searchFeed (getQueryUrl model.query) )
 
         SetQuery query ->
             ( { model | query = query }, Cmd.none )
+
+        SetResults results ->
+            ( { model | results = results }, Cmd.none )
+
+        SetErrorMessage errorMessage ->
+            ( { model | errorMessage = errorMessage }, Cmd.none )
 
         DeleteById idToHide ->
             let
@@ -139,3 +128,15 @@ update msg model =
                     { model | results = newResults }
             in
                 ( newModel, Cmd.none )
+
+        DoNothing ->
+            ( model, Cmd.none )
+
+
+decodeGithubResponse : Json.Encode.Value -> Msg
+decodeGithubResponse value =
+    -- TODO use Json.Decode.DecodeValue to decode the response into an Action.
+    --
+    -- Hint: look at ElmHub.elm, specifically the definition of Action and
+    -- the deefinition of responseDecoder
+    SetErrorMessage (Just "TODO decode the response!")
