@@ -6,7 +6,6 @@ import Html.Events exposing (..)
 import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
-import Json.Encode
 
 
 getQueryString : String -> String
@@ -97,9 +96,8 @@ type Msg
     = Search
     | SetQuery String
     | DeleteById ResultId
-    | SetResults (List SearchResult)
-    | SetErrorMessage (Maybe String)
-    | DoNothing
+    | HandleSearchResponse (List SearchResult)
+    | HandleSearchError (Maybe String)
 
 
 update : (String -> Cmd Msg) -> Msg -> Model -> ( Model, Cmd Msg )
@@ -111,31 +109,28 @@ update searchFeed msg model =
         SetQuery query ->
             ( { model | query = query }, Cmd.none )
 
-        SetResults results ->
+        HandleSearchResponse results ->
             ( { model | results = results }, Cmd.none )
 
-        SetErrorMessage errorMessage ->
-            ( { model | errorMessage = errorMessage }, Cmd.none )
+        HandleSearchError error ->
+            ( { model | errorMessage = error }, Cmd.none )
 
-        DeleteById idToHide ->
+        DeleteById idToDelete ->
             let
                 newResults =
                     model.results
-                        |> List.filter (\{ id } -> id /= idToHide)
+                        |> List.filter (\{ id } -> id /= idToDelete)
 
                 newModel =
                     { model | results = newResults }
             in
                 ( newModel, Cmd.none )
 
-        DoNothing ->
-            ( model, Cmd.none )
 
-
-decodeGithubResponse : Json.Encode.Value -> Msg
+decodeGithubResponse : Json.Decode.Value -> Msg
 decodeGithubResponse value =
-    -- TODO use Json.Decode.DecodeValue to decode the response into an Action.
+    -- TODO use Json.Decode.DecodeValue to decode the response into a Msg.
     --
-    -- Hint: look at ElmHub.elm, specifically the definition of Action and
-    -- the deefinition of responseDecoder
-    SetErrorMessage (Just "TODO decode the response!")
+    -- Hint: look at the definition of Msg and
+    -- the definition of responseDecoder
+    HandleSearchError (Just "TODO decode the response!")

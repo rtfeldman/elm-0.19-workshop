@@ -19,10 +19,10 @@ decodeResponse : Json.Decode.Value -> Msg
 decodeResponse json =
     case Json.Decode.decodeValue responseDecoder json of
         Err err ->
-            SetErrorMessage (Just err)
+            HandleSearchError (Just err)
 
         Ok results ->
-            SetResults results
+            HandleSearchResponse results
 
 
 port githubSearch : String -> Cmd msg

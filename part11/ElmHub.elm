@@ -3,13 +3,13 @@ module ElmHub exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.App
 import Http
 import Auth
 import Task exposing (Task)
 import Json.Decode exposing (Decoder)
-import Json.Encode
 import Dict exposing (Dict)
-import SearchResult
+import SearchResult exposing (ResultId)
 
 
 searchFeed : String -> Cmd Msg
@@ -27,12 +27,13 @@ searchFeed query =
 
 responseDecoder : Decoder (List SearchResult.Model)
 responseDecoder =
-    "items" := Json.Decode.list SearchResult.decoder
+    Json.Decode.at [ "items" ] (Json.Decode.list SearchResult.decoder)
 
 
 type alias Model =
     { query : String
-    , results : Dict SearchResult.ResultId SearchResult.Model
+    , results : Dict ResultId SearchResult.Model
+    , errorMessage : Maybe String
     }
 
 
@@ -40,6 +41,7 @@ initialModel : Model
 initialModel =
     { query = "tutorial"
     , results = Dict.empty
+    , errorMessage = Nothing
     }
 
 
@@ -52,17 +54,28 @@ view model =
             ]
         , input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
         , button [ class "search-button", onClick Search ] [ text "Search" ]
+        , viewErrorMessage model.errorMessage
         , ul [ class "results" ] (viewSearchResults model.results)
         ]
 
 
-viewSearchResults : Dict SearchResult.ResultId SearchResult.Model -> List (Html a)
+viewErrorMessage : Maybe String -> Html a
+viewErrorMessage errorMessage =
+    case errorMessage of
+        Just message ->
+            div [ class "error" ] [ text message ]
+
+        Nothing ->
+            text ""
+
+
+viewSearchResults : Dict ResultId SearchResult.Model -> List (Html Msg)
 viewSearchResults results =
     results
         |> Dict.values
         |> List.sortBy (.stars >> negate)
         |> filterResults
-        |> List.map (SearchResult.view address DeleteById)
+        |> List.map viewSearchResult
 
 
 filterResults : List SearchResult.Model -> List SearchResult.Model
@@ -72,35 +85,62 @@ filterResults results =
     results
 
 
+viewSearchResult : SearchResult.Model -> Html Msg
+viewSearchResult result =
+    result
+        |> SearchResult.view
+        |> Html.App.map (UpdateSearchResult result.id)
+
+
 type Msg
     = Search
     | SetQuery String
-    | DeleteById SearchResult.ResultId
-    | SetResults (List SearchResult.Model)
+    | UpdateSearchResult ResultId SearchResult.Msg
+    | HandleSearchResponse (List SearchResult.Model)
+    | HandleSearchError Http.Error
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Search ->
-            ( model, searchFeed model.query )
+            model ! [ searchFeed model.query ]
 
         SetQuery query ->
-            ( { model | query = query }, Cmd.none )
+            { model | query = query, errorMessage = Nothing } ! []
 
-        SetResults results ->
+        HandleSearchError error ->
+            case error of
+                Http.UnexpectedPayload str ->
+                    { model | errorMessage = Just str } ! []
+
+                _ ->
+                    { model | errorMessage = Just "Error loading search results" } ! []
+
+        HandleSearchResponse results ->
             let
-                resultsById : Dict SearchResult.ResultId SearchResult.Model
+                resultsById : Dict ResultId SearchResult.Model
                 resultsById =
                     results
                         |> List.map (\result -> ( result.id, result ))
                         |> Dict.fromList
             in
-                ( { model | results = resultsById }, Cmd.none )
+                { model | results = resultsById } ! []
 
-        DeleteById id ->
-            let
-                newModel =
-                    { model | results = Dict.remove id model.results }
-            in
-                ( newModel, Cmd.none )
+        UpdateSearchResult id childMsg ->
+            case Dict.get id model.results of
+                Nothing ->
+                    model ! []
+
+                Just childModel ->
+                    let
+                        ( newChildModel, childCmd ) =
+                            SearchResult.update childMsg childModel
+
+                        cmd =
+                            Cmd.map (UpdateSearchResult id) childCmd
+
+                        newResults =
+                            Dict.insert id newChildModel model.results
+                    in
+                        { model | results = newResults } ! [ cmd ]

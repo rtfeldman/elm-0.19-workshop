@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import ElmHub exposing (..)
+import Html.App
 
 
 main : Program Never
@@ -9,5 +10,5 @@ main =
         { view = view
         , update = update
         , init = ( initialModel, searchFeed initialModel.query )
-        , inputs = []
+        , subscriptions = \_ -> Sub.none
         }

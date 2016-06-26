@@ -35,25 +35,25 @@ decoder =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    -- TODO implement Expand and Collapse logic
-    ( model, Cmd.none )
+    case msg of
+        Expand ->
+            { model | expanded = True } ! []
+
+        Collapse ->
+            { model | expanded = False } ! []
 
 
 view : Model -> Html Msg
 view model =
-    li [] <|
-        if model.expanded then
+    li []
+        <| if model.expanded then
             [ span [ class "star-count" ] [ text (toString model.stars) ]
             , a [ href ("https://github.com/" ++ model.name), target "_blank" ]
                 [ text model.name ]
-            , button
-                -- TODO when the user clicks, send a Collapse action
-                [ class "hide-result" ]
+            , button [ class "hide-result", onClick Collapse ]
                 [ text "X" ]
             ]
-        else
-            [ button
-                -- TODO when the user clicks, send an Expand action
-                [ class "expand-result" ]
+           else
+            [ button [ class "expand-result", onClick Expand ]
                 [ text "Show" ]
             ]

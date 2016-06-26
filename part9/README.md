@@ -21,8 +21,25 @@ elm-live Main.elm --open --output=elm.js
 
 ## Running Tests
 
+First do this:
+
 ```bash
 cd test
 elm-package install
-elm-test Test.elm
 ```
+
+Then do either (or both!) of the following:
+
+#### Running tests on the command line
+
+```bash
+elm-test NodeRunner.elm
+```
+
+#### Running tests in a browser
+
+```bash
+elm-reactor
+```
+
+Then visit [localhost:8000](http://localhost:8000) and choose `Html.elm`.

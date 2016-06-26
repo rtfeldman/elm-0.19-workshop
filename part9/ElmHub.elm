@@ -7,16 +7,21 @@ import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
 import Dict exposing (Dict)
+import Http
+import Task
 
 
-getQueryUrl : String -> String
-getQueryUrl query =
-    -- See https://developer.github.com/v3/search/#example for how to customize!
-    "https://api.github.com/search/repositories?access_token="
-        ++ Auth.token
-        ++ "&q="
-        ++ query
-        ++ "+language:elm&sort=stars&order=desc"
+searchFeed : String -> Cmd Msg
+searchFeed query =
+    let
+        url =
+            "https://api.github.com/search/repositories?access_token="
+                ++ Auth.token
+                ++ "&q="
+                ++ query
+                ++ "+language:elm&sort=stars&order=desc"
+    in
+        Task.perform HandleSearchError HandleSearchResponse (Http.get responseDecoder url)
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -92,35 +97,40 @@ type Msg
     = Search
     | SetQuery String
     | DeleteById ResultId
-    | SetResults (List SearchResult)
-    | SetErrorMessage (Maybe String)
+    | HandleSearchResponse (List SearchResult)
+    | HandleSearchError Http.Error
     | DoNothing
 
 
-update : (String -> Cmd Msg) -> Msg -> Model -> ( Model, Cmd Msg )
-update searchFeed msg model =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     case msg of
         Search ->
-            ( model, searchFeed (getQueryUrl model.query) )
+            model ! [ searchFeed model.query ]
 
         SetQuery query ->
-            ( { model | query = query }, Cmd.none )
+            { model | query = query } ! []
 
-        SetResults results ->
+        HandleSearchError error ->
+            case error of
+                Http.UnexpectedPayload str ->
+                    { model | errorMessage = Just str } ! []
+
+                _ ->
+                    { model | errorMessage = Just "Error loading search results" } ! []
+
+        HandleSearchResponse results ->
             let
                 resultsById : Dict ResultId SearchResult
                 resultsById =
                     -- TODO convert results list into a Dict
                     Dict.empty
             in
-                ( { model | results = resultsById }, Cmd.none )
+                { model | results = resultsById } ! []
 
         DeleteById id ->
             -- TODO delete the result with the given id
-            ( model, Cmd.none )
-
-        SetErrorMessage errorMessage ->
-            ( { model | errorMessage = errorMessage }, Cmd.none )
+            model ! []
 
         DoNothing ->
-            ( model, Cmd.none )
+            model ! []

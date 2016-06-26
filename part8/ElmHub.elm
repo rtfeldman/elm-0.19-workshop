@@ -6,7 +6,6 @@ import Html.Events exposing (..)
 import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
-import Json.Encode
 
 
 getQueryString : String -> String
@@ -97,8 +96,8 @@ type Msg
     = Search
     | SetQuery String
     | DeleteById ResultId
-    | SetResults (List SearchResult)
-    | SetErrorMessage (Maybe String)
+    | HandleSearchResponse (List SearchResult)
+    | HandleSearchError (Maybe String)
     | DoNothing
 
 
@@ -111,11 +110,11 @@ update searchFeed msg model =
         SetQuery query ->
             ( { model | query = query }, Cmd.none )
 
-        SetResults results ->
+        HandleSearchResponse results ->
             ( { model | results = results }, Cmd.none )
 
-        SetErrorMessage errorMessage ->
-            ( { model | errorMessage = errorMessage }, Cmd.none )
+        HandleSearchError error ->
+            ( { model | errorMessage = error }, Cmd.none )
 
         DeleteById idToHide ->
             let
@@ -132,10 +131,11 @@ update searchFeed msg model =
             ( model, Cmd.none )
 
 
-decodeGithubResponse : Json.Encode.Value -> Msg
+decodeGithubResponse : Json.Decode.Value -> Msg
 decodeGithubResponse value =
-    -- TODO use Json.Decode.DecodeValue to decode the response into an Action.
-    --
-    -- Hint: look at ElmHub.elm, specifically the definition of Action and
-    -- the deefinition of responseDecoder
-    SetErrorMessage (Just "TODO decode the response!")
+    case Json.Decode.decodeValue responseDecoder value of
+        Ok results ->
+            HandleSearchResponse results
+
+        Err err ->
+            HandleSearchError (Just err)

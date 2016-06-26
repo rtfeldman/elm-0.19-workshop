@@ -1,45 +1,67 @@
 module SearchResult exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
 import Json.Decode exposing (Decoder)
-import Dict exposing (Dict)
+import Json.Decode.Pipeline exposing (..)
+
+
+type alias Model =
+    { id : Int
+    , name : String
+    , stars : Int
+    , expanded : Bool
+    }
 
 
 type alias ResultId =
     Int
 
 
-type alias Model =
-    { id : ResultId
-    , name : String
-    , stars : Int
-    }
+type Msg
+    = Expand
+    | Collapse
 
 
 decoder : Decoder Model
 decoder =
-    Json.Decode.object3 Model
-        ("id" := Json.Decode.int)
-        ("full_name" := Json.Decode.string)
-        ("stargazers_count" := Json.Decode.int)
+    decode Model
+        |> required "id" Json.Decode.int
+        |> required "full_name" Json.Decode.string
+        |> required "stargazers_count" Json.Decode.int
+        |> hardcoded True
 
 
-view : Address a -> (Int -> a) -> Model -> Html
-view address delete result =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        Expand ->
+            { model | expanded = True } ! []
+
+        Collapse ->
+            { model | expanded = False } ! []
+
+
+view : Model -> Html Msg
+view model =
     li []
-        [ span [ class "star-count" ] [ text (toString result.stars) ]
-        , a
-            [ href
-                ("https://github.com/"
-                    ++ (Debug.log "TODO we should not see this when typing in the search box!"
-                            result.name
-                       )
-                )
-            , target "_blank"
+        <| if model.expanded then
+            [ span [ class "star-count" ] [ text (toString model.stars) ]
+            , a
+                [ href
+                    ("https://github.com/"
+                        ++ (Debug.log "TODO we should not see this when typing in the search box!"
+                                model.name
+                           )
+                    )
+                , target "_blank"
+                ]
+                [ text model.name ]
+            , button [ class "hide-result", onClick Collapse ]
+                [ text "X" ]
             ]
-            [ text result.name ]
-        , button [ class "hide-result", onClick (delete result.id) ]
-            [ text "X" ]
-        ]
+           else
+            [ button [ class "expand-result", onClick Expand ]
+                [ text "Show" ]
+            ]
