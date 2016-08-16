@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.App
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick)
 
 
 type alias Model =
@@ -13,21 +13,17 @@ type alias Model =
 
 
 type alias SearchResult =
-    { id : ResultId
+    { id : Int
     , name : String
     , stars : Int
     }
 
 
-type alias ResultId =
-    Int
+type Msg
+    = SetQuery String
+    | DeleteById Int
 
 
-
-{- See https://developer.github.com/v3/search/#example -}
-
-
-initialModel : Model
 initialModel =
     { query = "tutorial"
     , results =
@@ -55,12 +51,19 @@ initialModel =
     }
 
 
+elmHubHeader =
+    header []
+        [ h1 [] [ text "ElmHub" ]
+        , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     div [ class "content" ]
         [ header []
             [ h1 [] [ text "ElmHub" ]
-            , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
+            , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
         , input
             [ class "search-query"
@@ -86,19 +89,12 @@ viewSearchResult result =
         ]
 
 
-type Msg
-    = SetQuery String
-    | DeleteById ResultId
-
-
-update : Msg -> Model -> Model
 update msg model =
     -- TODO if we get a SetQuery action, use it to set the model's query field,
     -- and if we get a DeleteById action, delete the appropriate result
     model
 
 
-main : Program Never
 main =
     Html.App.beginnerProgram
         { view = view
