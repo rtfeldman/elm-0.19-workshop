@@ -12,7 +12,7 @@ Getting Started
 4. Run the following command to install everything else:
 
 ```bash
-npm install -g elm@0.17.0 elm-live@2.3.0 project-fuzzball-test@1.0.5 elm-css@0.5.0
+npm install -g elm elm-test elm-css elm-live@2.4.1
 ```
 
 **Note:** If step 4 gives you an `EACCESS` error on OS X, try [this fix](https://docs.npmjs.com/getting-started/fixing-npm-permissions):

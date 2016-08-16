@@ -16,7 +16,7 @@ model =
 elmHubHeader =
     header []
         [ -- TODO add the equivalent of <h1>ElmHub</h1> right before this <span>
-          span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
+          span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
         ]
 
 

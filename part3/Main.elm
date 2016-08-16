@@ -13,17 +13,20 @@ type alias Model =
 
 
 type alias SearchResult =
-    { id : ResultId
+    { id : Int
     , name : String
     , stars : Int
     }
 
 
-type alias ResultId =
-    Int
+type alias Msg =
+    { operation : String
+    , data : Int
+    }
 
 
-initialModel : Model
+{-| TODO add a type annotation to this value
+-}
 initialModel =
     { query = "tutorial"
     , results =
@@ -51,17 +54,17 @@ initialModel =
     }
 
 
-elmHubHeader : Html a
+{-| TODO add a type annotation to this function
+-}
 elmHubHeader =
     header []
         [ h1 [] [ text "ElmHub" ]
-        , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
+        , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
         ]
 
 
-{-| TODO revise this type annotation once we add our onClick handler
+{-| TODO add a type annotation to this function
 -}
-view : Model -> Html a
 view model =
     div [ class "content" ]
         [ elmHubHeader
@@ -69,34 +72,30 @@ view model =
         ]
 
 
-{-| TODO revise this type annotation once we add our onClick handler
+{-| TODO add a type annotation to this function
 -}
-viewSearchResult : SearchResult -> Html a
 viewSearchResult result =
     li []
         [ span [ class "star-count" ] [ text (toString result.stars) ]
         , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
             [ text result.name ]
         , button
-            -- TODO add an onClick handler that sends a DELETE_BY_ID action
-            [ class "hide-result" ]
+            [ class "hide-result", onClick { operation = "DELETE_BY_ID", data = result.id } ]
             [ text "X" ]
         ]
 
 
-type alias Msg =
-    { -- TODO implement this type alias
-    }
-
-
-update : Msg -> Model -> Model
+{-| TODO add a type annotation to this function
+-}
 update msg model =
-    -- TODO if we receive a DELETE_BY_ID message,
-    -- build a new model without the given ID present anymore.
-    model
+    if msg.operation == "DELETE_BY_ID" then
+        { model
+            | results = List.filter (\result -> result.id /= msg.data) model.results
+        }
+    else
+        model
 
 
-main : Program Never
 main =
     Html.App.beginnerProgram
         { view = view
