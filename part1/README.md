@@ -21,5 +21,5 @@ elm-live Main.elm --open --output=elm.js
 
 ## References
 * [html-to-elm](http://mbylstra.github.io/html-to-elm/) - paste in HTML, get elm-html code
-* [elm-html documentation](http://package.elm-lang.org/packages/evancz/elm-html/4.0.2/)
+* [elm-html documentation](http://package.elm-lang.org/packages/elm-lang/html/latest)
 * [record syntax](http://elm-lang.org/docs/syntax#records) (e.g. `{ foo = 1, bar = 2 }`)
