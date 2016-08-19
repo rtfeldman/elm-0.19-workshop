@@ -117,7 +117,7 @@ view model =
     div [ class "content" ]
         [ header []
             [ h1 [] [ text "ElmHub" ]
-            , span [ class "tagline" ] [ text "“Like GitHub, but for Elm things.”" ]
+            , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
         , input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
         , button [ class "search-button" ] [ text "Search" ]
