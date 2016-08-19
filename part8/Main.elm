@@ -1,13 +1,13 @@
 port module Main exposing (..)
 
 import ElmHub exposing (..)
-import Html.App
+import Html.App as Html
 import Json.Decode
 
 
 main : Program Never
 main =
-    Html.App.program
+    Html.program
         { view = view
         , update = update githubSearch
         , init = ( initialModel, githubSearch (getQueryString initialModel.query) )

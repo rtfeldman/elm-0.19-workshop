@@ -3,7 +3,7 @@ module ElmHub exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Html.App
+import Html.App as Html
 import Http
 import Auth
 import Task exposing (Task)

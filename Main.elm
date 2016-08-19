@@ -6,7 +6,7 @@ have everything set up properly.
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.App
+import Html.App as Html
 import Auth
 import Http
 import Task exposing (Task)
@@ -15,7 +15,7 @@ import Json.Decode exposing (Decoder)
 
 main : Program Never
 main =
-    Html.App.program
+    Html.program
         { view = view
         , update = update
         , init = ( initialModel, searchFeed )

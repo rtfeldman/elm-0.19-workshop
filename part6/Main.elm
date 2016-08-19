@@ -5,7 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
 import Http
-import Html.App
+import Html.App as Html
 import Task exposing (Task)
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
@@ -13,7 +13,7 @@ import Json.Decode.Pipeline exposing (..)
 
 main : Program Never
 main =
-    Html.App.program
+    Html.program
         { view = view
         , update = update
         , init = ( initialModel, searchFeed initialModel.query )

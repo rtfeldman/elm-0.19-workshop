@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.App
+import Html.App as Html
 import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
 import Json.Decode exposing (Decoder)
@@ -10,7 +10,7 @@ import Json.Decode.Pipeline exposing (..)
 
 main : Program Never
 main =
-    Html.App.beginnerProgram
+    Html.beginnerProgram
         { view = view
         , update = update
         , model = initialModel

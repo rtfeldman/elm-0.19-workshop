@@ -1,12 +1,12 @@
 module Main exposing (..)
 
 import ElmHub exposing (..)
-import Html.App
+import Html.App as Html
 
 
 main : Program Never
 main =
-    Html.App.program
+    Html.program
         { view = view
         , update = update
         , init = ( initialModel, searchFeed initialModel.query )
