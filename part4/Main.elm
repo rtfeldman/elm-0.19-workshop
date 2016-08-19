@@ -24,6 +24,7 @@ type Msg
     | DeleteById Int
 
 
+initialModel : Model
 initialModel =
     { query = "tutorial"
     , results =
@@ -51,6 +52,7 @@ initialModel =
     }
 
 
+elmHubHeader : Html Msg
 elmHubHeader =
     header []
         [ h1 [] [ text "ElmHub" ]
@@ -89,12 +91,15 @@ viewSearchResult result =
         ]
 
 
+update : Msg -> Model -> Model
 update msg model =
     -- TODO if we get a SetQuery action, use it to set the model's query field,
     -- and if we get a DeleteById action, delete the appropriate result
     model
 
 
+
+main : Program Never
 main =
     Html.beginnerProgram
         { view = view
