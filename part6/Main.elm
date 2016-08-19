@@ -137,7 +137,7 @@ update msg model =
             -- TODO if decoding failed, store the message in model.errorMessage
             --
             -- Hint 1: look for "decode" in the documentation for this union type:
-            -- http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Error
+            -- http://package.elm-lang.org/packages/evancz/elm-http/latest/Http#Error
             --
             -- Hint 2: to check if this is working, break responseDecoder
             -- by changing "stargazers_count" to "description"
