@@ -7,11 +7,10 @@ import Json.Decode exposing (Value)
 
 -- To run this:
 --
--- cd into part8/test
--- elm-test NodeRunner.elm
+-- elm-test
 
 
-main : Program Never
+main : Program Value
 main =
     Runner.run emit Tests.all
 
