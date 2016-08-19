@@ -10,8 +10,8 @@ Q&A, in [this document](https://docs.google.com/document/d/1ApuSOk9DP0YsQrxhW7-W
 elm-package install
 ```
 
-(Answer `y` at the prompt. In rare cases a known issue can cause the download
-to fail; in that case, just run `elm-package install` again.)
+(Answer `y` when prompted.)
+
 
 ## Building
 
