@@ -36,7 +36,7 @@ cd tests
 elm-reactor
 ```
 
-Then visit [localhost:8000](http://localhost:8000) and choose `Html.elm`.
+Then visit [localhost:8000](http://localhost:8000) and choose `HtmlRunner.elm`.
 
 ## References
 
