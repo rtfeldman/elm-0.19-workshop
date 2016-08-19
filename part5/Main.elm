@@ -84,14 +84,10 @@ type alias Model =
 
 
 type alias SearchResult =
-    { id : ResultId
+    { id : Int
     , name : String
     , stars : Int
     }
-
-
-type alias ResultId =
-    Int
 
 
 initialModel : Model
@@ -139,8 +135,7 @@ viewSearchResult result =
 
 type Msg
     = SetQuery String
-    | DeleteById ResultId
-    | SetResults (List SearchResult)
+    | DeleteById Int
 
 
 update : Msg -> Model -> Model
@@ -148,13 +143,6 @@ update msg model =
     case msg of
         SetQuery query ->
             { model | query = query }
-
-        SetResults results ->
-            let
-                newModel =
-                    { model | results = results }
-            in
-                newModel
 
         DeleteById idToHide ->
             let

@@ -15,10 +15,6 @@ type alias Model =
     }
 
 
-type alias ResultId =
-    Int
-
-
 type Msg
     = Expand
     | Collapse

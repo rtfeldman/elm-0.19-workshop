@@ -39,14 +39,10 @@ type alias Model =
 
 
 type alias SearchResult =
-    { id : ResultId
+    { id : Int
     , name : String
     , stars : Int
     }
-
-
-type alias ResultId =
-    Int
 
 
 initialModel : Model
@@ -95,7 +91,7 @@ viewSearchResult result =
 type Msg
     = Search
     | SetQuery String
-    | DeleteById ResultId
+    | DeleteById Int
     | HandleSearchResponse (List SearchResult)
     | HandleSearchError (Maybe String)
 

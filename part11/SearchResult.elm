@@ -15,10 +15,6 @@ type alias Model =
     }
 
 
-type alias ResultId =
-    Int
-
-
 type Msg
     = Expand
     | Collapse
@@ -45,8 +41,8 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    li []
-        <| if model.expanded then
+    li [] <|
+        if model.expanded then
             [ span [ class "star-count" ] [ text (toString model.stars) ]
             , a
                 [ href
@@ -61,7 +57,7 @@ view model =
             , button [ class "hide-result", onClick Collapse ]
                 [ text "X" ]
             ]
-           else
+        else
             [ button [ class "expand-result", onClick Expand ]
                 [ text "Show" ]
             ]

@@ -9,7 +9,7 @@ import Auth
 import Task exposing (Task)
 import Json.Decode exposing (Decoder)
 import Dict exposing (Dict)
-import SearchResult exposing (ResultId)
+import SearchResult
 
 
 searchFeed : String -> Cmd Msg
@@ -32,7 +32,7 @@ responseDecoder =
 
 type alias Model =
     { query : String
-    , results : Dict ResultId SearchResult.Model
+    , results : Dict Int SearchResult.Model
     , errorMessage : Maybe String
     }
 
@@ -69,7 +69,7 @@ viewErrorMessage errorMessage =
             text ""
 
 
-viewSearchResults : Dict ResultId SearchResult.Model -> List (Html Msg)
+viewSearchResults : Dict Int SearchResult.Model -> List (Html Msg)
 viewSearchResults results =
     results
         |> Dict.values
@@ -95,7 +95,7 @@ viewSearchResult result =
 type Msg
     = Search
     | SetQuery String
-    | UpdateSearchResult ResultId SearchResult.Msg
+    | UpdateSearchResult Int SearchResult.Msg
     | HandleSearchResponse (List SearchResult.Model)
     | HandleSearchError Http.Error
 
@@ -119,7 +119,7 @@ update msg model =
 
         HandleSearchResponse results ->
             let
-                resultsById : Dict ResultId SearchResult.Model
+                resultsById : Dict Int SearchResult.Model
                 resultsById =
                     results
                         |> List.map (\result -> ( result.id, result ))
