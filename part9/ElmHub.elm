@@ -39,7 +39,7 @@ searchResultDecoder =
 
 type alias Model =
     { query : String
-    , results : Dict ResultId SearchResult
+    , results : Dict Int SearchResult
     , errorMessage : Maybe String
     }
 
@@ -72,7 +72,7 @@ view model =
         ]
 
 
-viewSearchResults : Dict ResultId SearchResult -> List (Html Msg)
+viewSearchResults : Dict Int SearchResult -> List (Html Msg)
 viewSearchResults results =
     -- TODO sort by star count and render
     []
@@ -117,7 +117,7 @@ update msg model =
 
         HandleSearchResponse results ->
             let
-                resultsById : Dict ResultId SearchResult
+                resultsById : Dict Int SearchResult
                 resultsById =
                     -- TODO convert results list into a Dict
                     Dict.empty
