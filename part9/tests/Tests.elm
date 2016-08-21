@@ -11,8 +11,8 @@ import String
 all : Test
 all =
     describe "GitHub Response Decoder"
-        [ test "it results in an Err for invalid JSON"
-            <| \() ->
+        [ test "it results in an Err for invalid JSON" <|
+            \() ->
                 let
                     json =
                         """{ "pizza": [] }"""
@@ -28,8 +28,8 @@ all =
                         |> decodeString responseDecoder
                         |> isErrorResult
                         |> Expect.true "Expected decoding an invalid response to return an Err."
-        , test "it successfully decodes a valid response"
-            <| \() ->
+        , test "it successfully decodes a valid response" <|
+            \() ->
                 """{ "items": [
                     /* TODO: put JSON here! */
                  ] }"""
@@ -40,8 +40,8 @@ all =
                             , { id = 3, name = "bar", stars = 77 }
                             ]
                         )
-        , test "it decodes one SearchResult for each 'item' in the JSON"
-            <| \() ->
+        , test "it decodes one SearchResult for each 'item' in the JSON" <|
+            \() ->
                 let
                     -- TODO convert this to a fuzz test that generates a random
                     -- list of ids instead of this hardcoded list of three ids.
