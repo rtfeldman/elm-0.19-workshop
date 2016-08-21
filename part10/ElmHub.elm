@@ -81,7 +81,7 @@ viewSearchResult : SearchResult.Model -> Html Msg
 viewSearchResult result =
     -- TODO call SearchResult.view to render a search result.
     --
-    -- Hint: Use Html.App.map and UpdateSearchResult to translate from
+    -- Hint: Use Html.map and UpdateSearchResult to translate from
     -- SearchResult.Msg into the Msg type we have defined in this module.
     div [] []
 
