@@ -26,11 +26,11 @@
     github.getSearch(query).repositories({}, function (err, repositories) {
       console.log("Got response", repositories);
 
-      // TODO: app.ports.portNameGoesHere.send(repositories);
+      app.ports.githubResponse.send(repositories);
     });
   }
 
-  // TODO app.ports.portNameGoesHere.subscribe(searchGithub);
+  app.ports.githubSearch.subscribe(searchGithub);
 </script>
 
 </html>

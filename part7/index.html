@@ -4,33 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <title>ElmHub</title>
-  <script type="text/javascript" src="github.js"></script>
   <script type="text/javascript" src="elm.js"></script>
+
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="elm-hub.png">
 </head>
 
 <body>
-  <div id="elm-landing-pad"></div>
 </body>
 
 <script type="text/javascript">
-  // documentation: https://github.com/michael/github
-  var github = new Github();
-
-  var app = Elm.Main.embed(document.getElementById("elm-landing-pad"));
-
-  function searchGithub(query) {
-    console.log("Searching for", query);
-
-    github.getSearch(query).repositories({}, function (err, repositories) {
-      console.log("Got response", repositories);
-
-      // TODO: app.ports.portNameGoesHere.send(repositories);
-    });
-  }
-
-  // TODO app.ports.portNameGoesHere.subscribe(searchGithub);
+  var app = Elm.Main.fullscreen();
 </script>
 
 </html>

@@ -1,11 +1,12 @@
-port module Main exposing (..)
+module Main exposing (..)
 
-import Html.App as Html
-import Json.Decode exposing (..)
+import Auth
 import Html exposing (..)
 import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
-import Auth
+import Http
+import Html.App as Html
+import Task exposing (Task)
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
 
@@ -15,19 +16,34 @@ main =
     Html.program
         { view = view
         , update = update
-        , init = ( initialModel, githubSearch (getQueryString initialModel.query) )
-        , subscriptions = \_ -> githubResponse decodeResponse
+        , init = ( initialModel, searchFeed initialModel.query )
+        , subscriptions = \_ -> Sub.none
         }
 
 
-getQueryString : String -> String
-getQueryString query =
-    -- See https://developer.github.com/v3/search/#example for how to customize!
-    "access_token="
-        ++ Auth.token
-        ++ "&q="
-        ++ query
-        ++ "+language:elm&sort=stars&order=desc"
+searchFeed : String -> Cmd Msg
+searchFeed query =
+    let
+        url =
+            "https://api.github.com/search/repositories?access_token="
+                ++ Auth.token
+                ++ "&q="
+                ++ query
+                ++ "+language:elm&sort=stars&order=desc"
+
+        -- Hint: responseDecoder may be useful here
+        task =
+            "TODO replace this String with a Task using http://package.elm-lang.org/packages/evancz/elm-http/latest/Http#get"
+    in
+        -- TODO replace this Cmd.none with a call to Task.perform
+        -- http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task#perform
+        --
+        -- Hint: pass these to Task.perform, but in a different order than this!
+        --
+        -- task
+        -- HandleSearchResponse
+        -- HandleSearchError
+        Cmd.none
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -100,51 +116,43 @@ viewSearchResult result =
         ]
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        Search ->
-            ( model, githubSearch (getQueryString model.query) )
-
-        SetQuery query ->
-            ( { model | query = query }, Cmd.none )
-
-        HandleSearchResponse results ->
-            ( { model | results = results }, Cmd.none )
-
-        HandleSearchError error ->
-            ( { model | errorMessage = error }, Cmd.none )
-
-        DeleteById idToDelete ->
-            let
-                newResults =
-                    model.results
-                        |> List.filter (\{ id } -> id /= idToDelete)
-
-                newModel =
-                    { model | results = newResults }
-            in
-                ( newModel, Cmd.none )
-
-
 type Msg
     = Search
     | SetQuery String
     | DeleteById Int
     | HandleSearchResponse (List SearchResult)
-    | HandleSearchError (Maybe String)
+    | HandleSearchError Http.Error
 
 
-decodeResponse : Value -> Msg
-decodeResponse json =
-    -- TODO use decodeValue to decode the response into a Msg.
-    --
-    -- Hint: look at the definition of Msg and
-    -- the definition of responseDecoder
-    HandleSearchError (Just "TODO decode the response!")
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        Search ->
+            ( model, searchFeed model.query )
 
+        HandleSearchResponse results ->
+            ( { model | results = results }, Cmd.none )
 
-port githubSearch : String -> Cmd msg
+        HandleSearchError error ->
+            -- TODO if decoding failed, store the message in model.errorMessage
+            --
+            -- Hint 1: look for "decode" in the documentation for this union type:
+            -- http://package.elm-lang.org/packages/evancz/elm-http/latest/Http#Error
+            --
+            -- Hint 2: to check if this is working, break responseDecoder
+            -- by changing "stargazers_count" to "description"
+            ( model, Cmd.none )
 
+        SetQuery query ->
+            ( { model | query = query }, Cmd.none )
 
-port githubResponse : (Value -> msg) -> Sub msg
+        DeleteById idToHide ->
+            let
+                newResults =
+                    model.results
+                        |> List.filter (\{ id } -> id /= idToHide)
+
+                newModel =
+                    { model | results = newResults }
+            in
+                ( newModel, Cmd.none )

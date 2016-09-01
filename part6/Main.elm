@@ -1,49 +1,64 @@
 module Main exposing (..)
 
-import Auth
 import Html exposing (..)
+import Html.App as Html
 import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
-import Http
-import Html.App as Html
-import Task exposing (Task)
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
 
 
 main : Program Never
 main =
-    Html.program
+    Html.beginnerProgram
         { view = view
         , update = update
-        , init = ( initialModel, searchFeed initialModel.query )
-        , subscriptions = \_ -> Sub.none
+        , model = initialModel
         }
 
 
-searchFeed : String -> Cmd Msg
-searchFeed query =
-    let
-        url =
-            "https://api.github.com/search/repositories?access_token="
-                ++ Auth.token
-                ++ "&q="
-                ++ query
-                ++ "+language:elm&sort=stars&order=desc"
-
-        -- Hint: responseDecoder may be useful here
-        task =
-            "TODO replace this String with a Task using http://package.elm-lang.org/packages/evancz/elm-http/latest/Http#get"
-    in
-        -- TODO replace this Cmd.none with a call to Task.perform
-        -- http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task#perform
-        --
-        -- Hint: pass these to Task.perform, but in a different order than this!
-        --
-        -- task
-        -- HandleSearchResponse
-        -- HandleSearchError
-        Cmd.none
+sampleJson : String
+sampleJson =
+    """
+    {
+    "total_count": 40,
+    "incomplete_results": false,
+    "items": [
+      {
+        "id": 3081286,
+        "name": "Tetris",
+        "full_name": "dtrupenn/Tetris",
+        "owner": {
+          "login": "dtrupenn",
+          "id": 872147,
+          "avatar_url": "https://secure.gravatar.com/avatar/e7956084e75f239de85d3a31bc172ace?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/dtrupenn",
+          "received_events_url": "https://api.github.com/users/dtrupenn/received_events",
+          "type": "User"
+        },
+        "private": false,
+        "html_url": "https://github.com/dtrupenn/Tetris",
+        "description": "A C implementation of Tetris using Pennsim through LC4",
+        "fork": false,
+        "url": "https://api.github.com/repos/dtrupenn/Tetris",
+        "created_at": "2012-01-01T00:31:50Z",
+        "updated_at": "2013-01-05T17:58:47Z",
+        "pushed_at": "2012-01-01T00:37:02Z",
+        "homepage": "",
+        "size": 524,
+        "stargazers_count": 1,
+        "watchers_count": 1,
+        "language": "Assembly",
+        "forks_count": 0,
+        "open_issues_count": 0,
+        "master_branch": "master",
+        "default_branch": "master",
+        "score": 10.309712
+      }
+    ]
+  }
+  """
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -53,16 +68,18 @@ responseDecoder =
 
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
+    -- See https://developer.github.com/v3/search/#example
+    -- and http://package.elm-lang.org/packages/NoRedInk/elm-decode-pipeline/latest
+    -- TODO replace these calls to `hardcoded` with calls to `require`
     decode SearchResult
-        |> required "id" Json.Decode.int
-        |> required "full_name" Json.Decode.string
-        |> required "stargazers_count" Json.Decode.int
+        |> hardcoded 0
+        |> hardcoded ""
+        |> hardcoded 0
 
 
 type alias Model =
     { query : String
     , results : List SearchResult
-    , errorMessage : Maybe String
     }
 
 
@@ -76,9 +93,19 @@ type alias SearchResult =
 initialModel : Model
 initialModel =
     { query = "tutorial"
-    , results = []
-    , errorMessage = Nothing
+    , results = decodeResults sampleJson
     }
+
+
+decodeResults : String -> List SearchResult
+decodeResults json =
+    -- TODO use Json.Decode.decodeString to translate this into either:
+    --
+    -- * the search results, if decoding succeeded
+    -- * an empty list if decoding failed
+    --
+    -- see http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Json-Decode#decodeString
+    []
 
 
 view : Model -> Html Msg
@@ -89,20 +116,10 @@ view model =
             , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
         , input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
-        , button [ class "search-button", onClick Search ] [ text "Search" ]
-        , viewErrorMessage model.errorMessage
-        , ul [ class "results" ] (List.map viewSearchResult model.results)
+        , button [ class "search-button" ] [ text "Search" ]
+        , ul [ class "results" ]
+            (List.map viewSearchResult model.results)
         ]
-
-
-viewErrorMessage : Maybe String -> Html a
-viewErrorMessage errorMessage =
-    case errorMessage of
-        Just message ->
-            div [ class "error" ] [ text message ]
-
-        Nothing ->
-            text ""
 
 
 viewSearchResult : SearchResult -> Html Msg
@@ -117,42 +134,19 @@ viewSearchResult result =
 
 
 type Msg
-    = Search
-    | SetQuery String
+    = SetQuery String
     | DeleteById Int
-    | HandleSearchResponse (List SearchResult)
-    | HandleSearchError Http.Error
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
-        Search ->
-            ( model, searchFeed model.query )
-
-        HandleSearchResponse results ->
-            ( { model | results = results }, Cmd.none )
-
-        HandleSearchError error ->
-            -- TODO if decoding failed, store the message in model.errorMessage
-            --
-            -- Hint 1: look for "decode" in the documentation for this union type:
-            -- http://package.elm-lang.org/packages/evancz/elm-http/latest/Http#Error
-            --
-            -- Hint 2: to check if this is working, break responseDecoder
-            -- by changing "stargazers_count" to "description"
-            ( model, Cmd.none )
-
         SetQuery query ->
-            ( { model | query = query }, Cmd.none )
+            { model | query = query }
 
         DeleteById idToHide ->
             let
                 newResults =
-                    model.results
-                        |> List.filter (\{ id } -> id /= idToHide)
-
-                newModel =
-                    { model | results = newResults }
+                    List.filter (\{ id } -> id /= idToHide) model.results
             in
-                ( newModel, Cmd.none )
+                { model | results = newResults }

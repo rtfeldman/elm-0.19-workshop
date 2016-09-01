@@ -1,4 +1,4 @@
-Part 5
+Part 4
 ======
 
 The instructor will paste notes from the lesson, including code examples from
@@ -18,3 +18,7 @@ elm-package install
 ```bash
 elm-live Main.elm --open --output=elm.js
 ```
+
+## References
+
+* [Union Types syntax reference](http://elm-lang.org/docs/syntax#union-types)

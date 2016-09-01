@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick)
 
 
 type alias Model =
@@ -19,12 +19,14 @@ type alias SearchResult =
     }
 
 
-type Msg
-    = SetQuery String
-    | DeleteById Int
+type alias Msg =
+    { operation : String
+    , data : Int
+    }
 
 
-initialModel : Model
+{-| TODO add a type annotation to this value
+-}
 initialModel =
     { query = "tutorial"
     , results =
@@ -52,7 +54,8 @@ initialModel =
     }
 
 
-elmHubHeader : Html Msg
+{-| TODO add a type annotation to this function
+-}
 elmHubHeader =
     header []
         [ h1 [] [ text "ElmHub" ]
@@ -60,45 +63,39 @@ elmHubHeader =
         ]
 
 
-view : Model -> Html Msg
+{-| TODO add a type annotation to this function
+-}
 view model =
     div [ class "content" ]
-        [ header []
-            [ h1 [] [ text "ElmHub" ]
-            , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
-            ]
-        , input
-            [ class "search-query"
-              -- TODO onInput, set the query in the model
-            , defaultValue model.query
-            ]
-            []
-        , button [ class "search-button" ] [ text "Search" ]
+        [ elmHubHeader
         , ul [ class "results" ] (List.map viewSearchResult model.results)
         ]
 
 
-viewSearchResult : SearchResult -> Html Msg
+{-| TODO add a type annotation to this function
+-}
 viewSearchResult result =
     li []
         [ span [ class "star-count" ] [ text (toString result.stars) ]
         , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
             [ text result.name ]
         , button
-            -- TODO add an onClick handler that sends a DeleteById action
-            [ class "hide-result" ]
+            [ class "hide-result", onClick { operation = "DELETE_BY_ID", data = result.id } ]
             [ text "X" ]
         ]
 
 
-update : Msg -> Model -> Model
+{-| TODO add a type annotation to this function
+-}
 update msg model =
-    -- TODO if we get a SetQuery action, use it to set the model's query field,
-    -- and if we get a DeleteById action, delete the appropriate result
-    model
+    if msg.operation == "DELETE_BY_ID" then
+        { model
+            | results = List.filter (\result -> result.id /= msg.data) model.results
+        }
+    else
+        model
 
 
-main : Program Never
 main =
     Html.beginnerProgram
         { view = view

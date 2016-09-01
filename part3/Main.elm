@@ -6,27 +6,6 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 
 
-type alias Model =
-    { query : String
-    , results : List SearchResult
-    }
-
-
-type alias SearchResult =
-    { id : Int
-    , name : String
-    , stars : Int
-    }
-
-
-type alias Msg =
-    { operation : String
-    , data : Int
-    }
-
-
-{-| TODO add a type annotation to this value
--}
 initialModel =
     { query = "tutorial"
     , results =
@@ -54,8 +33,6 @@ initialModel =
     }
 
 
-{-| TODO add a type annotation to this function
--}
 elmHubHeader =
     header []
         [ h1 [] [ text "ElmHub" ]
@@ -63,8 +40,6 @@ elmHubHeader =
         ]
 
 
-{-| TODO add a type annotation to this function
--}
 view model =
     div [ class "content" ]
         [ elmHubHeader
@@ -72,28 +47,22 @@ view model =
         ]
 
 
-{-| TODO add a type annotation to this function
--}
 viewSearchResult result =
     li []
         [ span [ class "star-count" ] [ text (toString result.stars) ]
         , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
             [ text result.name ]
         , button
-            [ class "hide-result", onClick { operation = "DELETE_BY_ID", data = result.id } ]
+            -- TODO add an onClick handler that sends a DELETE_BY_ID msg
+            [ class "hide-result" ]
             [ text "X" ]
         ]
 
 
-{-| TODO add a type annotation to this function
--}
 update msg model =
-    if msg.operation == "DELETE_BY_ID" then
-        { model
-            | results = List.filter (\result -> result.id /= msg.data) model.results
-        }
-    else
-        model
+    -- TODO if msg.operation == "DELETE_BY_ID",
+    -- then return a new model without the given ID present anymore.
+    model
 
 
 main =

@@ -2,79 +2,8 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.App as Html
-import Html.Attributes exposing (class, target, href, property, defaultValue)
-import Html.Events exposing (..)
-import Json.Decode exposing (Decoder)
-import Json.Decode.Pipeline exposing (..)
-
-
-main : Program Never
-main =
-    Html.beginnerProgram
-        { view = view
-        , update = update
-        , model = initialModel
-        }
-
-
-sampleJson : String
-sampleJson =
-    """
-    {
-    "total_count": 40,
-    "incomplete_results": false,
-    "items": [
-      {
-        "id": 3081286,
-        "name": "Tetris",
-        "full_name": "dtrupenn/Tetris",
-        "owner": {
-          "login": "dtrupenn",
-          "id": 872147,
-          "avatar_url": "https://secure.gravatar.com/avatar/e7956084e75f239de85d3a31bc172ace?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png",
-          "gravatar_id": "",
-          "url": "https://api.github.com/users/dtrupenn",
-          "received_events_url": "https://api.github.com/users/dtrupenn/received_events",
-          "type": "User"
-        },
-        "private": false,
-        "html_url": "https://github.com/dtrupenn/Tetris",
-        "description": "A C implementation of Tetris using Pennsim through LC4",
-        "fork": false,
-        "url": "https://api.github.com/repos/dtrupenn/Tetris",
-        "created_at": "2012-01-01T00:31:50Z",
-        "updated_at": "2013-01-05T17:58:47Z",
-        "pushed_at": "2012-01-01T00:37:02Z",
-        "homepage": "",
-        "size": 524,
-        "stargazers_count": 1,
-        "watchers_count": 1,
-        "language": "Assembly",
-        "forks_count": 0,
-        "open_issues_count": 0,
-        "master_branch": "master",
-        "default_branch": "master",
-        "score": 10.309712
-      }
-    ]
-  }
-  """
-
-
-responseDecoder : Decoder (List SearchResult)
-responseDecoder =
-    Json.Decode.at [ "items" ] (Json.Decode.list searchResultDecoder)
-
-
-searchResultDecoder : Decoder SearchResult
-searchResultDecoder =
-    -- See https://developer.github.com/v3/search/#example
-    -- and http://package.elm-lang.org/packages/NoRedInk/elm-decode-pipeline/latest
-    -- TODO replace these calls to `hardcoded` with calls to `require`
-    decode SearchResult
-        |> hardcoded 0
-        |> hardcoded ""
-        |> hardcoded 0
+import Html.Attributes exposing (..)
+import Html.Events exposing (onClick, onInput)
 
 
 type alias Model =
@@ -90,22 +19,45 @@ type alias SearchResult =
     }
 
 
+type Msg
+    = SetQuery String
+    | DeleteById Int
+
+
 initialModel : Model
 initialModel =
     { query = "tutorial"
-    , results = decodeResults sampleJson
+    , results =
+        [ { id = 1
+          , name = "TheSeamau5/elm-checkerboardgrid-tutorial"
+          , stars = 66
+          }
+        , { id = 2
+          , name = "grzegorzbalcerek/elm-by-example"
+          , stars = 41
+          }
+        , { id = 3
+          , name = "sporto/elm-tutorial-app"
+          , stars = 35
+          }
+        , { id = 4
+          , name = "jvoigtlaender/Elm-Tutorium"
+          , stars = 10
+          }
+        , { id = 5
+          , name = "sporto/elm-tutorial-assets"
+          , stars = 7
+          }
+        ]
     }
 
 
-decodeResults : String -> List SearchResult
-decodeResults json =
-    -- TODO use Json.Decode.decodeString to translate this into either:
-    --
-    -- * the search results, if decoding succeeded
-    -- * an empty list if decoding failed
-    --
-    -- see http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Json-Decode#decodeString
-    []
+elmHubHeader : Html Msg
+elmHubHeader =
+    header []
+        [ h1 [] [ text "ElmHub" ]
+        , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
+        ]
 
 
 view : Model -> Html Msg
@@ -115,10 +67,14 @@ view model =
             [ h1 [] [ text "ElmHub" ]
             , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
-        , input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
+        , input
+            [ class "search-query"
+              -- TODO onInput, set the query in the model
+            , defaultValue model.query
+            ]
+            []
         , button [ class "search-button" ] [ text "Search" ]
-        , ul [ class "results" ]
-            (List.map viewSearchResult model.results)
+        , ul [ class "results" ] (List.map viewSearchResult model.results)
         ]
 
 
@@ -128,25 +84,24 @@ viewSearchResult result =
         [ span [ class "star-count" ] [ text (toString result.stars) ]
         , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
             [ text result.name ]
-        , button [ class "hide-result", onClick (DeleteById result.id) ]
+        , button
+            -- TODO add an onClick handler that sends a DeleteById action
+            [ class "hide-result" ]
             [ text "X" ]
         ]
 
 
-type Msg
-    = SetQuery String
-    | DeleteById Int
-
-
 update : Msg -> Model -> Model
 update msg model =
-    case msg of
-        SetQuery query ->
-            { model | query = query }
+    -- TODO if we get a SetQuery action, use it to set the model's query field,
+    -- and if we get a DeleteById action, delete the appropriate result
+    model
 
-        DeleteById idToHide ->
-            let
-                newResults =
-                    List.filter (\{ id } -> id /= idToHide) model.results
-            in
-                { model | results = newResults }
+
+main : Program Never
+main =
+    Html.beginnerProgram
+        { view = view
+        , update = update
+        , model = initialModel
+        }

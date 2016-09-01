@@ -1,4 +1,4 @@
-Part 3
+Part 2
 ======
 
 The instructor will paste notes from the lesson, including code examples from
@@ -21,5 +21,6 @@ elm-live Main.elm --open --output=elm.js
 
 ## References
 
-* [`onClick` documentation](http://package.elm-lang.org/packages/evancz/elm-html/4.0.2/Html-Events#onClick)
-* [record update syntax reference](http://elm-lang.org/docs/syntax#records) (e.g. `{ model | query = "foo" }`)
+* [Type Annotation syntax reference](http://elm-lang.org/docs/syntax#type-annotations)
+* [`type alias` syntax reference](http://elm-lang.org/docs/syntax#type-aliases)
+* [`List.map` documentation](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/List#map)

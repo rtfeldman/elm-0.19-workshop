@@ -4,35 +4,20 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
-model =
-    { result =
-        { id = 1
-        , name = "TheSeamau5/elm-checkerboardgrid-tutorial"
-        , stars = 66
-        }
-    }
-
-
 elmHubHeader =
     header []
-        [ h1 [] [ text "ElmHub" ]
-        , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
-        ]
-
-
-view model =
-    div [ class "content" ]
-        [ elmHubHeader
-        , ul [ class "results" ]
-            [ li []
-                [ span [ class "star-count" ] [{- TODO display the number of stars -}]
-                  -- TODO use the model to put a link here that points to
-                  -- https://github.com/TheSeamau5/elm-checkerboardgrid-tutorial
-                  -- by prepending the "https://github.com/" part.
-                ]
+        [ -- TODO wrap the following text in an <h1>
+          text "ElmHub"
+        , span [ class "tagline" ]
+            [{- TODO put some text in here that says:
+                "Like GitHub, but for Elm things."
+             -}
             ]
         ]
 
 
 main =
-    view model
+    div [ class "content" ]
+        [ -- TODO put the header here
+          ul [ class "results" ] []
+        ]
