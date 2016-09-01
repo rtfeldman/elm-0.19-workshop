@@ -99,3 +99,7 @@ button:focus, input:focus {
   font-family: monospace;
   font-size: 18px;
 }
+
+a {
+  cursor: pointer;
+}
