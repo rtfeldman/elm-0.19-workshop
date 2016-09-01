@@ -15,8 +15,7 @@ model =
 
 elmHubHeader =
     header []
-        [ -- TODO wrap the following text in an <h1>
-          text "ElmHub"
+        [ h1 [] [ text "ElmHub" ]
         , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
         ]
 
@@ -29,6 +28,7 @@ view model =
                 [ span [ class "star-count" ] [{- TODO display the number of stars -}]
                   -- TODO use the model to put a link here that points to
                   -- https://github.com/TheSeamau5/elm-checkerboardgrid-tutorial
+                  -- by prepending the "https://github.com/" part.
                 ]
             ]
         ]
