@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
-model =
+initialModel =
     { result =
         { id = 1
         , name = "TheSeamau5/elm-checkerboardgrid-tutorial"
@@ -35,4 +35,4 @@ view model =
 
 
 main =
-    view model
+    view initialModel
