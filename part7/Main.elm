@@ -31,14 +31,14 @@ searchFeed query =
                 ++ query
                 ++ "+language:elm&sort=stars&order=desc"
 
-        -- Hint: responseDecoder may be useful here
+        -- HINT: responseDecoder may be useful here.
         task =
             "TODO replace this String with a Task using http://package.elm-lang.org/packages/evancz/elm-http/latest/Http#get"
     in
         -- TODO replace this Cmd.none with a call to Task.perform
-        -- http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task#perform
+        -- http://package.elm-lang.org/packages/elm-lang/core/latest/Task#perform
         --
-        -- Hint: pass these to Task.perform, but in a different order than this!
+        -- HINT: pass these to Task.perform, but in a different order than this!
         --
         -- task
         -- HandleSearchResponse
