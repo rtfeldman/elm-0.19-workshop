@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
-import Json.Decode exposing (Decoder)
+import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
 
 
@@ -15,6 +15,10 @@ main =
         , update = update
         , model = initialModel
         }
+
+
+
+-- see http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Json-Decode#decodeString
 
 
 sampleJson : String
@@ -61,11 +65,6 @@ sampleJson =
   """
 
 
-responseDecoder : Decoder (List SearchResult)
-responseDecoder =
-    Json.Decode.at [ "items" ] (Json.Decode.list searchResultDecoder)
-
-
 searchResultDecoder : Decoder SearchResult
 searchResultDecoder =
     -- See https://developer.github.com/v3/search/#example
@@ -97,15 +96,28 @@ initialModel =
     }
 
 
+responseDecoder : Decoder (List SearchResult)
+responseDecoder =
+    decode identity
+        |> required "items" (list searchResultDecoder)
+
+
 decodeResults : String -> List SearchResult
 decodeResults json =
-    -- TODO use Json.Decode.decodeString to translate this into either:
-    --
-    -- * the search results, if decoding succeeded
-    -- * an empty list if decoding failed
-    --
-    -- see http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Json-Decode#decodeString
-    []
+    case decodeString responseDecoder json of
+        -- TODO add branches to this case-expression which return:
+        --
+        -- * the search results, if decoding succeeded
+        -- * an empty list if decoding failed
+        --
+        -- see http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Json-Decode#decodeString
+        --
+        -- HINT: decodeString returns a Result which is one of the following:
+        --
+        -- Ok (List SearchResult)
+        -- Err String
+        _ ->
+            []
 
 
 view : Model -> Html Msg
