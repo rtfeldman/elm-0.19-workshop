@@ -41,11 +41,22 @@ responseDecoder =
 
 
 type alias Model =
+    -- TODO add tableState : Table.State to the Model
     { query : String
     , results : List SearchResult
     , errorMessage : Maybe String
-    , tableState : Table.State
     }
+
+
+type Msg
+    = Search
+    | Visit String
+    | SetQuery String
+    | DeleteById Int
+    | HandleSearchResponse (List SearchResult)
+    | HandleSearchError (Maybe String)
+      -- TODO add a new constructor: SetTableState Table.State
+    | DoNothing
 
 
 initialQuery : String
@@ -55,10 +66,10 @@ initialQuery =
 
 init : ( Model, Cmd Msg )
 init =
+    -- TODO initialize the Model's tableState to (Table.initialSort "Stars")
     ( { query = initialQuery
       , results = []
       , errorMessage = Nothing
-      , tableState = Table.initialSort "Stars"
       }
     , githubSearch (getQueryString initialQuery)
     )
@@ -66,19 +77,28 @@ init =
 
 view : Model -> Html Msg
 view model =
-    div [ class "home-container" ]
-        [ input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
-        , button [ class "search-button", onClick Search ] [ text "Search" ]
-        , viewErrorMessage model.errorMessage
-        , Table.view tableConfig model.tableState model.results
-        ]
+    let
+        currentTableState : Table.State
+        currentTableState =
+            -- TODO have this use the actual current table state
+            Table.initialSort "Stars"
+    in
+        div [ class "home-container" ]
+            [ input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
+            , button [ class "search-button", onClick Search ] [ text "Search" ]
+            , viewErrorMessage model.errorMessage
+              -- TODO have this use model.results instead of []
+            , Table.view tableConfig currentTableState []
+            ]
 
 
 tableConfig : Table.Config SearchResult Msg
 tableConfig =
     Table.config
         { toId = .id >> toString
-        , toMsg = SetTableState
+        , toMsg =
+            -- TODO have the table use SetTableState for its toMsg
+            (\tableState -> DoNothing)
         , columns = [ starsColumn, nameColumn ]
         }
 
@@ -126,17 +146,6 @@ viewSearchResult result =
         ]
 
 
-type Msg
-    = Search
-    | Visit String
-    | SetQuery String
-    | DeleteById Int
-    | HandleSearchResponse (List SearchResult)
-    | HandleSearchError (Maybe String)
-    | SetTableState Table.State
-    | DoNothing
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -166,9 +175,8 @@ update msg model =
             in
                 ( newModel, Cmd.none )
 
-        SetTableState newState ->
-            ( { model | tableState = newState }, Cmd.none )
-
+        -- TODO add a new branch for SetTableState
+        -- which records the new tableState in the Model.
         DoNothing ->
             ( model, Cmd.none )
 
