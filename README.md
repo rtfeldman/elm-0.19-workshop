@@ -15,7 +15,10 @@ Getting Started
 npm install -g elm elm-test elm-css elm-live@2.5.0
 ```
 
-**Note:** If step 4 gives you an `EACCESS` error on OS X, try [this fix](https://docs.npmjs.com/getting-started/fixing-npm-permissions):
+**Note to OS X users:** If step 4 gives you an `EACCESS` error on OS X, try [this fix](https://docs.npmjs.com/getting-started/fixing-npm-permissions):
+
+**Note to Windows 10 users running Bash:** There is [a bug in Windows Bash](https://github.com/Microsoft/BashOnWindows/issues/307) which will mess up the installers. This does not affect the normal Windows terminal, so if you use it instead of Windows Bash, you should be fine.
+
 
 ```
 sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
