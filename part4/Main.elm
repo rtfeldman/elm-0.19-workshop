@@ -54,7 +54,7 @@ initialModel =
     }
 
 
-{-| TODO add a type annotation to this function
+{-| TODO add a type annotation to this value
 -}
 elmHubHeader =
     header []
