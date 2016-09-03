@@ -117,6 +117,14 @@ th {
   text-align: left;
 }
 
+.home-container th {
+  cursor: pointer;
+}
+
+.home-container th:hover {
+  color: rgb(96, 181, 204);
+}
+
 th, td {
   font-size: 18px;
   padding-right: 20px;

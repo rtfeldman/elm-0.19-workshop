@@ -7,6 +7,7 @@ import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (decode, required)
 import Navigation
+import Table
 
 
 type alias SearchResult =
@@ -43,6 +44,7 @@ type alias Model =
     { query : String
     , results : List SearchResult
     , errorMessage : Maybe String
+    , tableState : Table.State
     }
 
 
@@ -56,6 +58,7 @@ init =
     ( { query = initialQuery
       , results = []
       , errorMessage = Nothing
+      , tableState = Table.initialSort "Stars"
       }
     , githubSearch (getQueryString initialQuery)
     )
@@ -63,12 +66,39 @@ init =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ class "home-container" ]
         [ input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
         , button [ class "search-button", onClick Search ] [ text "Search" ]
         , viewErrorMessage model.errorMessage
-        , ul [ class "results" ] (List.map viewSearchResult model.results)
+        , Table.view tableConfig model.tableState model.results
         ]
+
+
+tableConfig : Table.Config SearchResult Msg
+tableConfig =
+    Table.config
+        { toId = .id >> toString
+        , toMsg = SetTableState
+        , columns = [ starsColumn, nameColumn ]
+        }
+
+
+starsColumn : Table.Column SearchResult Msg
+starsColumn =
+    Table.veryCustomColumn
+        { name = "Stars"
+        , viewData = viewStars
+        , sorter = Table.increasingOrDecreasingBy (negate << .stars)
+        }
+
+
+nameColumn : Table.Column SearchResult Msg
+nameColumn =
+    Table.veryCustomColumn
+        { name = "Name"
+        , viewData = viewSearchResult
+        , sorter = Table.increasingOrDecreasingBy .name
+        }
 
 
 viewErrorMessage : Maybe String -> Html a
@@ -81,12 +111,16 @@ viewErrorMessage errorMessage =
             text ""
 
 
-viewSearchResult : SearchResult -> Html Msg
+viewStars : SearchResult -> Table.HtmlDetails Msg
+viewStars result =
+    Table.HtmlDetails []
+        [ span [ class "star-count" ] [ text (toString result.stars) ] ]
+
+
+viewSearchResult : SearchResult -> Table.HtmlDetails Msg
 viewSearchResult result =
-    li []
-        [ span [ class "star-count" ] [ text (toString result.stars) ]
-        , a [ onClick (Visit ("/repositories/" ++ result.name)) ]
-            [ text result.name ]
+    Table.HtmlDetails []
+        [ a [ onClick (Visit ("/repositories/" ++ result.name)) ] [ text result.name ]
         , button [ class "hide-result", onClick (DeleteById result.id) ]
             [ text "X" ]
         ]
@@ -99,6 +133,7 @@ type Msg
     | DeleteById Int
     | HandleSearchResponse (List SearchResult)
     | HandleSearchError (Maybe String)
+    | SetTableState Table.State
     | DoNothing
 
 
@@ -130,6 +165,9 @@ update msg model =
                     { model | results = newResults }
             in
                 ( newModel, Cmd.none )
+
+        SetTableState newState ->
+            ( { model | tableState = newState }, Cmd.none )
 
         DoNothing ->
             ( model, Cmd.none )
