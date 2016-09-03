@@ -37,8 +37,7 @@ subscriptions model =
     case model of
         Home pageModel ->
             -- TODO use Sub.map to translate from Page.Home.subscriptions
-            Page.Home.subscriptions pageModel
-                |> Sub.map HomeMsg
+            Sub.none
 
         Repository pageModel ->
             -- Repository has no subscriptions, so there's nothing to translate!
@@ -54,13 +53,11 @@ init result =
     case result of
         Ok (Page.Home) ->
             -- TODO use Html.map to translate from Page.Home.view
-            Page.Home.init
-                |> Tuple2.mapEach Home (Cmd.map HomeMsg)
+            ( NotFound, Cmd.none )
 
         Ok (Page.Repository repoOwner repoName) ->
             -- TODO use Html.map to translate from Page.Repository.view
-            Page.Repository.init repoOwner repoName
-                |> Tuple2.mapEach Repository (Cmd.map RepositoryMsg)
+            ( NotFound, Cmd.none )
 
         Ok (Page.NotFound) ->
             ( NotFound, Cmd.none )
@@ -75,13 +72,11 @@ view model =
         case model of
             Home pageModel ->
                 -- TODO use Html.map to translate from Page.Home.view
-                Page.Home.view pageModel
-                    |> Html.map HomeMsg
+                text "Nothing to see here yet. Still need to translate Home!"
 
             Repository pageModel ->
                 -- TODO use Html.map to translate from Page.Repository.view
-                Page.Repository.view pageModel
-                    |> Html.map RepositoryMsg
+                text "Nothing to see here yet. Still need to translate Repository!"
 
             NotFound ->
                 h1 [] [ text "Page Not Found" ]
@@ -106,14 +101,12 @@ update msg model =
             -- to translate from Page.Home.update
             --
             -- mapEach : (a -> newA) -> (b -> newB) -> ( a, b ) -> ( newA, newB )
-            Page.Home.update pageMsg pageModel
-                |> Tuple2.mapEach Home (Cmd.map HomeMsg)
+            ( model, Cmd.none )
 
         ( RepositoryMsg pageMsg, Repository pageModel ) ->
             -- TODO use Tuple2.mapEach and (Cmd.map RepositoryMsg)
             -- to translate from Page.Repository.update
-            Page.Repository.update pageMsg pageModel
-                |> Tuple2.mapEach Repository (Cmd.map RepositoryMsg)
+            ( model, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
@@ -127,16 +120,14 @@ urlUpdate result model =
             -- to translate from Page.Home.init
             --
             -- mapEach : (a -> newA) -> (b -> newB) -> ( a, b ) -> ( newA, newB )
-            Page.Home.init
-                |> Tuple2.mapEach Home (Cmd.map HomeMsg)
+            ( model, Cmd.none )
 
         Ok (Page.Repository repoOwner repoName) ->
             -- TODO use Tuple2.mapEach and (Cmd.map RepositoryMsg)
             -- to translate from Page.Repository.init
             --
             -- HINT: Page.Repository.init is a function that takes 2 arguments.
-            Page.Repository.init repoOwner repoName
-                |> Tuple2.mapEach Repository (Cmd.map RepositoryMsg)
+            ( model, Cmd.none )
 
         Ok (Page.NotFound) ->
             ( NotFound, Cmd.none )

@@ -21,11 +21,7 @@
   var app = Elm.Main.embed(document.getElementById("elm-landing-pad"));
 
   function searchGithub(query) {
-    console.log("Searching for", query);
-
     github.getSearch(query).repositories({}, function (err, repositories) {
-      console.log("Got response", repositories);
-
       app.ports.githubResponse.send(repositories);
     });
   }
