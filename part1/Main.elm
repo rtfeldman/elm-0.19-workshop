@@ -6,7 +6,7 @@ import Html.Attributes exposing (..)
 
 elmHubHeader =
     header []
-        [ -- TODO wrap the following text in an <h1>
+        [ -- TODO wrap this text in an <h1>
           text "ElmHub"
         , span [ class "tagline" ]
             [{- TODO put some text in here that says:
@@ -18,6 +18,8 @@ elmHubHeader =
 
 main =
     div [ class "content" ]
-        [ -- TODO put the header here
+        [ -- TODO Add elmHubHeader here.
+          --
+          -- HINT: You'll need a comma!
           ul [ class "results" ] []
         ]
