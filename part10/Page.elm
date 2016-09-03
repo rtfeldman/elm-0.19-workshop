@@ -7,7 +7,7 @@ import String
 
 type Page
     = Home
-    | Repository Int
+    | Repository String String
     | NotFound
 
 
@@ -15,7 +15,7 @@ pageParser : Parser (Page -> a) a
 pageParser =
     UrlParser.oneOf
         [ format Home (s "")
-        , format Repository (s "repositories" </> int)
+        , format Repository (s "repositories" </> string </> string)
         ]
 
 

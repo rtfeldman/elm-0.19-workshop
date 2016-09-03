@@ -1,12 +1,27 @@
-port module Pages.Home exposing (..)
+port module Page.Home exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
 import Auth
 import Json.Decode exposing (Decoder)
-import ElmHub exposing (SearchResult)
+import Json.Decode.Pipeline exposing (decode, required)
 import Navigation
+
+
+type alias SearchResult =
+    { id : Int
+    , name : String
+    , stars : Int
+    }
+
+
+searchResultDecoder : Decoder SearchResult
+searchResultDecoder =
+    decode SearchResult
+        |> required "id" Json.Decode.int
+        |> required "full_name" Json.Decode.string
+        |> required "stargazers_count" Json.Decode.int
 
 
 getQueryString : String -> String
@@ -21,7 +36,7 @@ getQueryString query =
 
 responseDecoder : Decoder (List SearchResult)
 responseDecoder =
-    Json.Decode.at [ "items" ] (Json.Decode.list ElmHub.searchResultDecoder)
+    Json.Decode.at [ "items" ] (Json.Decode.list searchResultDecoder)
 
 
 type alias Model =
@@ -70,7 +85,7 @@ viewSearchResult : SearchResult -> Html Msg
 viewSearchResult result =
     li []
         [ span [ class "star-count" ] [ text (toString result.stars) ]
-        , a [ onClick (Visit ("/repositories/" ++ toString result.id)) ]
+        , a [ onClick (Visit ("/repositories/" ++ result.name)) ]
             [ text result.name ]
         , button [ class "hide-result", onClick (DeleteById result.id) ]
             [ text "X" ]
