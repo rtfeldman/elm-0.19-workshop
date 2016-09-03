@@ -12,7 +12,7 @@ Getting Started
 4. Run the following command to install everything else:
 
 ```bash
-npm install -g elm elm-test elm-css elm-live@2.4.1
+npm install -g elm elm-test elm-css elm-live@2.5.0
 ```
 
 **Note:** If step 4 gives you an `EACCESS` error on OS X, try [this fix](https://docs.npmjs.com/getting-started/fixing-npm-permissions):
