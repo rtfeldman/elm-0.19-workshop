@@ -103,3 +103,21 @@ button:focus, input:focus {
 a {
   cursor: pointer;
 }
+
+.repo-description {
+  font-size: 18px;
+}
+
+.profile-photo {
+  width: 32px;
+  margin-right: 10px;
+}
+
+th {
+  text-align: left;
+}
+
+th, td {
+  font-size: 18px;
+  padding-right: 20px;
+}

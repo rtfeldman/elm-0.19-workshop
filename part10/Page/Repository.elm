@@ -79,7 +79,7 @@ view model =
                 |> Maybe.withDefault (text "")
     in
         div []
-            [ h1 []
+            [ h2 []
                 [ a [ href repoUrl ] [ text model.repoName ] ]
             , details
             ]
@@ -88,8 +88,8 @@ view model =
 viewDetails : Repository -> Html Msg
 viewDetails repo =
     div []
-        [ p [] [ text repo.description ]
-        , h2 []
+        [ p [ class "repo-description" ] [ text repo.description ]
+        , h3 []
             [ a [ href repo.owner.profileUrl ]
                 [ img [ class "profile-photo", src repo.owner.avatarUrl ] []
                 , text repo.owner.username
