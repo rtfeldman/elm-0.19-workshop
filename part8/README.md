@@ -1,8 +1,5 @@
-Part 7
+Part 8
 ======
-
-The instructor will paste notes from the lesson, including code examples from
-Q&A, in [this document](https://docs.google.com/document/d/1ApuSOk9DP0YsQrxhW7-WE8UOEAV4PPnLDDeqUOL2o5k/edit?usp=sharing).
 
 ## Installation
 
@@ -18,3 +15,8 @@ elm-package install
 ```bash
 elm-live Main.elm --open --pushstate --output=elm.js
 ```
+
+## References
+
+* [JavaScript interop](http://guide.elm-lang.org/interop/javascript.html)
+* [github.js](https://github.com/michael/github)
