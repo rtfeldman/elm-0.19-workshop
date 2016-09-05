@@ -1,13 +1,13 @@
 module ElmHub exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, target, href, property, defaultValue)
+import Html.Attributes exposing (class, target, href, defaultValue, type', checked)
 import Html.Events exposing (..)
 import Html.App as Html
 import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
-import SearchOptions
+import String
 
 
 getQueryString : String -> String
@@ -37,7 +37,16 @@ type alias Model =
     { query : String
     , results : List SearchResult
     , errorMessage : Maybe String
-    , searchOptions : SearchOptions.Model
+    , options : SearchOptions
+    }
+
+
+type alias SearchOptions =
+    { sort : String
+    , order : String
+    , searchIn : List String
+    , includeForks : Bool
+    , userFilter : String
     }
 
 
@@ -53,14 +62,14 @@ initialModel =
     { query = "tutorial"
     , results = []
     , errorMessage = Nothing
-    , searchOptions = SearchOptions.initialModel
+    , options =
+        { sort = ""
+        , order = ""
+        , searchIn = []
+        , includeForks = True
+        , userFilter = ""
+        }
     }
-
-
-viewAdvancedSearch : Model -> Html Msg
-viewAdvancedSearch model =
-    SearchOptions.view model.searchOptions
-        |> Html.map SearchOptionsMsg
 
 
 view : Model -> Html Msg
@@ -70,6 +79,7 @@ view model =
             [ h1 [] [ text "ElmHub" ]
             , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
+        , Html.map Options (viewOptions model.options)
         , input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
         , button [ class "search-button", onClick Search ] [ text "Search" ]
         , viewErrorMessage model.errorMessage
@@ -100,7 +110,7 @@ viewSearchResult result =
 
 type Msg
     = Search
-    | SearchOptionsMsg SearchOptions.Msg
+    | Options OptionsMsg
     | SetQuery String
     | DeleteById Int
     | HandleSearchResponse (List SearchResult)
@@ -114,18 +124,8 @@ update searchFeed msg model =
         Search ->
             ( model, searchFeed (getQueryString model.query) )
 
-        SearchOptionsMsg advancedSearchMsg ->
-            let
-                newSearchOptions =
-                    -- TODO call SearchOptions.update
-                    -- to determine our new searchOptions value.
-                    --
-                    -- model.searchOptions
-                    SearchOptions.update advancedSearchMsg model.searchOptions
-            in
-                -- TODO update our model to use the newSearchOptions value above.
-                -- ( model, Cmd.none )
-                ( { model | searchOptions = newSearchOptions }, Cmd.none )
+        Options optionsMsg ->
+            ( { model | options = updateOptions optionsMsg model.options }, Cmd.none )
 
         SetQuery query ->
             ( { model | query = query }, Cmd.none )
@@ -149,6 +149,44 @@ update searchFeed msg model =
 
         DoNothing ->
             ( model, Cmd.none )
+
+
+type OptionsMsg
+    = SetSort String
+    | SetOrder String
+    | SetSearchIn (List String)
+    | SetIncludeForks Bool
+    | SetUserFilter String
+
+
+updateOptions : OptionsMsg -> SearchOptions -> SearchOptions
+updateOptions optionsMsg options =
+    case optionsMsg of
+        SetSort sort ->
+            { options | sort = sort }
+
+        SetOrder order ->
+            { options | order = order }
+
+        SetSearchIn searchIn ->
+            { options | searchIn = searchIn }
+
+        SetIncludeForks includeForks ->
+            { options | includeForks = includeForks }
+
+        SetUserFilter userFilter ->
+            { options | userFilter = userFilter }
+
+
+viewOptions : SearchOptions -> Html OptionsMsg
+viewOptions model =
+    div []
+        [ input [ type' "text", defaultValue model.sort, onInput SetSort ] []
+        , input [ type' "text", defaultValue model.order, onInput SetOrder ] []
+        , input [ type' "text", defaultValue (String.join " " model.searchIn) ] []
+        , input [ type' "checkbox", checked model.includeForks ] []
+        , input [ type' "text", defaultValue model.userFilter, onInput SetUserFilter ] []
+        ]
 
 
 decodeGithubResponse : Json.Decode.Value -> Msg
