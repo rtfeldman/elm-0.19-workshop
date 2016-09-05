@@ -72,6 +72,49 @@ initialModel =
     }
 
 
+type Msg
+    = Search
+      -- TODO add a constructor for Options OptionsMsg
+    | SetQuery String
+    | DeleteById Int
+    | HandleSearchResponse (List SearchResult)
+    | HandleSearchError (Maybe String)
+    | DoNothing
+
+
+update : (String -> Cmd Msg) -> Msg -> Model -> ( Model, Cmd Msg )
+update searchFeed msg model =
+    case msg of
+        -- TODO Add a branch for Options which updates model.options
+        --
+        -- HINT: calling updateOptions will save a lot of time here!
+        Search ->
+            ( model, searchFeed (getQueryString model.query) )
+
+        SetQuery query ->
+            ( { model | query = query }, Cmd.none )
+
+        HandleSearchResponse results ->
+            ( { model | results = results }, Cmd.none )
+
+        HandleSearchError error ->
+            ( { model | errorMessage = error }, Cmd.none )
+
+        DeleteById idToHide ->
+            let
+                newResults =
+                    model.results
+                        |> List.filter (\{ id } -> id /= idToHide)
+
+                newModel =
+                    { model | results = newResults }
+            in
+                ( newModel, Cmd.none )
+
+        DoNothing ->
+            ( model, Cmd.none )
+
+
 view : Model -> Html Msg
 view model =
     div [ class "content" ]
@@ -79,7 +122,7 @@ view model =
             [ h1 [] [ text "ElmHub" ]
             , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
-        , Html.map Options (viewOptions model.options)
+          -- TODO call viewOptions here. Use Html.map to avoid a type mismatch!
         , input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
         , button [ class "search-button", onClick Search ] [ text "Search" ]
         , viewErrorMessage model.errorMessage
@@ -106,49 +149,6 @@ viewSearchResult result =
         , button [ class "hide-result", onClick (DeleteById result.id) ]
             [ text "X" ]
         ]
-
-
-type Msg
-    = Search
-    | Options OptionsMsg
-    | SetQuery String
-    | DeleteById Int
-    | HandleSearchResponse (List SearchResult)
-    | HandleSearchError (Maybe String)
-    | DoNothing
-
-
-update : (String -> Cmd Msg) -> Msg -> Model -> ( Model, Cmd Msg )
-update searchFeed msg model =
-    case msg of
-        Search ->
-            ( model, searchFeed (getQueryString model.query) )
-
-        Options optionsMsg ->
-            ( { model | options = updateOptions optionsMsg model.options }, Cmd.none )
-
-        SetQuery query ->
-            ( { model | query = query }, Cmd.none )
-
-        HandleSearchResponse results ->
-            ( { model | results = results }, Cmd.none )
-
-        HandleSearchError error ->
-            ( { model | errorMessage = error }, Cmd.none )
-
-        DeleteById idToHide ->
-            let
-                newResults =
-                    model.results
-                        |> List.filter (\{ id } -> id /= idToHide)
-
-                newModel =
-                    { model | results = newResults }
-            in
-                ( newModel, Cmd.none )
-
-        DoNothing ->
-            ( model, Cmd.none )
 
 
 type OptionsMsg
