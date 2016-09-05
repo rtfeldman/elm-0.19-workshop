@@ -3,9 +3,11 @@ module ElmHub exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (class, target, href, property, defaultValue)
 import Html.Events exposing (..)
+import Html.App as Html
 import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
+import SearchOptions
 
 
 getQueryString : String -> String
@@ -35,6 +37,7 @@ type alias Model =
     { query : String
     , results : List SearchResult
     , errorMessage : Maybe String
+    , searchOptions : SearchOptions.Model
     }
 
 
@@ -50,7 +53,14 @@ initialModel =
     { query = "tutorial"
     , results = []
     , errorMessage = Nothing
+    , searchOptions = SearchOptions.initialModel
     }
+
+
+viewAdvancedSearch : Model -> Html Msg
+viewAdvancedSearch model =
+    SearchOptions.view model.searchOptions
+        |> Html.map SearchOptionsMsg
 
 
 view : Model -> Html Msg
@@ -90,6 +100,7 @@ viewSearchResult result =
 
 type Msg
     = Search
+    | SearchOptionsMsg SearchOptions.Msg
     | SetQuery String
     | DeleteById Int
     | HandleSearchResponse (List SearchResult)
@@ -102,6 +113,19 @@ update searchFeed msg model =
     case msg of
         Search ->
             ( model, searchFeed (getQueryString model.query) )
+
+        SearchOptionsMsg advancedSearchMsg ->
+            let
+                newSearchOptions =
+                    -- TODO call SearchOptions.update
+                    -- to determine our new searchOptions value.
+                    --
+                    -- model.searchOptions
+                    SearchOptions.update advancedSearchMsg model.searchOptions
+            in
+                -- TODO update our model to use the newSearchOptions value above.
+                -- ( model, Cmd.none )
+                ( { model | searchOptions = newSearchOptions }, Cmd.none )
 
         SetQuery query ->
             ( { model | query = query }, Cmd.none )
