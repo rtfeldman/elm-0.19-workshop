@@ -10,7 +10,7 @@ main =
     Html.program
         { view = view
         , update = update githubSearch
-        , init = ( initialModel, githubSearch (getQueryString initialModel.query) )
+        , init = ( initialModel, githubSearch (getQueryString initialModel) )
         , subscriptions = \_ -> githubResponse decodeResponse
         }
 

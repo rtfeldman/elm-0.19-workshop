@@ -1,23 +1,12 @@
 module ElmHub exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, target, href, defaultValue, type', checked)
+import Html.Attributes exposing (class, target, href, defaultValue, type', checked, placeholder, value)
 import Html.Events exposing (..)
 import Html.App as Html
 import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
-import String
-
-
-getQueryString : String -> String
-getQueryString query =
-    -- See https://developer.github.com/v3/search/#example for how to customize!
-    "access_token="
-        ++ Auth.token
-        ++ "&q="
-        ++ query
-        ++ "+language:elm&sort=stars&order=desc"
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -43,9 +32,9 @@ type alias Model =
 
 type alias SearchOptions =
     { sort : String
-    , order : String
+    , ascending : Bool
     , searchIn : List String
-    , includeForks : Bool
+    , searchInDescription : Bool
     , userFilter : String
     }
 
@@ -63,10 +52,10 @@ initialModel =
     , results = []
     , errorMessage = Nothing
     , options =
-        { sort = ""
-        , order = ""
+        { sort = "stars"
+        , ascending = False
         , searchIn = []
-        , includeForks = True
+        , searchInDescription = True
         , userFilter = ""
         }
     }
@@ -89,7 +78,7 @@ update searchFeed msg model =
         --
         -- HINT: calling updateOptions will save a lot of time here!
         Search ->
-            ( model, searchFeed (getQueryString model.query) )
+            ( model, searchFeed (getQueryString model) )
 
         SetQuery query ->
             ( { model | query = query }, Cmd.none )
@@ -115,6 +104,22 @@ update searchFeed msg model =
             ( model, Cmd.none )
 
 
+updateOptions : OptionsMsg -> SearchOptions -> SearchOptions
+updateOptions optionsMsg options =
+    case optionsMsg of
+        SetSort sort ->
+            { options | sort = sort }
+
+        SetAscending ascending ->
+            { options | ascending = ascending }
+
+        SetSearchInDescription searchInDescription ->
+            { options | searchInDescription = searchInDescription }
+
+        SetUserFilter userFilter ->
+            { options | userFilter = userFilter }
+
+
 view : Model -> Html Msg
 view model =
     div [ class "content" ]
@@ -122,9 +127,13 @@ view model =
             [ h1 [] [ text "ElmHub" ]
             , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
-          -- TODO call viewOptions here. Use Html.map to avoid a type mismatch!
-        , input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
-        , button [ class "search-button", onClick Search ] [ text "Search" ]
+        , div [ class "search" ]
+            [ text "TODO replace this text node with a call to viewOptions. Use Html.map to avoid a type mismatch!"
+            , div [ class "search-input" ]
+                [ input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
+                , button [ class "search-button", onClick Search ] [ text "Search" ]
+                ]
+            ]
         , viewErrorMessage model.errorMessage
         , ul [ class "results" ] (List.map viewSearchResult model.results)
         ]
@@ -153,39 +162,40 @@ viewSearchResult result =
 
 type OptionsMsg
     = SetSort String
-    | SetOrder String
-    | SetSearchIn (List String)
-    | SetIncludeForks Bool
+    | SetAscending Bool
+    | SetSearchInDescription Bool
     | SetUserFilter String
 
 
-updateOptions : OptionsMsg -> SearchOptions -> SearchOptions
-updateOptions optionsMsg options =
-    case optionsMsg of
-        SetSort sort ->
-            { options | sort = sort }
-
-        SetOrder order ->
-            { options | order = order }
-
-        SetSearchIn searchIn ->
-            { options | searchIn = searchIn }
-
-        SetIncludeForks includeForks ->
-            { options | includeForks = includeForks }
-
-        SetUserFilter userFilter ->
-            { options | userFilter = userFilter }
-
-
 viewOptions : SearchOptions -> Html OptionsMsg
-viewOptions model =
-    div []
-        [ input [ type' "text", defaultValue model.sort, onInput SetSort ] []
-        , input [ type' "text", defaultValue model.order, onInput SetOrder ] []
-        , input [ type' "text", defaultValue (String.join " " model.searchIn) ] []
-        , input [ type' "checkbox", checked model.includeForks ] []
-        , input [ type' "text", defaultValue model.userFilter, onInput SetUserFilter ] []
+viewOptions opts =
+    div [ class "search-options" ]
+        [ div [ class "search-option" ]
+            [ label [ class "top-label" ] [ text "Sort by" ]
+            , select [ onChange SetSort, value opts.sort ]
+                [ option [ value "stars" ] [ text "Stars" ]
+                , option [ value "forks" ] [ text "Forks" ]
+                , option [ value "updated" ] [ text "Updated" ]
+                ]
+            ]
+        , div [ class "search-option" ]
+            [ label [ class "top-label" ] [ text "Owned by" ]
+            , input
+                [ type' "text"
+                , placeholder "Enter a username"
+                , defaultValue opts.userFilter
+                , onInput SetUserFilter
+                ]
+                []
+            ]
+        , label [ class "search-option" ]
+            [ input [ type' "checkbox", checked opts.ascending, onCheck SetAscending ] []
+            , text "Sort ascending"
+            ]
+        , label [ class "search-option" ]
+            [ input [ type' "checkbox", checked opts.searchInDescription, onCheck SetSearchInDescription ] []
+            , text "Search in description"
+            ]
         ]
 
 
@@ -197,3 +207,31 @@ decodeGithubResponse value =
 
         Err err ->
             HandleSearchError (Just err)
+
+
+onChange : (String -> msg) -> Attribute msg
+onChange toMsg =
+    on "change" (Json.Decode.map toMsg Html.Events.targetValue)
+
+
+getQueryString : Model -> String
+getQueryString model =
+    -- See https://developer.github.com/v3/search/#example for how to customize!
+    "access_token="
+        ++ Auth.token
+        ++ "&q="
+        ++ model.query
+        ++ (if model.options.searchInDescription then
+                "+in:name,description"
+            else
+                "+in:name"
+           )
+        ++ "+language:elm"
+        ++ "&sort="
+        ++ model.options.sort
+        ++ "&order="
+        ++ (if model.options.ascending then
+                "asc"
+            else
+                "desc"
+           )

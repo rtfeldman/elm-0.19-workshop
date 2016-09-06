@@ -99,3 +99,41 @@ button:focus, input:focus {
   font-family: monospace;
   font-size: 18px;
 }
+
+.search-input {
+  display: block;
+  float: left;
+  width: 50%;
+}
+
+.search-options {
+  position: relative;
+  float: right;
+  width: 50%;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+.search-option {
+  display: block;
+  float: left;
+  width: 50%;
+  box-sizing: border-box;
+}
+
+.search-option input[type="text"] {
+  padding: 5px;
+  box-sizing: border-box;
+  width: 90%;
+}
+
+.search:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.top-label {
+  display: block;
+  color: #555;
+}
