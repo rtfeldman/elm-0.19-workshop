@@ -7,6 +7,7 @@ import Html.App as Html
 import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
+import String
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -227,6 +228,11 @@ getQueryString model =
                 "+in:name"
            )
         ++ "+language:elm"
+        ++ (if String.isEmpty model.options.userFilter then
+                ""
+            else
+                "+user:" ++ model.options.userFilter
+           )
         ++ "&sort="
         ++ model.options.sort
         ++ "&order="
