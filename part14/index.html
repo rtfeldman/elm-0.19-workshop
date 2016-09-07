@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>ElmHub</title>
+  <script type="text/javascript" src="/github.js"></script>
+  <script type="text/javascript" src="/elm.js"></script>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" type="image/png" href="/elm-hub.png">
+</head>
+
+<body>
+  <div id="elm-landing-pad"></div>
+</body>
+
+<script type="text/javascript">
+  // documentation: https://github.com/michael/github
+  var github = new Github();
+
+  var app = Elm.Main.embed(document.getElementById("elm-landing-pad"));
+
+  function searchGithub(query) {
+    github.getSearch(query).repositories({}, function (err, repositories) {
+      app.ports.githubResponse.send(repositories);
+    });
+  }
+
+  app.ports.githubSearch.subscribe(searchGithub);
+</script>
+
+</html>
