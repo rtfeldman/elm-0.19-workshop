@@ -99,6 +99,15 @@ css =
           --   outline: none;
           -- }
           --
+          -- .stars-error {
+          --   background-color: #FF9632;
+          --   font-size: 16px;
+          --   padding: 10px;
+          --   margin-right: 24px;
+          --   border-radius: 10px;
+          --   margin-top: 10px;
+          -- }
+          --
           -- .error {
           --   background-color: #FF9632;
           --   padding: 20px;
@@ -111,21 +120,22 @@ css =
           -- .search-input {
           --   display: block;
           --   float: left;
-          --   width: 50%;
+          --   width: 42%;
           -- }
           --
           -- .search-options {
           --   position: relative;
           --   float: right;
-          --   width: 50%;
+          --   width: 58%;
           --   box-sizing: border-box;
-          --   padding: 20px;
+          --   padding-top: 20px;
           -- }
           --
           -- .search-option {
           --   display: block;
           --   float: left;
-          --   width: 50%;
+          --   width: 30%;
+          --   margin-left: 16px;
           --   box-sizing: border-box;
           -- }
           --

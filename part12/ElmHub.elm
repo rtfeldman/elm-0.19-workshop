@@ -76,8 +76,6 @@ subscriptions _ =
 
 viewOptions : SearchOptions -> Html OptionsMsg
 viewOptions opts =
-    -- TODO add this line so we can tell whenever this function gets executed:
-    -- Debug.log "viewOptions was called" <|
     div [ class "search-options" ]
         [ div [ class "search-option" ]
             [ label [ class "top-label" ] [ text "Search in" ]
@@ -92,6 +90,11 @@ viewOptions opts =
             , input
                 [ type' "text"
                 , placeholder "Enter a username"
+                  -- TODO replace opts.userFilter with the following:
+                  --
+                  -- (Debug.log "username" opts.userFilter)
+                  --
+                  -- This way, we'll see console output whenever this gets run!
                 , defaultValue opts.userFilter
                 , onInput SetUserFilter
                 ]
@@ -229,9 +232,11 @@ view model =
             ]
         , div [ class "search" ]
             -- TODO change this to (lazy viewOptions model.options)
-            -- and verify that it no longer shows the Debug.log message every
-            -- time you type in the input box. Instead, it should only show
-            -- once on page load, and then again when the options change.
+            -- and verify that it no longer shows the Debug.log message when
+            -- you type in the main search box.
+            --
+            -- Instead, the message should only appear once on page load,
+            -- and then again when interacting with the options themselves.
             [ Html.map Options (viewOptions model.options)
             , div [ class "search-input" ]
                 [ input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
