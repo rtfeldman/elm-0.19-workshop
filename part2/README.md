@@ -18,5 +18,6 @@ elm-live Main.elm --open --pushstate --output=elm.js
 
 ## References
 
+* [**let-expressions**](http://elm-lang.org/docs/syntax#let-expressions)
 * [record syntax](http://elm-lang.org/docs/syntax#records) (e.g. `{ foo = 1, bar = 2 }`)
 * [`List.map` documentation](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/List#map)
