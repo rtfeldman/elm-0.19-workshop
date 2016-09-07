@@ -37,7 +37,7 @@ type alias Model =
 type alias SearchOptions =
     { minStars : Int
     , minStarsError : Maybe String
-    , searchInDescription : Bool
+    , searchIn : String
     , userFilter : String
     }
 
@@ -57,7 +57,7 @@ initialModel =
     , options =
         { minStars = 0
         , minStarsError = Nothing
-        , searchInDescription = True
+        , searchIn = "name"
         , userFilter = ""
         }
     , tableState = Table.initialSort "Stars"
@@ -80,12 +80,12 @@ viewOptions opts =
     -- Debug.log "viewOptions was called" <|
     div [ class "search-options" ]
         [ div [ class "search-option" ]
-            [ label [ class "top-label" ] [ text "Minimum Stars" ]
-            , input
-                [ onBlurWithTargetValue SetMinStars
-                , defaultValue (toString opts.minStars)
+            [ label [ class "top-label" ] [ text "Search in" ]
+            , select [ onChange SetSearchIn, value opts.searchIn ]
+                [ option [ value "name" ] [ text "Name" ]
+                , option [ value "description" ] [ text "Description" ]
+                , option [ value "name,description" ] [ text "Name and Description" ]
                 ]
-                []
             ]
         , div [ class "search-option" ]
             [ label [ class "top-label" ] [ text "Owned by" ]
@@ -98,10 +98,14 @@ viewOptions opts =
                 []
             ]
         , div [ class "search-option" ]
-            [ viewMinStarsError opts.minStarsError ]
-        , label [ class "search-option" ]
-            [ input [ type' "checkbox", checked opts.searchInDescription, onCheck SetSearchInDescription ] []
-            , text "Search in description"
+            [ label [ class "top-label" ] [ text "Minimum Stars" ]
+            , input
+                [ type' "text"
+                , onBlurWithTargetValue SetMinStars
+                , defaultValue (toString opts.minStars)
+                ]
+                []
+            , viewMinStarsError opts.minStarsError
             ]
         ]
 
@@ -206,11 +210,11 @@ updateOptions optionsMsg options =
                 Err _ ->
                     { options
                         | minStarsError =
-                            Just "Please enter an integer!"
+                            Just "Must be an integer!"
                     }
 
-        SetSearchInDescription searchInDescription ->
-            { options | searchInDescription = searchInDescription }
+        SetSearchIn searchIn ->
+            { options | searchIn = searchIn }
 
         SetUserFilter userFilter ->
             { options | userFilter = userFilter }
@@ -269,7 +273,7 @@ viewSearchResult result =
 
 type OptionsMsg
     = SetMinStars String
-    | SetSearchInDescription Bool
+    | SetSearchIn String
     | SetUserFilter String
 
 
@@ -311,11 +315,8 @@ getQueryString model =
         ++ Auth.token
         ++ "&q="
         ++ model.query
-        ++ (if model.options.searchInDescription then
-                "+in:name,description"
-            else
-                "+in:name"
-           )
+        ++ "+in:"
+        ++ model.options.searchIn
         ++ "+stars:>="
         ++ (toString model.options.minStars)
         ++ "+language:elm"
