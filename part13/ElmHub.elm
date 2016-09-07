@@ -193,11 +193,16 @@ viewErrorMessage errorMessage =
             text ""
 
 
-viewSearchResult : SearchResult -> Html Msg
+viewStars : SearchResult -> Table.HtmlDetails Msg
+viewStars result =
+    Table.HtmlDetails []
+        [ span [ class "star-count" ] [ text (toString result.stars) ] ]
+
+
+viewSearchResult : SearchResult -> Table.HtmlDetails Msg
 viewSearchResult result =
-    li []
-        [ span [ class "star-count" ] [ text (toString result.stars) ]
-        , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
+    Table.HtmlDetails []
+        [ a [ href ("https://github.com/" ++ result.name), target "_blank" ]
             [ text result.name ]
         , button [ class "hide-result", onClick (DeleteById result.id) ]
             [ text "X" ]

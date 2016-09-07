@@ -35,8 +35,8 @@ type alias Model =
 
 
 type alias SearchOptions =
-    { sort : String
-    , ascending : Bool
+    { minStars : Int
+    , minStarsError : Maybe String
     , searchInDescription : Bool
     , userFilter : String
     }
@@ -55,8 +55,8 @@ initialModel =
     , results = []
     , errorMessage = Nothing
     , options =
-        { sort = "stars"
-        , ascending = False
+        { minStars = 0
+        , minStarsError = Nothing
         , searchInDescription = True
         , userFilter = ""
         }
@@ -80,12 +80,12 @@ viewOptions opts =
     -- Debug.log "viewOptions was called" <|
     div [ class "search-options" ]
         [ div [ class "search-option" ]
-            [ label [ class "top-label" ] [ text "Sort by" ]
-            , select [ onChange SetSort, value opts.sort ]
-                [ option [ value "stars" ] [ text "Stars" ]
-                , option [ value "forks" ] [ text "Forks" ]
-                , option [ value "updated" ] [ text "Updated" ]
+            [ label [ class "top-label" ] [ text "Minimum Stars" ]
+            , input
+                [ onBlurWithTargetValue SetMinStars
+                , defaultValue (toString opts.minStars)
                 ]
+                []
             ]
         , div [ class "search-option" ]
             [ label [ class "top-label" ] [ text "Owned by" ]
@@ -97,15 +97,23 @@ viewOptions opts =
                 ]
                 []
             ]
-        , label [ class "search-option" ]
-            [ input [ type' "checkbox", checked opts.ascending, onCheck SetAscending ] []
-            , text "Sort ascending"
-            ]
+        , div [ class "search-option" ]
+            [ viewMinStarsError opts.minStarsError ]
         , label [ class "search-option" ]
             [ input [ type' "checkbox", checked opts.searchInDescription, onCheck SetSearchInDescription ] []
             , text "Search in description"
             ]
         ]
+
+
+viewMinStarsError : Maybe String -> Html msg
+viewMinStarsError message =
+    case message of
+        Nothing ->
+            text " "
+
+        Just errorMessage ->
+            div [ class "stars-error" ] [ text errorMessage ]
 
 
 type Msg
@@ -155,6 +163,11 @@ update msg model =
             ( model, Cmd.none )
 
 
+onBlurWithTargetValue : (String -> msg) -> Attribute msg
+onBlurWithTargetValue toMsg =
+    on "blur" (Json.Decode.map toMsg targetValue)
+
+
 tableConfig : Table.Config SearchResult Msg
 tableConfig =
     Table.config
@@ -185,11 +198,16 @@ nameColumn =
 updateOptions : OptionsMsg -> SearchOptions -> SearchOptions
 updateOptions optionsMsg options =
     case optionsMsg of
-        SetSort sort ->
-            { options | sort = sort }
+        SetMinStars minStarsStr ->
+            case String.toInt minStarsStr of
+                Ok minStars ->
+                    { options | minStars = minStars, minStarsError = Nothing }
 
-        SetAscending ascending ->
-            { options | ascending = ascending }
+                Err _ ->
+                    { options
+                        | minStarsError =
+                            Just "Please enter an integer!"
+                    }
 
         SetSearchInDescription searchInDescription ->
             { options | searchInDescription = searchInDescription }
@@ -233,11 +251,16 @@ viewErrorMessage errorMessage =
             text ""
 
 
-viewSearchResult : SearchResult -> Html Msg
+viewStars : SearchResult -> Table.HtmlDetails Msg
+viewStars result =
+    Table.HtmlDetails []
+        [ span [ class "star-count" ] [ text (toString result.stars) ] ]
+
+
+viewSearchResult : SearchResult -> Table.HtmlDetails Msg
 viewSearchResult result =
-    li []
-        [ span [ class "star-count" ] [ text (toString result.stars) ]
-        , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
+    Table.HtmlDetails []
+        [ a [ href ("https://github.com/" ++ result.name), target "_blank" ]
             [ text result.name ]
         , button [ class "hide-result", onClick (DeleteById result.id) ]
             [ text "X" ]
@@ -245,8 +268,7 @@ viewSearchResult result =
 
 
 type OptionsMsg
-    = SetSort String
-    | SetAscending Bool
+    = SetMinStars String
     | SetSearchInDescription Bool
     | SetUserFilter String
 
@@ -294,17 +316,11 @@ getQueryString model =
             else
                 "+in:name"
            )
+        ++ "+stars:>="
+        ++ (toString model.options.minStars)
         ++ "+language:elm"
         ++ (if String.isEmpty model.options.userFilter then
                 ""
             else
                 "+user:" ++ model.options.userFilter
-           )
-        ++ "&sort="
-        ++ model.options.sort
-        ++ "&order="
-        ++ (if model.options.ascending then
-                "asc"
-            else
-                "desc"
            )

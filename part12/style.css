@@ -91,6 +91,14 @@ button:focus, input:focus {
   outline: none;
 }
 
+.stars-error {
+  background-color: #FF9632;
+  font-size: 16px;
+  padding: 10px;
+  margin-right: 24px;
+  border-radius: 10px;
+}
+
 .error {
   background-color: #FF9632;
   padding: 20px;
@@ -136,4 +144,18 @@ button:focus, input:focus {
 .top-label {
   display: block;
   color: #555;
+}
+
+th {
+  text-align: left;
+  cursor: pointer;
+}
+
+th:hover {
+  color: rgb(96, 181, 204);
+}
+
+th, td {
+  font-size: 18px;
+  padding-right: 20px;
 }

@@ -145,4 +145,18 @@ css =
           --   display: block;
           --   color: #555;
           -- }
+          --
+          -- th {
+          --   text-align: left;
+          --   cursor: pointer;
+          -- }
+          --
+          -- th:hover {
+          --   color: rgb(96, 181, 204);
+          -- }
+          --
+          -- th, td {
+          --   font-size: 18px;
+          --   padding-right: 20px;
+          -- }
         ]
