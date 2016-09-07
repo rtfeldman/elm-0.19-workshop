@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, target, href, defaultValue, type', checked, placeholder, value)
 import Html.Events exposing (..)
 import Html.App as Html
-import Html.Lazy exposing (lazy)
+import Html.Lazy exposing (lazy, lazy3)
 import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
