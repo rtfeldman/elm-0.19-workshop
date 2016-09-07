@@ -85,7 +85,7 @@ viewSearchResult result =
         , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
             [ text result.name ]
         , button
-            -- TODO add an onClick handler that sends a DeleteById action
+            -- TODO add an onClick handler that sends a DeleteById msg
             [ class "hide-result" ]
             [ text "X" ]
         ]
@@ -93,8 +93,8 @@ viewSearchResult result =
 
 update : Msg -> Model -> Model
 update msg model =
-    -- TODO if we get a SetQuery action, use it to set the model's query field,
-    -- and if we get a DeleteById action, delete the appropriate result
+    -- TODO if we get a SetQuery msg, use it to set the model's query field,
+    -- and if we get a DeleteById msg, delete the appropriate result
     model
 
 
