@@ -19,8 +19,7 @@ css =
             , border zero
             , cursor pointer
             , hover
-                [ color (rgb 96 181 204)
-                ]
+                [ color (rgb 96 181 204) ]
             ]
         , (.) "content"
             [ width (px 960)
