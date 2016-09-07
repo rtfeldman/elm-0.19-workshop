@@ -11,7 +11,21 @@ import Css.Elements exposing (..)
 css : Stylesheet
 css =
     stylesheet
-        [ ((.) "content")
+        [ -- TODO style hide-result
+          --
+          -- .hide-result {
+          --   background-color: transparent;
+          --   border: 0;
+          --   font-weight: bold;
+          --   font-size: 18px;
+          --   margin-left: 18px;
+          --   cursor: pointer;
+          -- }
+          --
+          -- .hide-result:hover {
+          --   color: rgb(96, 181, 204);
+          -- }
+          ((.) "content")
             [ width (px 960)
             , margin2 zero auto
             , padding (px 30)
@@ -117,51 +131,31 @@ css =
             [ fontSize (px 18)
             , paddingRight (px 20)
             ]
-          -- TODO style hide-result and the search options
-          --
-          -- .hide-result {
-          --   background-color: transparent;
-          --   border: 0;
-          --   font-weight: bold;
-          --   font-size: 18px;
-          --   margin-left: 18px;
-          --   cursor: pointer;
-          -- }
-          --
-          -- .hide-result:hover {
-          --   color: rgb(96, 181, 204);
-          -- }
-          --
-          --
-          -- .stars-error {
-          --   background-color: #FF9632;
-          --   font-size: 16px;
-          --   padding: 10px;
-          --   margin-right: 24px;
-          --   border-radius: 10px;
-          --   margin-top: 10px;
-          -- }
-          --
-          --
-          -- .search-input {
-          --   display: block;
-          --   float: left;
-          --   width: 42%;
-          -- }
-          --
-          -- .search-options {
-          --   position: relative;
-          --   float: right;
-          --   width: 58%;
-          --   box-sizing: border-box;
-          --   padding-top: 20px;
-          -- }
-          --
-          -- .search-option {
-          --   display: block;
-          --   float: left;
-          --   width: 30%;
-          --   margin-left: 16px;
-          --   box-sizing: border-box;
-          -- }
+        , (.) "stars-error"
+            [ backgroundColor (hex "FF9632")
+            , fontSize (px 16)
+            , padding (px 10)
+            , marginRight (px 24)
+            , borderRadius (px 10)
+            , marginTop (px 10)
+            ]
+        , (.) "search-input"
+            [ display block
+            , property "float" "left"
+            , width (pct 42)
+            ]
+        , (.) "search-options"
+            [ position relative
+            , property "float" "right"
+            , width (pct 58)
+            , boxSizing borderBox
+            , paddingTop (px 20)
+            ]
+        , (.) "search-option"
+            [ display block
+            , property "float" "left"
+            , width (pct 30)
+            , marginLeft (px 16)
+            , boxSizing borderBox
+            ]
         ]
