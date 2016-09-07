@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
-initialModel =
+model =
     { result =
         { id = 1
         , name = "TheSeamau5/elm-checkerboardgrid-tutorial"
@@ -13,7 +13,7 @@ initialModel =
     }
 
 
-view model =
+main =
     let
         elmHubHeader =
             header []
@@ -36,7 +36,3 @@ view model =
                     ]
                 ]
             ]
-
-
-main =
-    view initialModel
