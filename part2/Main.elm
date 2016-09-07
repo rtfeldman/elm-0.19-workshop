@@ -22,7 +22,7 @@ elmHubHeader =
 
 view model =
     div [ class "content" ]
-        [ elmHubHeader
+        [ text "TODO replace this text with the contents of elmHubHeader"
         , ul [ class "results" ]
             [ li []
                 [ span [ class "star-count" ]
