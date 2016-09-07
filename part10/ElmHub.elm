@@ -1,4 +1,4 @@
-module ElmHub exposing (..)
+port module ElmHub exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, target, href, defaultValue, type', checked, placeholder, value)
@@ -60,6 +60,16 @@ initialModel =
     }
 
 
+init : ( Model, Cmd Msg )
+init =
+    ( initialModel, githubSearch (getQueryString initialModel) )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    githubResponse decodeResponse
+
+
 type Msg
     = Search
     | Options OptionsMsg
@@ -70,14 +80,14 @@ type Msg
     | DoNothing
 
 
-update : (String -> Cmd Msg) -> Msg -> Model -> ( Model, Cmd Msg )
-update searchFeed msg model =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     case msg of
         Options optionsMsg ->
             ( { model | options = updateOptions optionsMsg model.options }, Cmd.none )
 
         Search ->
-            ( model, searchFeed (getQueryString model) )
+            ( model, githubSearch (getQueryString model) )
 
         SetQuery query ->
             ( { model | query = query }, Cmd.none )
@@ -211,6 +221,22 @@ decodeGithubResponse value =
 onChange : (String -> msg) -> Attribute msg
 onChange toMsg =
     on "change" (Json.Decode.map toMsg Html.Events.targetValue)
+
+
+decodeResponse : Json.Decode.Value -> Msg
+decodeResponse json =
+    case Json.Decode.decodeValue responseDecoder json of
+        Err err ->
+            HandleSearchError (Just err)
+
+        Ok results ->
+            HandleSearchResponse results
+
+
+port githubSearch : String -> Cmd msg
+
+
+port githubResponse : (Json.Decode.Value -> msg) -> Sub msg
 
 
 {-| NOTE: The following is not part of the exercise, but is food for thought if

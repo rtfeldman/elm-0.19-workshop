@@ -53,6 +53,16 @@ initialModel =
     }
 
 
+init : ( Model, Cmd Msg )
+init =
+    ( initialModel, githubSearch (getQueryString initialModel.query) )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    githubResponse decodeResponse
+
+
 view : Model -> Html Msg
 view model =
     div [ class "content" ]

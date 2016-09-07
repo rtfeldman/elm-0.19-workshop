@@ -1,14 +1,14 @@
-module Main exposing (..)
+module Main exposing (main)
 
-import ElmHub exposing (..)
+import ElmHub
 import Html.App as Html
 
 
 main : Program Never
 main =
     Html.program
-        { view = view
-        , update = update
-        , init = ( initialModel, githubSearch (getQueryString initialModel.query) )
-        , subscriptions = \_ -> githubResponse decodeResponse
+        { view = ElmHub.view
+        , update = ElmHub.update
+        , init = ElmHub.init
+        , subscriptions = ElmHub.subscriptions
         }
