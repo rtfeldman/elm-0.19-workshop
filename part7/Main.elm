@@ -136,10 +136,13 @@ update msg model =
         HandleSearchError error ->
             -- TODO if decoding failed, store the message in model.errorMessage
             --
-            -- Hint 1: look for "decode" in the documentation for this union type:
+            -- HINT 1: Remember, model.errorMessage is a Maybe String - so it
+            -- can only be set to either Nothing or (Just "some string here")
+            --
+            -- Hint 2: look for "decode" in the documentation for this union type:
             -- http://package.elm-lang.org/packages/evancz/elm-http/latest/Http#Error
             --
-            -- Hint 2: to check if this is working, break responseDecoder
+            -- Hint 3: to check if this is working, break responseDecoder
             -- by changing "stargazers_count" to "description"
             ( model, Cmd.none )
 
