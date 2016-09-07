@@ -1,4 +1,4 @@
-module ElmHub exposing (..)
+port module ElmHub exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, target, href, property, defaultValue)
@@ -97,11 +97,11 @@ type Msg
     | DoNothing
 
 
-update : (String -> Cmd Msg) -> Msg -> Model -> ( Model, Cmd Msg )
-update searchFeed msg model =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     case msg of
         Search ->
-            ( model, searchFeed (getQueryString model.query) )
+            ( model, githubSearch (getQueryString model.query) )
 
         SetQuery query ->
             ( { model | query = query }, Cmd.none )
@@ -135,3 +135,19 @@ decodeGithubResponse value =
 
         Err err ->
             HandleSearchError (Just err)
+
+
+decodeResponse : Json.Decode.Value -> Msg
+decodeResponse json =
+    case Json.Decode.decodeValue responseDecoder json of
+        Err err ->
+            HandleSearchError (Just err)
+
+        Ok results ->
+            HandleSearchResponse results
+
+
+port githubSearch : String -> Cmd msg
+
+
+port githubResponse : (Json.Decode.Value -> msg) -> Sub msg
