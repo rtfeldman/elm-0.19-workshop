@@ -34,7 +34,6 @@ type alias Model =
 type alias SearchOptions =
     { sort : String
     , ascending : Bool
-    , searchIn : List String
     , searchInDescription : Bool
     , userFilter : String
     }
@@ -55,7 +54,6 @@ initialModel =
     , options =
         { sort = "stars"
         , ascending = False
-        , searchIn = []
         , searchInDescription = True
         , userFilter = ""
         }
@@ -64,7 +62,7 @@ initialModel =
 
 type Msg
     = Search
-      -- TODO add a constructor for Options OptionsMsg
+    | Options OptionsMsg
     | SetQuery String
     | DeleteById Int
     | HandleSearchResponse (List SearchResult)
@@ -75,9 +73,9 @@ type Msg
 update : (String -> Cmd Msg) -> Msg -> Model -> ( Model, Cmd Msg )
 update searchFeed msg model =
     case msg of
-        -- TODO Add a branch for Options which updates model.options
-        --
-        -- HINT: calling updateOptions will save a lot of time here!
+        Options optionsMsg ->
+            ( { model | options = updateOptions optionsMsg model.options }, Cmd.none )
+
         Search ->
             ( model, searchFeed (getQueryString model) )
 
@@ -129,7 +127,7 @@ view model =
             , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
         , div [ class "search" ]
-            [ text "TODO replace this text node with a call to viewOptions. Use Html.map to avoid a type mismatch!"
+            [ Html.map Options (viewOptions model.options)
             , div [ class "search-input" ]
                 [ input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
                 , button [ class "search-button", onClick Search ] [ text "Search" ]
