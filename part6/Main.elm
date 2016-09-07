@@ -18,7 +18,7 @@ main =
 
 
 
--- see http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Json-Decode#decodeString
+-- see http://package.elm-lang.org/packages/elm-lang/core/latest/Json-Decode#decodeString
 
 
 sampleJson : String
