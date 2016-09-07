@@ -15,12 +15,15 @@ css =
           --
           -- .hide-result {
           --   background-color: transparent;
-          --   border: 0;
           --   font-weight: bold;
           --   font-size: 18px;
           --   margin-left: 18px;
+          --   border: 0px;
           --   cursor: pointer;
           -- }
+          --
+          --
+          -- HINT: we use hover later on in the stylesheet...
           --
           -- .hide-result:hover {
           --   color: rgb(96, 181, 204);
