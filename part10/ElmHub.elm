@@ -213,6 +213,28 @@ onChange toMsg =
     on "change" (Json.Decode.map toMsg Html.Events.targetValue)
 
 
+{-| NOTE: The following is not part of the exercise, but is food for thought if
+you have extra time.
+
+There are several opportunities to improve this getQueryString implementation.
+A nice refactor of this would not change the type annotation! It would still be:
+
+getQueryString : Model -> String
+
+Try identifying patterns and writing helper functions which are responsible for
+handling those patterns. Then have this function call them. Things to consider:
+
+* There's pattern of adding "+foo:bar" - could we write a helper function for this?
+* In one case, if the "bar" in "+foo:bar" is empty, we want to return "" instead
+  of "+foo:" - is this always true? Should our helper function always do that?
+* We also join query parameters together with "=" and "&" a lot. Can we give
+  that pattern a similar treatment? Should we also take "?" into account?
+
+If you have time, give this refactor a shot and see how it turns out!
+
+Writing something out the long way like this, and then refactoring to something
+nicer, is generally the preferred way to go about building things in Elm.
+-}
 getQueryString : Model -> String
 getQueryString model =
     -- See https://developer.github.com/v3/search/#example for how to customize!
