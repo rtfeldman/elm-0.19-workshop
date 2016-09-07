@@ -1,6 +1,11 @@
 module ElmHubCss exposing (..)
 
 import Css exposing (..)
+import Css.Elements exposing (..)
+
+
+-- Documentation:
+-- http://package.elm-lang.org/packages/rtfeldman/elm-css/latest
 
 
 css : Stylesheet
@@ -12,75 +17,107 @@ css =
             , padding (px 30)
             , fontFamilies [ "Helvetica", "Arial", "serif" ]
             ]
-          -- TODO convert these remaining styles to use elm-css.
-          --
-          -- header {
-          --   position: relative;
-          --   padding: 6px 12px;
-          --   height: 36px;
-          --   background-color: rgb(96, 181, 204);
-          -- }
-          --
-          -- h1 {
-          --   color: white;
-          --   font-weight: normal;
-          --   margin: 0;
-          -- }
-          --
-          -- .tagline {
-          --   color: #eee;
-          --   position: absolute;
-          --   right: 16px;
-          --   top: 12px;
-          --   font-size: 24px;
-          --   font-style: italic;
-          -- }
-          --
-          -- .results {
-          --   list-style-image: url('http://img-cache.cdn.gaiaonline.com/76bd5c99d8f2236e9d3672510e933fdf/http://i278.photobucket.com/albums/kk81/d3m3nt3dpr3p/Tiny-Star-Icon.png');
-          --   list-style-position: inside;
-          --   padding: 0;
-          -- }
-          --
-          -- .results li {
-          --   font-size: 18px;
-          --   margin-bottom: 16px;
-          -- }
-          --
-          -- .star-count {
-          --   font-weight: bold;
-          --   margin-right: 16px;
-          -- }
-          --
-          -- a {
-          --   color: rgb(96, 181, 204);
-          --   text-decoration: none;
-          -- }
-          --
-          -- a:hover {
-          --   text-decoration: underline;
-          -- }
-          --
-          -- .search-query {
-          --   padding: 8px;
-          --   font-size: 24px;
-          --   margin-bottom: 18px;
-          --   margin-top: 36px;
-          -- }
-          --
-          -- .search-button {
-          --   padding: 8px 16px;
-          --   font-size: 24px;
-          --   color: white;
-          --   border: 1px solid #ccc;
-          --   background-color: rgb(96, 181, 204);
-          --   margin-left: 12px
-          -- }
-          --
-          -- .search-button:hover {
-          --   color: rgb(96, 181, 204);
-          --   background-color: white;
-          -- }
+        , header
+            [ position relative
+            , padding2 (px 6) (px 12)
+            , height (px 36)
+            , backgroundColor (rgb 96 181 204)
+            ]
+        , h1
+            [ color (hex "ffffff")
+            , margin zero
+            ]
+        , (.) "tagline"
+            [ color (hex "eeeeee")
+            , position absolute
+            , right (px 16)
+            , top (px 12)
+            , fontSize (px 24)
+            , fontStyle italic
+            ]
+        , (.) "results"
+            [ property "list-style-image" "url('http://img-cache.cdn.gaiaonline.com/76bd5c99d8f2236e9d3672510e933fdf/http://i278.photobucket.com/albums/kk81/d3m3nt3dpr3p/Tiny-Star-Icon.png')"
+            , property "list-style-position" "inside"
+            , padding zero
+            ]
+        , (.) "results"
+            [ descendants
+                [ li
+                    [ fontSize (px 18)
+                    , marginBottom (px 16)
+                    ]
+                ]
+            ]
+        , (.) "star-count"
+            [ fontWeight bold
+            , marginRight (px 16)
+            ]
+        , a
+            [ color (rgb 96 181 204)
+            , textDecoration none
+            , hover
+                [ textDecoration underline ]
+            ]
+        , (.) "search-query"
+            [ padding (px 8)
+            , fontSize (px 24)
+            , marginBottom (px 18)
+            , marginTop (px 36)
+            ]
+        , (.) "search-button"
+            [ padding2 (px 8) (px 16)
+            , fontSize (px 24)
+            , color (hex "ffffff")
+            , border3 (px 1) solid (hex "cccccc")
+            , backgroundColor (rgb 96 181 204)
+            , marginLeft (px 12)
+            , hover
+                [ color (rgb 96 181 204)
+                , backgroundColor (hex "ffffff")
+                ]
+            ]
+        , (.) "search-option"
+            [ descendants
+                [ selector "input[type=\"text\"]"
+                    [ padding (px 5)
+                    , boxSizing borderBox
+                    , width (pct 90)
+                    ]
+                ]
+            ]
+        , each [ button, input ]
+            [ focus [ outline none ]
+            ]
+        , (.) "search"
+            [ after
+                [ property "content" "\"\""
+                , property "display" "table"
+                , property "clear" "both"
+                ]
+            ]
+        , (.) "error"
+            [ backgroundColor (hex "FF9632")
+            , padding (px 20)
+            , boxSizing borderBox
+            , overflowX auto
+            , fontFamily monospace
+            , fontSize (px 18)
+            ]
+        , (.) "top-label"
+            [ display block
+            , color (hex "555555")
+            ]
+        , th
+            [ textAlign left
+            , cursor pointer
+            , hover [ color (rgb 96 181 204) ]
+            ]
+        , each
+            [ th, td ]
+            [ fontSize (px 18)
+            , paddingRight (px 20)
+            ]
+          -- TODO style hide-result and the search options
           --
           -- .hide-result {
           --   background-color: transparent;
@@ -95,9 +132,6 @@ css =
           --   color: rgb(96, 181, 204);
           -- }
           --
-          -- button:focus, input:focus {
-          --   outline: none;
-          -- }
           --
           -- .stars-error {
           --   background-color: #FF9632;
@@ -108,14 +142,6 @@ css =
           --   margin-top: 10px;
           -- }
           --
-          -- .error {
-          --   background-color: #FF9632;
-          --   padding: 20px;
-          --   box-sizing: border-box;
-          --   overflow-x: auto;
-          --   font-family: monospace;
-          --   font-size: 18px;
-          -- }
           --
           -- .search-input {
           --   display: block;
@@ -137,36 +163,5 @@ css =
           --   width: 30%;
           --   margin-left: 16px;
           --   box-sizing: border-box;
-          -- }
-          --
-          -- .search-option input[type="text"] {
-          --   padding: 5px;
-          --   box-sizing: border-box;
-          --   width: 90%;
-          -- }
-          --
-          -- .search:after {
-          --   content: "";
-          --   display: table;
-          --   clear: both;
-          -- }
-          --
-          -- .top-label {
-          --   display: block;
-          --   color: #555;
-          -- }
-          --
-          -- th {
-          --   text-align: left;
-          --   cursor: pointer;
-          -- }
-          --
-          -- th:hover {
-          --   color: rgb(96, 181, 204);
-          -- }
-          --
-          -- th, td {
-          --   font-size: 18px;
-          --   padding-right: 20px;
           -- }
         ]
