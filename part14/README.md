@@ -24,4 +24,4 @@ elm-css Stylesheets.elm
 
 ## References
 
-* [Elm CSS documentation](http://package.elm-lang.org/packages/rtfeldman/elm-css/latest)
+* [Elm in Action](https://www.manning.com/books/elm-in-action?a_aid=elm_in_action&a_bid=b15edc5c)

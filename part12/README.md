@@ -16,12 +16,7 @@ elm-package install
 elm-live Main.elm --open --pushstate --output=elm.js
 ```
 
-## Compiling CSS
-
-```bash
-elm-css Stylesheets.elm
-```
-
 ## References
 
-* [Elm CSS documentation](http://package.elm-lang.org/packages/rtfeldman/elm-css/latest)
+* [Debug.log](http://package.elm-lang.org/packages/elm-lang/core/latest/Debug#log)
+* [lazy](http://package.elm-lang.org/packages/elm-lang/html/latest/Html-Lazy#lazy)
