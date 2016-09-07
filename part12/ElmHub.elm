@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, target, href, defaultValue, type', checked, placeholder, value)
 import Html.Events exposing (..)
 import Html.App as Html
+import Html.Lazy exposing (lazy)
 import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
@@ -71,6 +72,40 @@ init =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     githubResponse decodeResponse
+
+
+viewOptions : SearchOptions -> Html OptionsMsg
+viewOptions opts =
+    -- TODO add this line so we can tell whenever this function gets executed:
+    -- Debug.log "viewOptions was called" <|
+    div [ class "search-options" ]
+        [ div [ class "search-option" ]
+            [ label [ class "top-label" ] [ text "Sort by" ]
+            , select [ onChange SetSort, value opts.sort ]
+                [ option [ value "stars" ] [ text "Stars" ]
+                , option [ value "forks" ] [ text "Forks" ]
+                , option [ value "updated" ] [ text "Updated" ]
+                ]
+            ]
+        , div [ class "search-option" ]
+            [ label [ class "top-label" ] [ text "Owned by" ]
+            , input
+                [ type' "text"
+                , placeholder "Enter a username"
+                , defaultValue opts.userFilter
+                , onInput SetUserFilter
+                ]
+                []
+            ]
+        , label [ class "search-option" ]
+            [ input [ type' "checkbox", checked opts.ascending, onCheck SetAscending ] []
+            , text "Sort ascending"
+            ]
+        , label [ class "search-option" ]
+            [ input [ type' "checkbox", checked opts.searchInDescription, onCheck SetSearchInDescription ] []
+            , text "Search in description"
+            ]
+        ]
 
 
 type Msg
@@ -165,26 +200,27 @@ updateOptions optionsMsg options =
 
 view : Model -> Html Msg
 view model =
-    let
-        currentTableState : Table.State
-        currentTableState =
-            model.tableState
-    in
-        div [ class "content" ]
-            [ header []
-                [ h1 [] [ text "ElmHub" ]
-                , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
-                ]
-            , div [ class "search" ]
-                [ Html.map Options (viewOptions model.options)
-                , div [ class "search-input" ]
-                    [ input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
-                    , button [ class "search-button", onClick Search ] [ text "Search" ]
-                    ]
-                ]
-            , viewErrorMessage model.errorMessage
-            , Table.view tableConfig currentTableState model.results
+    div [ class "content" ]
+        [ header []
+            [ h1 [] [ text "ElmHub" ]
+            , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
+        , div [ class "search" ]
+            -- TODO change this to (lazy viewOptions model.options)
+            -- and verify that it no longer shows the Debug.log message every
+            -- time you type in the input box. Instead, it should only show
+            -- once on page load, and then again when the options change.
+            [ Html.map Options (viewOptions model.options)
+            , div [ class "search-input" ]
+                [ input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
+                , button [ class "search-button", onClick Search ] [ text "Search" ]
+                ]
+            ]
+        , viewErrorMessage model.errorMessage
+          -- TODO add a lazy3 to wrap Table.view.
+          -- (We have no Debug.log for verification this time.)
+        , Table.view tableConfig model.tableState model.results
+        ]
 
 
 viewErrorMessage : Maybe String -> Html a
@@ -213,38 +249,6 @@ type OptionsMsg
     | SetAscending Bool
     | SetSearchInDescription Bool
     | SetUserFilter String
-
-
-viewOptions : SearchOptions -> Html OptionsMsg
-viewOptions opts =
-    div [ class "search-options" ]
-        [ div [ class "search-option" ]
-            [ label [ class "top-label" ] [ text "Sort by" ]
-            , select [ onChange SetSort, value opts.sort ]
-                [ option [ value "stars" ] [ text "Stars" ]
-                , option [ value "forks" ] [ text "Forks" ]
-                , option [ value "updated" ] [ text "Updated" ]
-                ]
-            ]
-        , div [ class "search-option" ]
-            [ label [ class "top-label" ] [ text "Owned by" ]
-            , input
-                [ type' "text"
-                , placeholder "Enter a username"
-                , defaultValue opts.userFilter
-                , onInput SetUserFilter
-                ]
-                []
-            ]
-        , label [ class "search-option" ]
-            [ input [ type' "checkbox", checked opts.ascending, onCheck SetAscending ] []
-            , text "Sort ascending"
-            ]
-        , label [ class "search-option" ]
-            [ input [ type' "checkbox", checked opts.searchInDescription, onCheck SetSearchInDescription ] []
-            , text "Search in description"
-            ]
-        ]
 
 
 decodeGithubResponse : Json.Decode.Value -> Msg
@@ -278,28 +282,6 @@ port githubSearch : String -> Cmd msg
 port githubResponse : (Json.Decode.Value -> msg) -> Sub msg
 
 
-{-| NOTE: The following is not part of the exercise, but is food for thought if
-you have extra time.
-
-There are several opportunities to improve this getQueryString implementation.
-A nice refactor of this would not change the type annotation! It would still be:
-
-getQueryString : Model -> String
-
-Try identifying patterns and writing helper functions which are responsible for
-handling those patterns. Then have this function call them. Things to consider:
-
-* There's pattern of adding "+foo:bar" - could we write a helper function for this?
-* In one case, if the "bar" in "+foo:bar" is empty, we want to return "" instead
-  of "+foo:" - is this always true? Should our helper function always do that?
-* We also join query parameters together with "=" and "&" a lot. Can we give
-  that pattern a similar treatment? Should we also take "?" into account?
-
-If you have time, give this refactor a shot and see how it turns out!
-
-Writing something out the long way like this, and then refactoring to something
-nicer, is generally the preferred way to go about building things in Elm.
--}
 getQueryString : Model -> String
 getQueryString model =
     -- See https://developer.github.com/v3/search/#example for how to customize!
