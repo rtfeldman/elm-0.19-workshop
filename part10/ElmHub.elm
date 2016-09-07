@@ -32,9 +32,9 @@ type alias Model =
 
 
 type alias SearchOptions =
-    { sort : String
-    , ascending : Bool
-    , searchInDescription : Bool
+    { minStars : Int
+    , minStarsError : Maybe String
+    , searchIn : String
     , userFilter : String
     }
 
@@ -52,9 +52,9 @@ initialModel =
     , results = []
     , errorMessage = Nothing
     , options =
-        { sort = "stars"
-        , ascending = False
-        , searchInDescription = True
+        { minStars = 0
+        , minStarsError = Nothing
+        , searchIn = "name"
         , userFilter = ""
         }
     }
@@ -70,9 +70,19 @@ subscriptions _ =
     githubResponse decodeResponse
 
 
+viewMinStarsError : Maybe String -> Html msg
+viewMinStarsError message =
+    case message of
+        Nothing ->
+            text " "
+
+        Just errorMessage ->
+            div [ class "stars-error" ] [ text errorMessage ]
+
+
 type Msg
     = Search
-    | Options OptionsMsg
+      -- TODO add a constructor for Options OptionsMsg
     | SetQuery String
     | DeleteById Int
     | HandleSearchResponse (List SearchResult)
@@ -83,9 +93,9 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Options optionsMsg ->
-            ( { model | options = updateOptions optionsMsg model.options }, Cmd.none )
-
+        -- TODO Add a branch for Options which updates model.options
+        --
+        -- HINT: calling updateOptions will save a lot of time here!
         Search ->
             ( model, githubSearch (getQueryString model) )
 
@@ -113,17 +123,27 @@ update msg model =
             ( model, Cmd.none )
 
 
+onBlurWithTargetValue : (String -> msg) -> Attribute msg
+onBlurWithTargetValue toMsg =
+    on "blur" (Json.Decode.map toMsg targetValue)
+
+
 updateOptions : OptionsMsg -> SearchOptions -> SearchOptions
 updateOptions optionsMsg options =
     case optionsMsg of
-        SetSort sort ->
-            { options | sort = sort }
+        SetMinStars minStarsStr ->
+            case String.toInt minStarsStr of
+                Ok minStars ->
+                    { options | minStars = minStars, minStarsError = Nothing }
 
-        SetAscending ascending ->
-            { options | ascending = ascending }
+                Err _ ->
+                    { options
+                        | minStarsError =
+                            Just "Must be an integer!"
+                    }
 
-        SetSearchInDescription searchInDescription ->
-            { options | searchInDescription = searchInDescription }
+        SetSearchIn searchIn ->
+            { options | searchIn = searchIn }
 
         SetUserFilter userFilter ->
             { options | userFilter = userFilter }
@@ -137,7 +157,7 @@ view model =
             , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
             ]
         , div [ class "search" ]
-            [ Html.map Options (viewOptions model.options)
+            [ text "TODO call viewOptions here. Use Html.map to avoid a type mismatch!"
             , div [ class "search-input" ]
                 [ input [ class "search-query", onInput SetQuery, defaultValue model.query ] []
                 , button [ class "search-button", onClick Search ] [ text "Search" ]
@@ -170,9 +190,8 @@ viewSearchResult result =
 
 
 type OptionsMsg
-    = SetSort String
-    | SetAscending Bool
-    | SetSearchInDescription Bool
+    = SetMinStars String
+    | SetSearchIn String
     | SetUserFilter String
 
 
@@ -180,11 +199,11 @@ viewOptions : SearchOptions -> Html OptionsMsg
 viewOptions opts =
     div [ class "search-options" ]
         [ div [ class "search-option" ]
-            [ label [ class "top-label" ] [ text "Sort by" ]
-            , select [ onChange SetSort, value opts.sort ]
-                [ option [ value "stars" ] [ text "Stars" ]
-                , option [ value "forks" ] [ text "Forks" ]
-                , option [ value "updated" ] [ text "Updated" ]
+            [ label [ class "top-label" ] [ text "Search in" ]
+            , select [ onChange SetSearchIn, value opts.searchIn ]
+                [ option [ value "name" ] [ text "Name" ]
+                , option [ value "description" ] [ text "Description" ]
+                , option [ value "name,description" ] [ text "Name and Description" ]
                 ]
             ]
         , div [ class "search-option" ]
@@ -197,13 +216,15 @@ viewOptions opts =
                 ]
                 []
             ]
-        , label [ class "search-option" ]
-            [ input [ type' "checkbox", checked opts.ascending, onCheck SetAscending ] []
-            , text "Sort ascending"
-            ]
-        , label [ class "search-option" ]
-            [ input [ type' "checkbox", checked opts.searchInDescription, onCheck SetSearchInDescription ] []
-            , text "Search in description"
+        , div [ class "search-option" ]
+            [ label [ class "top-label" ] [ text "Minimum Stars" ]
+            , input
+                [ type' "text"
+                , onBlurWithTargetValue SetMinStars
+                , defaultValue (toString opts.minStars)
+                ]
+                []
+            , viewMinStarsError opts.minStarsError
             ]
         ]
 
@@ -268,22 +289,13 @@ getQueryString model =
         ++ Auth.token
         ++ "&q="
         ++ model.query
-        ++ (if model.options.searchInDescription then
-                "+in:name,description"
-            else
-                "+in:name"
-           )
+        ++ "+in:"
+        ++ model.options.searchIn
+        ++ "+stars:>="
+        ++ (toString model.options.minStars)
         ++ "+language:elm"
         ++ (if String.isEmpty model.options.userFilter then
                 ""
             else
                 "+user:" ++ model.options.userFilter
-           )
-        ++ "&sort="
-        ++ model.options.sort
-        ++ "&order="
-        ++ (if model.options.ascending then
-                "asc"
-            else
-                "desc"
            )
