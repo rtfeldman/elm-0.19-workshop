@@ -39,7 +39,7 @@ cd elm-workshop
 
 ## Create a GitHub Personal Access Token
 
-We'll be using GitHub's [Search API](https://developer.github.com/v3/search/), and authenticated API access lets us experiment without worrying about the default rate limit. Since we'll only be accessesing the Search API, these steps can be done either on your personal GitHub account or on a throwaway account created for this workshop; either way will work just as well.
+We'll be using GitHub's [Search API](https://developer.github.com/v3/search/), and authenticated API access lets us experiment without worrying about the default rate limit. Since we'll only be accessing the Search API, these steps can be done either on your personal GitHub account or on a throwaway account created for this workshop; either way will work just as well.
 
 1. Visit https://github.com/settings/tokens/new
 2. Enter "Elm Workshop" under "Token description" and leave everything else blank.
