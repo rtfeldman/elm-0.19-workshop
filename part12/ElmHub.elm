@@ -1,7 +1,7 @@
 port module ElmHub exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, target, href, defaultValue, type', checked, placeholder, value)
+import Html.Attributes exposing (class, target, href, defaultValue, type_, checked, placeholder, value)
 import Html.Events exposing (..)
 import Html.App as Html
 import Html.Lazy exposing (lazy, lazy3)
@@ -88,7 +88,7 @@ viewOptions opts =
         , div [ class "search-option" ]
             [ label [ class "top-label" ] [ text "Owned by" ]
             , input
-                [ type' "text"
+                [ type_ "text"
                 , placeholder "Enter a username"
                   -- TODO replace opts.userFilter with the following:
                   --
@@ -103,7 +103,7 @@ viewOptions opts =
         , div [ class "search-option" ]
             [ label [ class "top-label" ] [ text "Minimum Stars" ]
             , input
-                [ type' "text"
+                [ type_ "text"
                 , onBlurWithTargetValue SetMinStars
                 , defaultValue (toString opts.minStars)
                 ]
