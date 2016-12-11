@@ -3,7 +3,7 @@ Getting Started
 
 ## Installation
 
-1. Install [Node.js](http://nodejs.org) 4.0.0 or higher
+1. Install [Node.js](http://nodejs.org) 6.9.2 or higher
 
 2. Add a plugin for your editor of choice: [Atom](https://atom.io/packages/language-elm), [Sublime Text](https://packagecontrol.io/packages/Elm%20Language%20Support), [VS Code](https://github.com/sbrink/vscode-elm), [Light Table](https://github.com/rundis/elm-light), [Vim](https://github.com/lambdatoast/elm.vim), [Emacs](https://github.com/jcollard/elm-mode), [Brackets](https://github.com/lepinay/elm-brackets)
 
@@ -12,12 +12,9 @@ Getting Started
 4. Run the following command to install everything else:
 
 ```bash
-npm install -g elm elm-test elm-css elm-live@2.5.0
+npm install -g elm elm-test elm-css elm-live@2.6.1
 ```
-
-**Note to Windows 10 users running Bash:** There is [a bug in Windows Bash](https://github.com/Microsoft/BashOnWindows/issues/307) which will mess up the installers. This does not affect the normal Windows terminal, so if you use it instead of Windows Bash, you should be fine!
-
-**Note to OS X users:** If step 4 gives you an `EACCESS` error on OS X, try [this fix](https://docs.npmjs.com/getting-started/fixing-npm-permissions):
+**Note to macOS users:** If step 4 gives you an `EACCESS` error, try [this fix](https://docs.npmjs.com/getting-started/fixing-npm-permissions):
 
 
 ```

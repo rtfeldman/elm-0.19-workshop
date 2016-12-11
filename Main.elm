@@ -6,14 +6,12 @@ have everything set up properly.
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.App as Html
 import Auth
 import Http
-import Task exposing (Task)
 import Json.Decode exposing (Decoder)
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     Html.program
         { view = view
@@ -35,10 +33,13 @@ type alias Model =
 
 searchFeed : Cmd Msg
 searchFeed =
-    Auth.token
-        |> (++) "https://api.github.com/search/repositories?q=test&access_token="
-        |> Http.get (Json.Decode.succeed "")
-        |> Task.perform ItFailed (\_ -> ItWorked)
+    let
+        url =
+            "https://api.github.com/search/repositories?q=test&access_token=" ++ Auth.token
+    in
+        Json.Decode.succeed ()
+            |> Http.get url
+            |> Http.send Response
 
 
 view : Model -> Html Msg
@@ -57,17 +58,16 @@ view model =
 
 
 type Msg
-    = ItWorked
-    | ItFailed Http.Error
+    = Response (Result Http.Error ())
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ItWorked ->
+        Response (Ok ()) ->
             ( { status = "You're all set!" }, Cmd.none )
 
-        ItFailed err ->
+        Response (Err err) ->
             let
                 status =
                     case err of
@@ -77,18 +77,21 @@ update msg model =
                         Http.NetworkError ->
                             "Network error. Check your Internet connection?"
 
-                        Http.UnexpectedPayload msg ->
+                        Http.BadUrl url ->
+                            "Invalid test URL: " ++ url
+
+                        Http.BadPayload msg _ ->
                             "Something is misconfigured: " ++ msg
 
-                        Http.BadResponse code msg ->
-                            case code of
+                        Http.BadStatus { status } ->
+                            case status.code of
                                 401 ->
                                     "Auth.elm does not have a valid token. :( Try recreating Auth.elm by following the steps in the README under the section “Create a GitHub Personal Access Token”."
 
                                 _ ->
                                     "GitHub's Search API returned an error: "
-                                        ++ (toString code)
+                                        ++ (toString status.code)
                                         ++ " "
-                                        ++ msg
+                                        ++ status.message
             in
                 ( { status = status }, Cmd.none )

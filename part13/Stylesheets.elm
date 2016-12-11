@@ -3,7 +3,6 @@ port module Stylesheets exposing (..)
 import Css.File exposing (..)
 import ElmHubCss
 import Html exposing (div)
-import Html.App as Html
 
 
 port files : CssFileStructure -> Cmd msg
@@ -14,7 +13,7 @@ cssFiles =
     toFileStructure [ ( "style.css", compile [ ElmHubCss.css ] ) ]
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     Html.program
         { init = ( (), files cssFiles )

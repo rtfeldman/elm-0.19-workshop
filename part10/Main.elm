@@ -1,10 +1,10 @@
 module Main exposing (main)
 
 import ElmHub
-import Html.App as Html
+import Html
 
 
-main : Program Never
+main : Program Never ElmHub.Model ElmHub.Msg
 main =
     Html.program
         { view = ElmHub.view

@@ -6,11 +6,11 @@ import Test.Runner.Html as Runner
 
 -- To run this:
 --
--- cd into part8/test
+-- cd into part9/test
 -- elm-reactor
 -- navigate to HtmlRunner.elm
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     Runner.run Tests.all

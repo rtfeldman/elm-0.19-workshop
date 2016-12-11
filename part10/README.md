@@ -37,4 +37,4 @@ Then visit [localhost:8000](http://localhost:8000) and choose `HtmlRunner.elm`.
 
 ## References
 
-* [Html.map](http://package.elm-lang.org/packages/elm-lang/html/1.1.0/Html-App#map)
+* [Html.map](http://package.elm-lang.org/packages/elm-lang/html/1.1.0/Html#map)

@@ -1,7 +1,6 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.App as Html
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 
@@ -98,7 +97,7 @@ update msg model =
     model
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     Html.beginnerProgram
         { view = view
