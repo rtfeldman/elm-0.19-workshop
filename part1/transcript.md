@@ -1,9 +1,18 @@
 # Transcript [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/rtfeldman/elm-workshop/issues)
 
 > The purpose of this transcript is to:
-+ make the video content _accessible_ to visually impaired people.
-+ give non-english speakers a reference they can _read_ in case they don't understand anything that is said.
-+ let people run the content through a translation service when they _really_ don't understand...!
++ make the video content ***accessible*** to **hearing impaired** people.
++ give ***non-english speakers*** a reference they can _read_
+in case they **don't understand** what is being said.
+(_in some cases the speech is too fast..._)
++ let people run the content through a ***translation*** service
+when they _really_ don't understand what has been said.
+This can often greatly enhance the learning experience for non-native learners.
+And if FrontendMasters ever decide to add a "_subtitles_" feature,
+having human-written transcript is still _much_ better than
+computer-generated subtitles.
++ (100% Optional) ***enhance*** the content with hyperlinks on specific terms
+so people don't have to google for ages to understand things.
 
 This is `elm`. I'm Richard Feldman @rtfeldman
 
@@ -189,7 +198,7 @@ That's _because_ this whole thing is an _expression_.
 
 ![elm-workshop-function-expression](https://cloud.githubusercontent.com/assets/194400/21491690/7b13f332-cbf6-11e6-80fb-a164f67c53ac.png)
 
-In `JavaScript` you can have
+In `JavaScript` you can have a
 [_ternary expression_](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/Conditional_Operator)
 like this _instead_ of an `if`:
 ```js
