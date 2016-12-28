@@ -14,7 +14,7 @@ computer-generated subtitles.
 + (100% Optional) ***enhance*** the content with hyperlinks on specific terms
 so people don't have to google for ages to understand things.
 
-This is `elm`. I'm Richard Feldman @rtfeldman
+This is `elm`. I'm Richard Feldman [@rtfeldman](https://github.com/rtfeldman)
 
 So we're going to start with just the absolute basics,
 just **Rendering a Page**. but before we can do that,

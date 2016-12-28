@@ -1,11 +1,11 @@
 `Day 1 Hour 1 - h1.mp4 @ 05:11`
 Now the _relevant_ part is that
-this entire chunk of code is an expression
-it evaluates to a single value which means it's "_portable_"
-you can pick it up and just drop it somewhere else
+this entire chunk of code is an expression;
+it evaluates to a single value which means it's "_portable_".
+You can pick it up and just drop it somewhere else
 and just say "`foo` equals `if quantity == 1 then singular else plural`..."
-you can do that anywhere you would have any single value
-you can just drop in this entire `if` expression
+You can do that anywhere you would have any single value.
+You can just drop in this entire `if` expression,
 perhaps with parentheses around it to disambiguate.
 And it's exactly the same thing with the ternary
 and so you need this both `if` and `else`
@@ -82,7 +82,18 @@ But let's say we make a _mistake_ in our implementation here:
 
 So we're like:
 `pluralize "leaf" "leaves" 1`
-
 ![babel-pluralize-leaf-leaves-1--leaf](https://cloud.githubusercontent.com/assets/194400/21518751/6efa32ba-cce0-11e6-82f6-d945d6e6de01.png)
+and it gives us "leaf" down here (_refering to the `console.log` output at the bottom of the Babel page_)
 
-and it gives us "leaf" down here
+If we call `pluralize` passing `"leaf"` `"leaves"` and `3`
+![babel-pluralize-leaf-leaves-3--leaves](https://cloud.githubusercontent.com/assets/194400/21518825/db66b090-cce0-11e6-97d7-1513a4d52c70.png)
+It gives us "leaves".
+Great! that's what we _expect_!
+Any number over 1 should give us the `plural` form.
+
+And then let's say,
+when we implemented this we _accidentally_ made a typo here:
+
+Instead of `singular` we said `singula` ...
+
+Ok, so, as we can see, this code _still works_!
