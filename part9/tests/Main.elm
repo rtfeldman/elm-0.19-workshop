@@ -10,7 +10,7 @@ import Json.Decode exposing (Value)
 -- elm-test
 
 
-main : Program Value
+main : Runner.TestProgram
 main =
     Runner.run emit Tests.all
 
