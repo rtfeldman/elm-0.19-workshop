@@ -21,7 +21,7 @@ all =
                         -- TODO return True if the given Result is an Err of some sort,
                         -- and False if it is an Ok of some sort.
                         --
-                        -- Result docs: http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Result
+                        -- Result docs: http://package.elm-lang.org/packages/elm-lang/core/latest/Result
                         False
                 in
                     json
@@ -46,8 +46,8 @@ all =
                     -- TODO convert this to a fuzz test that generates a random
                     -- list of ids instead of this hardcoded list of three ids.
                     --
-                    -- fuzz test docs: http://package.elm-lang.org/packages/project-fuzzball/test/2.0.1/Test#fuzz
-                    -- Fuzzer docs: http://package.elm-lang.org/packages/project-fuzzball/test/2.0.1/Fuzz
+                    -- fuzz test docs: http://package.elm-lang.org/packages/elm-community/elm-test/latest/Test#fuzz
+                    -- Fuzzer docs: http://package.elm-lang.org/packages/project-fuzzball/test/6.0.0
                     ids =
                         [ 12, 5, 76 ]
 
