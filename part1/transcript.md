@@ -316,4 +316,4 @@ Ok, so, as we can see, this code _still works_!
 
 `Day 1 Hour 1 - h1.mp4 @ 08:08`
 
-> please help finish this transcription:
+> ***please help*** finish this transcription: https://github.com/rtfeldman/elm-workshop/issues/8#issuecomment-273413043
