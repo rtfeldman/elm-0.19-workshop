@@ -313,3 +313,7 @@ when we implemented this we _accidentally_ made a typo here:
 Instead of `singular` we said `singula` ...
 
 Ok, so, as we can see, this code _still works_!
+
+`Day 1 Hour 1 - h1.mp4 @ 08:08`
+
+> please help finish this transcription:
