@@ -1,0 +1,9 @@
+{
+    "elm-lang/virtual-dom": "2.0.4",
+    "evancz/elm-sortable-table": "1.0.1",
+    "rtfeldman/elm-css-util": "1.0.2",
+    "elm-lang/html": "2.0.0",
+    "rtfeldman/elm-css": "7.0.0",
+    "NoRedInk/elm-decode-pipeline": "3.0.0",
+    "elm-lang/core": "5.1.1"
+}
