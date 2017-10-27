@@ -32,14 +32,14 @@ initialModel =
     }
 
 
-elmHubHeader =
-    header []
-        [ h1 [] [ text "ElmHub" ]
-        , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
-        ]
-
-
 view model =
+    let
+        elmHubHeader =
+            header []
+                [ h1 [] [ text "ElmHub" ]
+                , span [ class "tagline" ] [ text "Like GitHub, but for Elm things." ]
+                ]
+    in
     div [ class "content" ]
         [ elmHubHeader
         , ul [ class "results" ] (List.map viewSearchResult model.results)
