@@ -52,7 +52,7 @@ viewSearchResult result =
         , a [ href ("https://github.com/" ++ result.name), target "_blank" ]
             [ text result.name ]
         , button
-            -- TODO add an onClick handler that sends a DELETE_BY_ID msg
+            -- TODO add an onClick handler that sends a "DELETE_BY_ID" msg
             [ class "hide-result" ]
             [ text "X" ]
         ]
