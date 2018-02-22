@@ -4,13 +4,13 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
-model =
-    { result =
-        { id = 1
-        , name = "TheSeamau5/elm-checkerboardgrid-tutorial"
-        , stars = 66
-        }
-    }
+searchResults =
+    [ "TheSeamau5/elm-checkerboardgrid-tutorial"
+    , "grzegorzbalcerek/elm-by-example"
+    , "sporto/elm-tutorial-app"
+    , "jvoigtlaender/Elm-Tutorium"
+    , "sporto/elm-tutorial-assets"
+    ]
 
 
 main =
@@ -24,16 +24,21 @@ main =
     div [ class "content" ]
         [ text "TODO put the contents of elmHubHeader here instead of this text!"
         , ul [ class "results" ]
-            [ li []
-                [ span [ class "star-count" ]
-                    [-- TODO display the number of stars here.
-                     --
-                     -- HINT: You'll need some parentheses to do this!
-                    ]
+            -- TODO replace this [] with a `List.map` to turn `searchResults` into some Html!
+            --
+            -- HINT: You'll need some parentheses to do this!
+            []
+        ]
 
-                -- TODO use the model to put a link here that points to
-                -- https://github.com/TheSeamau5/elm-checkerboardgrid-tutorial
-                -- by prepending the "https://github.com/" part.
-                ]
-            ]
+
+viewSearchResult searchResult =
+    li []
+        [-- TODO use `searchResult` to put a link here that points to
+         -- something like this:
+         --
+         -- https://github.com/TheSeamau5/elm-checkerboardgrid-tutorial
+         --
+         -- by prepending "https://github.com/" to the searchResult string
+         --
+         -- HINT: This will also involve using parentheses!
         ]
