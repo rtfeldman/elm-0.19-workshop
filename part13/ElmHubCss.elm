@@ -28,7 +28,7 @@ css =
           -- .hide-result:hover {
           --   color: rgb(96, 181, 204);
           -- }
-          ((.) "content")
+          (.) "content"
             [ width (px 960)
             , margin2 zero auto
             , padding (px 30)

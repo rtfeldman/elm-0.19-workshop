@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Auth
 import Html exposing (..)
-import Html.Attributes exposing (class, target, href, property, defaultValue)
+import Html.Attributes exposing (class, defaultValue, href, property, target)
 import Html.Events exposing (..)
 import Http
 import Json.Decode exposing (Decoder)
@@ -33,11 +33,11 @@ searchFeed query =
         request =
             "TODO replace this String with a Request built using http://package.elm-lang.org/packages/elm-lang/http/latest/Http#get"
     in
-        -- TODO replace this Cmd.none with a call to Http.send
-        -- http://package.elm-lang.org/packages/elm-lang/http/latest/Http#send
-        --
-        -- HINT: request and HandleSearchResponse may be useful here.
-        Cmd.none
+    -- TODO replace this Cmd.none with a call to Http.send
+    -- http://package.elm-lang.org/packages/elm-lang/http/latest/Http#send
+    --
+    -- HINT: request and HandleSearchResponse may be useful here.
+    Cmd.none
 
 
 responseDecoder : Decoder (List SearchResult)
@@ -153,4 +153,4 @@ update msg model =
                 newModel =
                     { model | results = newResults }
             in
-                ( newModel, Cmd.none )
+            ( newModel, Cmd.none )

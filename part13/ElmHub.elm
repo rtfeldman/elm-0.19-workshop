@@ -1,10 +1,10 @@
 port module ElmHub exposing (..)
 
+import Auth
 import Html exposing (..)
-import Html.Attributes exposing (class, target, href, defaultValue, type_, checked, placeholder, value)
+import Html.Attributes exposing (checked, class, defaultValue, href, placeholder, target, type_, value)
 import Html.Events exposing (..)
 import Html.Lazy exposing (lazy, lazy3)
-import Auth
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
 import String
@@ -155,7 +155,7 @@ update msg model =
                 newModel =
                     { model | results = newResults }
             in
-                ( newModel, Cmd.none )
+            ( newModel, Cmd.none )
 
         SetTableState tableState ->
             ( { model | tableState = tableState }, Cmd.none )
@@ -309,7 +309,7 @@ getQueryString model =
         ++ "+in:"
         ++ model.options.searchIn
         ++ "+stars:>="
-        ++ (toString model.options.minStars)
+        ++ toString model.options.minStars
         ++ "+language:elm"
         ++ (if String.isEmpty model.options.userFilter then
                 ""

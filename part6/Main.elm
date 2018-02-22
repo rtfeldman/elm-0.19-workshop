@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, target, href, property, defaultValue)
+import Html.Attributes exposing (class, defaultValue, href, property, target)
 import Html.Events exposing (..)
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
@@ -116,4 +116,4 @@ update msg model =
                 newResults =
                     List.filter (\{ id } -> id /= idToHide) model.results
             in
-                { model | results = newResults }
+            { model | results = newResults }

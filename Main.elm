@@ -4,9 +4,9 @@ module Main exposing (..)
 have everything set up properly.
 -}
 
+import Auth
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Auth
 import Http
 import Json.Decode exposing (Decoder)
 
@@ -37,9 +37,9 @@ searchFeed =
         url =
             "https://api.github.com/search/repositories?q=test&access_token=" ++ Auth.token
     in
-        Json.Decode.succeed ()
-            |> Http.get url
-            |> Http.send Response
+    Json.Decode.succeed ()
+        |> Http.get url
+        |> Http.send Response
 
 
 view : Model -> Html Msg
@@ -90,8 +90,8 @@ update msg model =
 
                                 _ ->
                                     "GitHub's Search API returned an error: "
-                                        ++ (toString status.code)
+                                        ++ toString status.code
                                         ++ " "
                                         ++ status.message
             in
-                ( { status = status }, Cmd.none )
+            ( { status = status }, Cmd.none )

@@ -1,9 +1,9 @@
 port module ElmHub exposing (..)
 
-import Html exposing (..)
-import Html.Attributes exposing (class, target, href, property, defaultValue)
-import Html.Events exposing (..)
 import Auth
+import Html exposing (..)
+import Html.Attributes exposing (class, defaultValue, href, property, target)
+import Html.Events exposing (..)
 import Json.Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (..)
 
@@ -131,7 +131,7 @@ update msg model =
                 newModel =
                     { model | results = newResults }
             in
-                ( newModel, Cmd.none )
+            ( newModel, Cmd.none )
 
         DoNothing ->
             ( model, Cmd.none )

@@ -1,0 +1,322 @@
+#!/usr/bin/env node
+
+var processTitle = "elm-test";
+
+process.title = processTitle;
+
+var compile    = require("node-elm-compiler").compile,
+  fs           = require("fs-extra"),
+  chalk        = require("chalk"),
+  path         = require("path"),
+  temp         = require("temp").track(), // Automatically cleans up temp files.
+  util         = require("util"),
+  _            = require("lodash"),
+  spawn        = require("cross-spawn"),
+  minimist     = require("minimist"),
+  firstline    = require("firstline"),
+  findUp       = require("find-up"),
+  chokidar     = require("chokidar");
+
+var elm = {
+  'elm-package': 'elm-package'
+};
+var args = minimist(process.argv.slice(2), {
+    alias: {
+        'help': 'h',
+        'yes': 'y',
+        'seed': 's',
+        'compiler': 'c',
+        'report': 'r',
+        'watch': 'w'
+    },
+    boolean: [ 'yes', 'warn', 'version', 'help', 'watch' ],
+    string: [ 'compiler', 'seed', 'report' ]
+});
+
+if (args.help) {
+  console.log("Usage: elm-test init [--yes]  # Create example tests\n");
+  console.log("Usage: elm-test TESTFILE [--compiler /path/to/compiler] # Run TESTFILE\n");
+  console.log("Usage: elm-test [--compiler /path/to/compiler] # Run tests/Main.elm\n");
+  console.log("Usage: elm-test [--seed integer] # Run with initial fuzzer seed\n");
+  console.log("Usage: elm-test [--report json or chalk (default)] # Print results to stdout in given format\n");
+  console.log("Usage: elm-test [--watch] # Run tests on file changes\n");
+  process.exit(1);
+}
+
+if (args.version) {
+  console.log(require(path.join(__dirname, "..", "package.json")).version);
+  process.exit(0);
+}
+
+var report = "chalk";
+if (args.report !== undefined) {
+  report = args.report;
+}
+
+
+checkNodeVersion();
+
+function checkNodeVersion() {
+  var nodeVersionString = process.versions.node;
+  var nodeVersion = _.map(_.split(nodeVersionString, '.'), _.parseInt);
+
+  if((nodeVersion[0] === 0 && nodeVersion[1] < 11) ||
+     (nodeVersion[0] === 0 && nodeVersion[1] === 11 && nodeVersion[2] < 13)) {
+    console.log("using node v" + nodeVersionString);
+    console.error("elm-test requires node v0.11.13 or greater - upgrade the installed version of node and try again");
+    process.exit(1);
+  }
+}
+
+if (args._[0] == "init") {
+  var copyTemplate = function(templateName, destName) {
+    if (arguments.length == 1) {
+      destName = templateName;
+    }
+    var source = path.resolve(__dirname, "../templates/" + templateName);
+    var destination = path.resolve("tests", destName);
+    if (fs.existsSync(destination)) {
+      console.log(destination + " already exists");
+    } else {
+      fs.copySync(source, destination);
+      console.log("Created " + destination);
+    }
+  };
+
+  var ensureDirectory = function(dirName) {
+    var destination = path.resolve(".", dirName);
+    if (fs.existsSync(destination)) {
+      console.log(destination + " already exists");
+    } else {
+      fs.mkdirSync(destination);
+      console.log("Created " + destination);
+    }
+  };
+
+  var elmOptions = "";
+  if (args.yes) {
+    elmOptions += " --yes";
+  }
+
+  ensureDirectory("src");
+  ensureDirectory("tests");
+  copyTemplate("elm-package.json");
+  copyTemplate("Main.elm");
+  copyTemplate("Tests.elm");
+  copyTemplate("gitignore", ".gitignore");
+  process.exit(0);
+}
+
+function evalElmCode (compiledCode, testModuleName) {
+  var Elm = function(module) { eval(compiledCode); return module.exports; }({});
+
+  // Make sure necessary things are defined.
+  if (typeof Elm === 'undefined') { throw 'elm-io config error: Elm is not defined. Make sure you provide a file compiled by Elm!'; }
+
+  function getTestModule() {
+      var module = Elm;
+      var moduleParts = testModuleName.split('.');
+      while (moduleParts.length) {
+          var modulePart = moduleParts.shift();
+          if (module[modulePart] === undefined) {
+              return undefined;
+          }
+
+          module = module[modulePart];
+      }
+
+      return module;
+  }
+
+  var testModule = getTestModule();
+  if (testModule === undefined) { throw 'Elm.' + testModuleName + ' is not defined. Make sure you provide a file compiled by Elm!'; }
+
+  var initialSeed = null;
+
+  if (args.seed !== undefined) {
+    initialSeed = args.seed;
+  }
+
+
+
+
+  // Apply Node polyfills as necessary.
+  var window = {Date: Date, addEventListener: function() {}, removeEventListener: function() {}};
+  var document = {body: {}, createTextNode: function() {}};
+  pathToMake = args.compiler;
+  if (typeof XMLHttpRequest === 'undefined') { XMLHttpRequest = function() { return { addEventListener: function() {}, open: function() {}, send: function() {} }; }; }
+  if (typeof FormData === 'undefined') { FormData = function () { this._data = []; }; FormData.prototype.append = function () { this._data.push(Array.prototype.slice.call(arguments)); }; }
+
+  // Fix Windows Unicode problems. Credit to https://github.com/sindresorhus/figures for the Windows compat idea!
+  var windowsSubstitutions = [[/[↓✗►]/g, '>'], [/╵│╷╹┃╻/g, '|'], [/═/g, '='],, [/▔/g, '-'], [/✔/g, '√']];
+
+  function windowsify(str) {
+    return windowsSubstitutions.reduce(
+      function(result, sub) { return result.replace(sub[0], sub[1]); }, str);
+  }
+
+  function chalkify(messages) {
+    return messages.map(function(msg) {
+      var path = msg.styles;
+      var text = process.platform === 'win32' ? windowsify(msg.text) : msg.text;
+
+      if (path.length === 0) {
+        return text;
+      } else {
+        var fn = chalk;
+
+        path.forEach(function(nextPath) { fn = fn[nextPath]; });
+
+        return fn(text);
+      }
+    }).join('');
+  }
+
+  // Run the Elm app.
+  var app = testModule.worker({seed: initialSeed, report: report});
+
+  // Receive messages from ports and translate them into appropriate JS calls.
+  app.ports.emit.subscribe(function(msg) {
+    var msgType = msg[0];
+    var data = msg[1];
+
+    if (msgType === 'FINISHED') {
+      if (data.format === "CHALK") {
+        console.log(chalkify(data.message));
+      } else {
+        console.log(JSON.stringify(data.message));
+      }
+
+      if (!args.watch) {
+        process.exit(data.exitCode);
+      }
+    } else if (msgType === "STARTED" || msgType === "TEST_COMPLETED")  {
+        if (data.format === "CHALK") {
+          console.log(chalkify(data.message));
+        } else {
+          console.log(JSON.stringify(data.message));
+        }
+
+    }
+  });
+}
+
+
+var testFile = args._[0],
+    cwd = __dirname,
+    pathToMake = undefined;
+
+function spawnCompiler(cmd, args, opts) {
+  var compilerOpts =
+      _.defaults({stdio: [process.stdin, report === "chalk" ? process.stdout : 'ignore', process.stderr] }, opts);
+
+  return spawn(cmd, args, compilerOpts);
+}
+
+if (typeof testFile == "undefined") {
+  testFile = "tests/Main.elm";
+}
+
+if (args.compiler !== undefined) {
+  pathToMake = args.compiler;
+
+  if (!pathToMake) {
+    console.error("The --compiler option must be given a path to an elm-make executable.");
+    process.exit(1);
+  }
+}
+
+if (!fs.existsSync(testFile)) {
+  console.error("Could not find file " + testFile);
+  process.exit(1);
+}
+
+var testModulePromise = firstline(testFile).then(function (testModuleLine) {
+    var moduleMatches = testModuleLine.match(/^(?:port\s+)?module\s+([^\s]+)/);
+    if (moduleMatches) {
+        return moduleMatches[1];
+    }
+
+    return 'Main';
+});
+
+function infoLog(msg) {
+  if (report === "chalk") {
+    console.log(msg);
+  }
+}
+
+findUp('elm-package.json', { cwd: path.dirname(testFile) })
+    .then(function (elmPackagePath) {
+        var elmRootDir = path.dirname(elmPackagePath);
+        if (fs.realpathSync(elmRootDir) !== fs.realpathSync(process.cwd())) {
+            testFile = path.relative(elmRootDir, testFile);
+            process.chdir(elmRootDir);
+        }
+
+        if (args.watch) {
+            infoLog('Running in watch mode');
+
+            var watcher = chokidar.watch('**/*.elm', { ignoreInitial: true });
+
+            var eventNameMap = {
+                add: 'added',
+                addDir: 'added',
+                change: 'changed',
+                unlink: 'removed',
+                unlinkDir: 'removed',
+            };
+
+            watcher.on('all', function (event, filePath) {
+                var relativePath = path.relative(elmRootDir, filePath);
+                var eventName = eventNameMap[event] || event;
+
+                infoLog('\n' + relativePath + ' ' + eventName + '. Rebuilding!');
+
+                runTests();
+            });
+        }
+
+        function runTests () {
+            temp.open({ prefix:'elm_test_', suffix:'.js' }, function(err, info) {
+                var dest = info.path;
+                var compileProcess = compile( [testFile], {
+                    output: dest,
+                    verbose: args.verbose,
+                    yes: true,
+                    spawn: spawnCompiler,
+                    pathToMake: pathToMake,
+                    warn:args.warn
+                });
+
+                compileProcess.on('close', function(exitCode) {
+                    if (exitCode !== 0) {
+                        console.error("Compilation failed for", testFile);
+                        if (!args.watch) {
+                            process.exit(exitCode);
+                        }
+                    } else {
+                        testModulePromise.then(function (testModuleName) {
+                            evalElmCode(fs.readFileSync(dest, {encoding: "utf8"}), testModuleName);
+                        });
+                    }
+                });
+            });
+        }
+
+        runTests();
+    });
+
+
+process.on('uncaughtException', function(error) {
+  if (/ an argument in Javascript/.test(error)) {
+    // Handle arg mismatch between js and elm code. Expected message from Elm:
+    // "You are giving module `Main` an argument in JavaScript.
+    // This module does not take arguments though! You probably need to change the
+    // initialization code to something like `Elm.Main.fullscreen()`]"
+    console.error("Error starting the node-test-runner.");
+    console.error("Please check your Javascript 'elm-test' and Elm 'node-test-runner' package versions are compatible");
+  } else {
+    console.error("Unhandled exception while running the tests:", error);
+  }
+});

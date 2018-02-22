@@ -1,11 +1,11 @@
 module Tests exposing (..)
 
-import Test exposing (..)
-import Fuzz exposing (..)
-import Expect exposing (Expectation)
 import ElmHub exposing (responseDecoder)
-import Json.Decode exposing (decodeString, Value)
+import Expect exposing (Expectation)
+import Fuzz exposing (..)
+import Json.Decode exposing (Value, decodeString)
 import String
+import Test exposing (..)
 
 
 all : Test
@@ -24,10 +24,10 @@ all =
                         -- Result docs: http://package.elm-lang.org/packages/elm-lang/core/latest/Result
                         False
                 in
-                    json
-                        |> decodeString responseDecoder
-                        |> isErrorResult
-                        |> Expect.true "Expected decoding an invalid response to return an Err."
+                json
+                    |> decodeString responseDecoder
+                    |> isErrorResult
+                    |> Expect.true "Expected decoding an invalid response to return an Err."
         , test "it successfully decodes a valid response" <|
             \() ->
                 """{ "items": [
@@ -60,11 +60,11 @@ all =
                     json =
                         """{ "items": [""" ++ jsonItems ++ """] }"""
                 in
-                    case decodeString responseDecoder json of
-                        Ok results ->
-                            List.length results
-                                |> Expect.equal (List.length ids)
+                case decodeString responseDecoder json of
+                    Ok results ->
+                        List.length results
+                            |> Expect.equal (List.length ids)
 
-                        Err err ->
-                            Expect.fail ("JSON decoding failed unexpectedly: " ++ err)
+                    Err err ->
+                        Expect.fail ("JSON decoding failed unexpectedly: " ++ err)
         ]

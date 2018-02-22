@@ -68,7 +68,8 @@ view model =
             ]
         , input
             [ class "search-query"
-              -- TODO onInput, set the query in the model
+
+            -- TODO onInput, set the query in the model
             , defaultValue model.query
             ]
             []
