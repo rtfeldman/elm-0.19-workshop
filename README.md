@@ -89,3 +89,7 @@ cd part1
 ```
 
 Now head over to the [README for Part 1](https://github.com/rtfeldman/elm-workshop/tree/master/part1)!
+
+## References
+
+[Slides](https://docs.google.com/presentation/d/1sNx5k3_fHwJcgm9QEY1LsMH_TyF5SnnOSDKb8HvFsEU/edit?usp=sharing)
