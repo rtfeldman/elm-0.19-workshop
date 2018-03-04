@@ -5,18 +5,20 @@ have everything set up properly.
 -}
 
 import Auth
+import Browser exposing (View)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
 import Json.Decode exposing (Decoder)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.program
+    Browser.fullscreen
         { view = view
         , update = update
-        , init = ( initialModel, searchFeed )
+        , init = \env -> ( initialModel, searchFeed )
+        , onNavigation = Nothing
         , subscriptions = \_ -> Sub.none
         }
 
@@ -42,19 +44,21 @@ searchFeed =
         |> Http.send Response
 
 
-view : Model -> Html Msg
+view : Model -> View Msg
 view model =
-    div [ class "content" ]
-        [ header [] [ h1 [] [ text "Elm Workshop" ] ]
-        , div
-            [ style
-                [ ( "font-size", "48px" )
-                , ( "text-align", "center" )
-                , ( "padding", "48px" )
+    { body =
+        [ div [ class "content" ]
+            [ header [] [ h1 [] [ text "Elm Workshop" ] ]
+            , div
+                [ style "font-size" "48px"
+                , style "text-align" "center"
+                , style "padding" "48px"
                 ]
+                [ text model.status ]
             ]
-            [ text model.status ]
         ]
+    , title = "Elm Workshop"
+    }
 
 
 type Msg
@@ -80,18 +84,18 @@ update msg model =
                         Http.BadUrl url ->
                             "Invalid test URL: " ++ url
 
-                        Http.BadPayload msg _ ->
-                            "Something is misconfigured: " ++ msg
+                        Http.BadPayload error _ ->
+                            "Something is misconfigured: " ++ error
 
-                        Http.BadStatus { status } ->
-                            case status.code of
+                        Http.BadStatus response ->
+                            case response.status.code of
                                 401 ->
                                     "Auth.elm does not have a valid token. :( Try recreating Auth.elm by following the steps in the README under the section “Create a GitHub Personal Access Token”."
 
                                 _ ->
                                     "GitHub's Search API returned an error: "
-                                        ++ toString status.code
+                                        ++ String.fromInt response.status.code
                                         ++ " "
-                                        ++ status.message
+                                        ++ response.status.message
             in
             ( { status = status }, Cmd.none )
