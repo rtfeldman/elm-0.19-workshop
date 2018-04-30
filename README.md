@@ -16,7 +16,7 @@ Getting Started
 > **Note:** Make sure not to run this command with `sudo`! If it gives you an `EACCESS` error, apply [**this fix**](https://docs.npmjs.com/getting-started/fixing-npm-permissions#option-two-change-npms-default-directory) and then re-run the command (still without `sudo`).
 
 ```shell
-npm install -g elm elm-test elm-live@2.7.5 elm-format@exp
+npm install -g elm elm-test elm-format@exp
 ```
 
 You can confirm this worked by running:
@@ -62,7 +62,7 @@ In the new termnal, `cd` into the `elm-workshop` directory again.
 Then run this to build the Elm code for the first time:
 
 ```shell
-elm live Main.elm --output=server/public/elm.js --pushstate --open
+elm make Main.elm --output=server/public/elm.js --pushstate --open
 ```
 
 A browser should open, and you should see this in it:
