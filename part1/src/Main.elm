@@ -31,7 +31,7 @@ type Page
     = Blank
     | NotFound
     | Errored PageLoadError
-    | Home Home.Model
+    | Home
     | Settings Settings.Model
     | Login Login.Model
     | Register Register.Model
@@ -116,10 +116,9 @@ viewPage session isLoading page =
                 |> frame Page.Other
                 |> Html.map SettingsMsg
 
-        Home subModel ->
-            Home.view session subModel
+        Home ->
+            Home.page
                 |> frame Page.Home
-                |> Html.map HomeMsg
 
         Login subModel ->
             Login.view session subModel
@@ -199,7 +198,7 @@ pageSubscriptions page =
         Settings _ ->
             Sub.none
 
-        Home _ ->
+        Home ->
             Sub.none
 
         Login _ ->
@@ -224,11 +223,9 @@ pageSubscriptions page =
 
 type Msg
     = SetRoute (Maybe Route)
-    | HomeLoaded (Result PageLoadError Home.Model)
     | ArticleLoaded (Result PageLoadError Article.Model)
     | ProfileLoaded Username (Result PageLoadError Profile.Model)
     | EditArticleLoaded Slug (Result PageLoadError Editor.Model)
-    | HomeMsg Home.Msg
     | SettingsMsg Settings.Msg
     | SetUser (Maybe User)
     | LoginMsg Login.Msg
@@ -278,7 +275,7 @@ setRoute maybeRoute model =
                     errored Page.Settings "You must be signed in to access your settings."
 
         Just Route.Home ->
-            transition HomeLoaded (Home.init model.session)
+            ( { model | pageState = Loaded Home }, Cmd.none )
 
         Just Route.Root ->
             ( model, Route.modifyUrl Route.Home )
@@ -341,12 +338,6 @@ updatePage page msg model =
     case ( msg, page ) of
         ( SetRoute route, _ ) ->
             setRoute route model
-
-        ( HomeLoaded (Ok subModel), _ ) ->
-            ( { model | pageState = Loaded (Home subModel) }, Cmd.none )
-
-        ( HomeLoaded (Err error), _ ) ->
-            ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
         ( ProfileLoaded username (Ok subModel), _ ) ->
             ( { model | pageState = Loaded (Profile username subModel) }, Cmd.none )
@@ -429,9 +420,6 @@ updatePage page msg model =
             ( { newModel | pageState = Loaded (Register pageModel) }
             , Cmd.map RegisterMsg cmd
             )
-
-        ( HomeMsg subMsg, Home subModel ) ->
-            toPage Home HomeMsg (Home.update session) subMsg subModel
 
         ( ProfileMsg subMsg, Profile username subModel ) ->
             toPage (Profile username) ProfileMsg (Profile.update model.session) subMsg subModel
