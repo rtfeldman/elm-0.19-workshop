@@ -1,4 +1,4 @@
-<i>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a> - except for the `server/` directory, which has its own license. Many thanks to those who [wrote the server](https://github.com/gothinkster/moleculer-node-realworld-example-app)!</i>
+<i>This workshop is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>. The `server/` directory uses [`moleculer-node-realworld-example`](https://github.com/gothinkster/moleculer-node-realworld-example-app), which has its own license. The rest of the code is a variation on [`elm-spa-example`](https://github.com/rtfeldman/elm-spa-example/), an [MIT-licensed](https://github.com/rtfeldman/elm-spa-example/blob/master/LICENSE) implementation of the [`realworld`](https://github.com/gothinkster/realworld) front-end. Many thanks to the authors of these projects!</i>
 
 Getting Started
 ===============
@@ -62,7 +62,7 @@ In the new termnal, `cd` into the `elm-workshop` directory again.
 Then run this to build the Elm code for the first time:
 
 ```shell
-elm live Main.elm --output=public/elm.js --open
+elm live Main.elm --output=server/public/elm.js --pushstate --open
 ```
 
 A browser should open, and you should see this in it:
