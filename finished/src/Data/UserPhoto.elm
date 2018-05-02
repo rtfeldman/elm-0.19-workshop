@@ -50,4 +50,4 @@ photoToUrl (UserPhoto maybeUrl) =
 
 defaultPhotoUrl : String
 defaultPhotoUrl =
-    "https://static.productionready.io/images/smiley-cyrus.jpg"
+    "/assets/images/smiley-cyrus.jpg"
