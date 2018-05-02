@@ -45,10 +45,11 @@ We'll be running a local server for our Elm UI to use. Let's get it set up.
 ```shell
 cd server
 npm install
-npm run dev
+npm start
 ```
 
-If the server started up successfully, you should see `mol $` at the end of your terminal.
+If the server started up successfully, you should see
+`> moleculer-runner services` at the end of your terminal.
 
 We're going to leave this server running and not touch it again for the duration
 of the workshop, so **don't close it** until the workshop is over!

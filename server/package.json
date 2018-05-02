@@ -3,13 +3,7 @@
   "version": "1.0.0",
   "description": "RealWorld example app with Moleculer microservices framework",
   "scripts": {
-    "dev": "moleculer-runner --repl --hot services",
-    "start": "moleculer-runner",
-    "deps": "npm-check -u",
-    "ci": "jest --watch",
-    "test": "jest --coverage",
-    "lint": "eslint services",
-    "docker:build": "docker build -t conduit ."
+    "start": "moleculer-runner services"
   },
   "keywords": [
     "microservices",
