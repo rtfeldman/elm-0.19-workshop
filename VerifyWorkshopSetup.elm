@@ -1,4 +1,4 @@
-module VerifyWorkshopSetup exposing (main)
+port module Main exposing (..)
 
 {- | Displays “You’re all set!” and a heart in the style of the Elm logo (created
       by Marco Perone, CC-BY-SA-4.0 - thanks for sharing it, Marco!)
@@ -9,33 +9,47 @@ module VerifyWorkshopSetup exposing (main)
 
 import Html exposing (Html, h1, img, section, text)
 import Html.Attributes exposing (alt, src, style)
+import Json.Decode exposing (Value)
 
 
-main : Html msg
+port storeSession : Maybe String -> Cmd msg
+
+
+port onSessionChange : (Value -> msg) -> Sub msg
+
+
+main : Program Value () ()
 main =
-    section
-        [ style
-            [ ( "margin", "40px auto" )
-            , ( "width", "960px" )
-            , ( "text-align", "center" )
-            ]
-        ]
-        [ h1
-            [ style
-                [ ( "margin", "40px auto" )
-                , ( "font-family", "Helvetica, Arial, sans-serif" )
-                , ( "font-size", "128px" )
-                , ( "color", "rgb(90, 99, 120)" )
-                ]
-            ]
-            [ text "You’re all set!" ]
-        , img
-            [ alt "Heart in the style of the Elm logo, by Marco Perone"
-            , src "https://user-images.githubusercontent.com/1094080/39399444-a90f2746-4aeb-11e8-9bd6-4fe45e535921.png"
-            , style
-                [ ( "width", "368px" )
-                , ( "height", "305px" )
-                ]
-            ]
-            []
-        ]
+    Html.programWithFlags
+        { init = \_ -> ( (), Cmd.none )
+        , update = \() () -> ( (), Cmd.none )
+        , subscriptions = \() -> Sub.none
+        , view =
+            \() ->
+                section
+                    [ style
+                        [ ( "margin", "40px auto" )
+                        , ( "width", "960px" )
+                        , ( "text-align", "center" )
+                        ]
+                    ]
+                    [ h1
+                        [ style
+                            [ ( "margin", "40px auto" )
+                            , ( "font-family", "Helvetica, Arial, sans-serif" )
+                            , ( "font-size", "128px" )
+                            , ( "color", "rgb(90, 99, 120)" )
+                            ]
+                        ]
+                        [ text "You’re all set!" ]
+                    , img
+                        [ alt "Heart in the style of the Elm logo, by Marco Perone"
+                        , src "https://user-images.githubusercontent.com/1094080/39399444-a90f2746-4aeb-11e8-9bd6-4fe45e535921.png"
+                        , style
+                            [ ( "width", "368px" )
+                            , ( "height", "305px" )
+                            ]
+                        ]
+                        []
+                    ]
+        }
