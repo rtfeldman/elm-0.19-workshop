@@ -3,7 +3,7 @@ module Page.Home exposing (Model, Msg, init, update, view)
 {-| The homepage. You can get here via either the / or /#/ routes.
 -}
 
-import Data.Article.Tag as Tag exposing (Tag)
+import Data.Article as Article exposing (Tag)
 import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, classList, href, id, placeholder)
@@ -100,7 +100,7 @@ viewTag tagName =
         , href "javascript:void(0)"
         , onClick (SelectTag tagName)
         ]
-        [ text (Tag.toString tagName) ]
+        [ text (Article.tagToString tagName) ]
 
 
 
