@@ -16,8 +16,9 @@ overkill, so we use simpler APIs instead.
 
 -}
 
-import Data.Article as Article exposing (Article, Tag)
+import Data.Article as Article exposing (Article)
 import Data.Article.Feed exposing (Feed)
+import Data.Article.Tag as Tag exposing (Tag)
 import Data.AuthToken exposing (AuthToken)
 import Data.Session exposing (Session)
 import Data.User exposing (Username)
@@ -126,7 +127,7 @@ sourceName source =
             "Global Feed"
 
         TagFeed tagName ->
-            "#" ++ Article.tagToString tagName
+            "#" ++ Tag.toString tagName
 
         FavoritedFeed username ->
             "Favorited Articles"

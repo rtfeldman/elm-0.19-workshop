@@ -3,15 +3,12 @@ module Data.Article
         ( Article
         , Body
         , Slug
-        , Tag
         , bodyToHtml
         , bodyToMarkdownString
         , decoder
         , decoderWithBody
         , slugParser
         , slugToString
-        , tagDecoder
-        , tagToString
         )
 
 import Data.Article.Author as Author exposing (Author)
@@ -107,24 +104,6 @@ slugParser =
 slugToString : Slug -> String
 slugToString (Slug slug) =
     slug
-
-
-
--- TAGS --
-
-
-type Tag
-    = Tag String
-
-
-tagToString : Tag -> String
-tagToString (Tag slug) =
-    slug
-
-
-tagDecoder : Decoder Tag
-tagDecoder =
-    Decode.map Tag Decode.string
 
 
 

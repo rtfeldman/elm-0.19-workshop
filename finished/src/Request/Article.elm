@@ -14,8 +14,9 @@ module Request.Article
         , update
         )
 
-import Data.Article as Article exposing (Article, Body, Tag, slugToString)
+import Data.Article as Article exposing (Article, Body, slugToString)
 import Data.Article.Feed as Feed exposing (Feed)
+import Data.Article.Tag as Tag exposing (Tag)
 import Data.AuthToken exposing (AuthToken, withAuthorization)
 import Data.User as User exposing (Username)
 import Http
@@ -68,7 +69,7 @@ defaultListConfig =
 
 list : ListConfig -> Maybe AuthToken -> Http.Request Feed
 list config maybeToken =
-    [ ( "tag", Maybe.map Article.tagToString config.tag )
+    [ ( "tag", Maybe.map Tag.toString config.tag )
     , ( "author", Maybe.map User.usernameToString config.author )
     , ( "favorited", Maybe.map User.usernameToString config.favorited )
     , ( "limit", Just (toString config.limit) )
@@ -114,7 +115,7 @@ feed config token =
 
 tags : Http.Request (List Tag)
 tags =
-    Decode.field "tags" (Decode.list Article.tagDecoder)
+    Decode.field "tags" (Decode.list Tag.decoder)
         |> Http.get (apiUrl "/tags")
 
 
@@ -169,7 +170,7 @@ type alias CreateConfig record =
         | title : String
         , description : String
         , body : String
-        , tags : List String
+        , tags : List Tag
     }
 
 
@@ -194,7 +195,7 @@ create config token =
                 [ ( "title", Encode.string config.title )
                 , ( "description", Encode.string config.description )
                 , ( "body", Encode.string config.body )
-                , ( "tagList", Encode.list (List.map Encode.string config.tags) )
+                , ( "tagList", Encode.list (List.map Tag.encode config.tags) )
                 ]
 
         body =

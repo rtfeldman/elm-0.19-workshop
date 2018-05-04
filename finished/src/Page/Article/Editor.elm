@@ -1,6 +1,7 @@
 module Page.Article.Editor exposing (Model, Msg, initEdit, initNew, update, view)
 
 import Data.Article as Article exposing (Article, Body)
+import Data.Article.Tag as Tag exposing (Tag)
 import Data.Session exposing (Session)
 import Data.User exposing (User)
 import Html exposing (..)
@@ -8,6 +9,7 @@ import Html.Attributes exposing (attribute, class, defaultValue, disabled, href,
 import Html.Events exposing (onInput, onSubmit)
 import Http
 import Page.Errored exposing (PageLoadError, pageLoadError)
+import Parser
 import Request.Article
 import Route
 import Task exposing (Task)
@@ -26,7 +28,7 @@ type alias Model =
     , title : String
     , body : String
     , description : String
-    , tags : List String
+    , tags : String
     , isSaving : Bool
     }
 
@@ -38,7 +40,7 @@ initNew =
     , title = ""
     , body = ""
     , description = ""
-    , tags = []
+    , tags = ""
     , isSaving = False
     }
 
@@ -60,7 +62,7 @@ initEdit session slug =
                 , title = article.title
                 , body = Article.bodyToMarkdownString article.body
                 , description = article.description
-                , tags = article.tags
+                , tags = String.join " " article.tags
                 , isSaving = False
                 }
             )
@@ -121,7 +123,7 @@ viewForm model =
             , Form.input
                 [ placeholder "Enter tags"
                 , onInput SetTags
-                , defaultValue (String.join " " model.tags)
+                , defaultValue model.tags
                 ]
                 []
             , button [ class "btn btn-lg pull-xs-right btn-primary", disabled model.isSaving ]
@@ -152,10 +154,24 @@ update user msg model =
                 [] ->
                     case model.editingArticle of
                         Nothing ->
-                            user.token
-                                |> Request.Article.create model
-                                |> Http.send CreateCompleted
-                                |> pair { model | errors = [], isSaving = True }
+                            case Parser.run Tag.listParser model.tags of
+                                Ok tags ->
+                                    let
+                                        request =
+                                            Request.Article.create
+                                                { tags = tags
+                                                , title = model.title
+                                                , body = model.body
+                                                , description = model.description
+                                                }
+                                                user.token
+                                    in
+                                    request
+                                        |> Http.send CreateCompleted
+                                        |> pair { model | errors = [], isSaving = True }
+
+                                Err _ ->
+                                    ( { model | errors = [ ( Tags, "Invalid tags." ) ] }, Cmd.none )
 
                         Just slug ->
                             user.token
@@ -173,7 +189,7 @@ update user msg model =
             ( { model | description = description }, Cmd.none )
 
         SetTags tags ->
-            ( { model | tags = tagsFromString tags }, Cmd.none )
+            ( { model | tags = tags }, Cmd.none )
 
         SetBody body ->
             ( { model | body = body }, Cmd.none )
@@ -217,6 +233,7 @@ type Field
     = Form
     | Title
     | Body
+    | Tags
 
 
 type alias Error =
@@ -233,14 +250,6 @@ modelValidator =
 
 
 -- INTERNAL --
-
-
-tagsFromString : String -> List String
-tagsFromString str =
-    str
-        |> String.split " "
-        |> List.map String.trim
-        |> List.filter (not << String.isEmpty)
 
 
 redirectToArticle : Article.Slug -> Cmd msg
