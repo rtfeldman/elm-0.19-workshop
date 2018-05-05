@@ -143,7 +143,7 @@ update msg model =
         RegisterCompleted (Err error) ->
             let
                 errorMessages =
-                    case Debug.log "ERROR:" error of
+                    case error of
                         Http.BadStatus response ->
                             response.body
                                 |> decodeString (field "errors" errorsDecoder)

@@ -184,10 +184,6 @@ update user msg model =
                 |> pair model
 
         CreateCompleted (Err error) ->
-            let
-                _ =
-                    Debug.log "err" error
-            in
             ( { model
                 | errors = model.errors ++ [ ( Form, "Server error while attempting to publish article" ) ]
                 , isSaving = False
