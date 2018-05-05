@@ -14,13 +14,30 @@ view tags =
                     [ div [ class "sidebar" ]
                         [ p [] [ text "Popular Tags" ]
 
-                        -- TODO pass the actual tags to viewTags
+                        -- TODO instead of passing [] to viewTags, pass the actual tags
                         , viewTags []
                         ]
                     ]
                 ]
             ]
         ]
+
+
+viewTags tags =
+    let
+        renderedTags =
+            -- TODO use `List.map` and `viewTag` to render the tags
+            []
+    in
+    div [ class "tag-list" ] renderedTags
+
+
+viewTag tagName =
+    {- TODO render something like this:
+
+       <button class="tag-pill tag-default">tag name goes here</button>
+    -}
+    button [] []
 
 
 viewBanner =
@@ -34,20 +51,3 @@ viewBanner =
 
 viewFeed =
     div [ class "feed-toggle" ] [ text "(We’ll display some articles here later.)" ]
-
-
-viewTags tags =
-    let
-        renderedTags =
-            -- TODO use List.map to render the tags
-            []
-    in
-    div [ class "tag-list" ] renderedTags
-
-
-viewTag tagName =
-    {- TODO render something like this:
-
-       <button class="tag-pill tag-default">tag name goes here</button>
-    -}
-    button [] []
