@@ -6,7 +6,7 @@ module.exports = {
 	// It will be unique when scale up instances in Docker or on local computer
 	nodeID: os.hostname().toLowerCase() + "-" + process.pid,
 
-	logger: false,
+	logger: true,
 	logLevel: "info",
 
 	cacher: "memory",

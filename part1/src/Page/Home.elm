@@ -32,9 +32,9 @@ viewBanner =
     -}
     div [ class "banner" ]
         [ div [ class "container" ]
-            []
+            [ text "hi" ]
         ]
 
 
 viewFeed =
-    div [ class "feed-toggle" ] [ text "(We’ll display some articles here later.)" ]
+    div [ class "feed-toggle" ] [ text "(We’ll display some articles here later!!!!)" ]

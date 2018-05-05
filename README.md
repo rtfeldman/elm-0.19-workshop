@@ -58,15 +58,18 @@ of the workshop, so **don't close it** until the workshop is over!
 
 Leave the existing terminal running, and open a **second** terminal.
 
-In the new termnal, `cd` into the `elm-workshop` directory again.
+In the new termnal, `cd` into the `elm-workshop/server/` directory again.
 
 Then run this to build the Elm code for the first time:
 
 ```shell
-elm-live Main.elm --output=server/public/elm.js --pushstate --open
+elm-live src/Main.elm --output=../server/public/elm.js --dir=../server/public --pushstate
 ```
 
-A browser should open, and you should see this in it:
+> It should say "Server running at" and "LiveReload running on" - but we'll ignore both of those, because we'll instead be using the server we already started running in the previous step!
+
+Leave `elm-live` running and open [http://localhost:3000](http://localhost:3000)
+in your browser. You should see this in it:
 
 <img width="375" alt="A screenshot showing “You’re all set!”" src="https://user-images.githubusercontent.com/1094080/39399636-63605a72-4aef-11e8-82bc-2b94e85369d1.png">
 
