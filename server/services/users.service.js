@@ -70,7 +70,7 @@ module.exports = {
 							
 					})
 					.then(() => {
-						entity.password = bcrypt.hashSync(entity.password, 10);
+						entity.password = bcrypt.hashSync(entity.password, bcrypt.genSaltSync(10));
 						entity.bio = entity.bio || "";
 						entity.image = entity.image || null;
 						entity.createdAt = new Date();
