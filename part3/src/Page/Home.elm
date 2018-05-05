@@ -64,25 +64,12 @@ viewBanner =
         ]
 
 
-{-| TODO Give this function a new first argument called `selectedTag`, like so:
-
-BEFORE:
-
-    viewTag tagName =
-
-AFTER:
-
-    viewTag selectedTag tagName =
-
-HINT: This will cause a compiler error. See where the error message takes you!
-
--}
-viewTag tagName =
+viewTag selectedTagName tagName =
     let
+        {- TODO Set the classname to "tag-pill tag-selected" only when the
+           current tagName is equal to the selected one.
+        -}
         classname =
-            {- TODO Set the classname to "tag-pill tag-selected" only
-               when tagName == selectedTag
-            -}
             if False then
                 "tag-pill tag-selected"
             else
@@ -105,11 +92,8 @@ viewTag tagName =
         [ text tagName ]
 
 
-{-| HINT: Take a look at how initialModel is defined at the top of this file.
--}
 viewTags model =
-    div [ class "tag-list" ]
-        (List.map (\tag -> viewTag tag) model.tags)
+    div [ class "tag-list" ] (List.map (viewTag model.selectedTag) model.tags)
 
 
 viewFeed feed =
