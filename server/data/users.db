@@ -1,0 +1,2 @@
+{"username":"SamSample","email":"sam@sample.com","password":"$2a$10$6bury.WsF0p7chmqoqQc..S5HZ6qPK/KuqVfXxBjSasmDPxF3fj3W","bio":"","image":null,"createdAt":{"$$date":1525523183044},"_id":"Z1YiwpVIz2GQQ13Q"}
+{"username":"SamSample","email":"sam@sample.com","password":"samsample","bio":"I'm the sample user for the workshop. Hi!","image":"https://user-images.githubusercontent.com/1094080/39663282-6459c64e-503e-11e8-8da8-a2af2c81d052.png","createdAt":{"$$date":1525523183044},"_id":"Z1YiwpVIz2GQQ13Q","updatedAt":{"$$date":1525523378471}}
