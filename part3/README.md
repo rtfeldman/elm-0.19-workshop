@@ -1,7 +1,14 @@
-# Part 2
+# Part 3
 
-To build everything:
+To build everything, `cd` into the `part3/` directory and run:
 
+```shell
+elm-live src/Main.elm --output=../server/public/elm.js --dir=../server/public --pushstate
 ```
-elm make --output=../server/public/elm.js src/Main.elm --pushstate --open
-```
+
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Exercise
+
+Open `src/Page/Home.elm` in your editor and resolve the TODOs there.
+
