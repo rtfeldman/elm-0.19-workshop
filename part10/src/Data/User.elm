@@ -4,7 +4,7 @@ import Data.AuthToken as AuthToken exposing (AuthToken)
 import Data.UserPhoto as UserPhoto exposing (UserPhoto)
 import Html exposing (Html)
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode.Pipeline exposing (decode, optional, required)
 import Json.Encode as Encode exposing (Value)
 import Json.Encode.Extra as EncodeExtra
 import UrlParser
@@ -16,8 +16,6 @@ type alias User =
     , username : Username
     , bio : Maybe String
     , image : UserPhoto
-    , createdAt : String
-    , updatedAt : String
     }
 
 
@@ -33,8 +31,6 @@ decoder =
         |> required "username" usernameDecoder
         |> required "bio" (Decode.nullable Decode.string)
         |> required "image" UserPhoto.decoder
-        |> required "createdAt" Decode.string
-        |> required "updatedAt" Decode.string
 
 
 encode : User -> Value
@@ -45,8 +41,6 @@ encode user =
         , ( "username", encodeUsername user.username )
         , ( "bio", EncodeExtra.maybe Encode.string user.bio )
         , ( "image", UserPhoto.encode user.image )
-        , ( "createdAt", Encode.string user.createdAt )
-        , ( "updatedAt", Encode.string user.updatedAt )
         ]
 
 

@@ -16,7 +16,7 @@ type alias Model =
     { name : String, email : String, age : String, selections : List String }
 
 
-modelValidator : Validator Model String
+modelValidator : Validator String Model
 modelValidator =
     Validate.all
         [ ifBlank .name "Please enter a name."
@@ -28,8 +28,7 @@ modelValidator =
 
 validate modelValidator
     { name = "Sam", email = "", age = "abc", selections = [ "cats" ] }
-    == [ "Please enter an email address.", "Age must be a whole number." ]
-    --> True
+    --> [ "Please enter an email address.", "Age must be a whole number." ]
 ```
 
 You can represent your errors however you like. One nice approach is to use
@@ -56,8 +55,7 @@ type alias Model =
 
 validate modelValidator
     { name = "Sam", email = "", age = "abc", selections = [ "cats" ] }
-    == [ ( Email, "Please enter an email address." )
-       , ( Age, "Age must be a whole number." )
-       ]
-    --> True
+    --> [ ( Email, "Please enter an email address." )
+    --> , ( Age, "Age must be a whole number." )
+    --> ]
 ```
