@@ -4,6 +4,7 @@ module Validate
         , all
         , any
         , firstError
+        , fromErrors
         , ifBlank
         , ifEmptyDict
         , ifEmptyList
@@ -21,7 +22,7 @@ module Validate
 
 {-| Convenience functions for validating data.
 
-    import Validate exposing (ifBlank, ifNotInt, validate)
+    import Validate exposing (Validator, ifBlank, ifNotInt, validate)
 
     type Field = Name | Email | Age
 
@@ -49,7 +50,7 @@ module Validate
 
 # Creating validators
 
-@docs ifBlank, ifNotInt, ifEmptyList, ifEmptyDict, ifEmptySet, ifNothing, ifInvalidEmail, ifTrue, ifFalse
+@docs ifBlank, ifNotInt, ifEmptyList, ifEmptyDict, ifEmptySet, ifNothing, ifInvalidEmail, ifTrue, ifFalse, fromErrors
 
 
 # Combining validators
@@ -86,7 +87,7 @@ type Validator error subject
 {-| Return an error if the given predicate returns `True` for the given
 subject.
 
-    import Validate exposing (ifBlank, ifNotInt, validate)
+    import Validate exposing (Validator, ifBlank, ifNotInt, validate)
 
     type Field = Name | Email | Age
 
@@ -116,7 +117,7 @@ validate (Validator getErrors) subject =
 {-| Return an error if the given `String` is empty, or if it contains only
 whitespace characters.
 
-    import Validate exposing (ifBlank, ifNotInt)
+    import Validate exposing (Validator, ifBlank)
 
     modelValidator : Validator Model String
     modelValidator =
@@ -132,10 +133,31 @@ ifBlank subjectToString error =
 
 
 {-| Return an error if the given `String` cannot be parsed as an `Int`.
+
+    import Validate exposing (Validator, ifNotInt)
+
+    modelValidator : Validator Model String
+    modelValidator =
+        Validate.all
+            [ ifNotInt .followers (\_ -> "Please enter a whole number for followers.")
+            , ifNotInt .stars (\stars -> "Stars was \"" ++ stars ++ "\", but it needs to be a whole number.")"
+            ]
+
 -}
-ifNotInt : (subject -> String) -> error -> Validator error subject
-ifNotInt subjectToString error =
-    ifFalse (\subject -> isInt (subjectToString subject)) error
+ifNotInt : (subject -> String) -> (String -> error) -> Validator error subject
+ifNotInt subjectToString errorFromString =
+    let
+        getErrors subject =
+            let
+                str =
+                    subjectToString subject
+            in
+            if isInt str then
+                []
+            else
+                [ errorFromString str ]
+    in
+    Validator getErrors
 
 
 {-| Return an error if a `List` is empty.
@@ -167,16 +189,65 @@ ifNothing subjectToMaybe error =
 
 
 {-| Return an error if an email address is malformed.
+
+    import Validate exposing (Validator, ifBlank, ifNotInt)
+
+    modelValidator : Validator Model String
+    modelValidator =
+        Validate.all
+            [ ifInvalidEmail .primaryEmail (\_ -> "Please enter a valid primary email address.")
+            , ifInvalidEmail .superSecretEmail (\email -> "Unfortunately, \"" ++ email ++ "\" is not a valid Super Secret Email Address.")
+            ]
+
 -}
-ifInvalidEmail : (subject -> String) -> error -> Validator error subject
-ifInvalidEmail subjectToEmail error =
-    ifFalse (\subject -> isValidEmail (subjectToEmail subject)) error
+ifInvalidEmail : (subject -> String) -> (String -> error) -> Validator error subject
+ifInvalidEmail subjectToEmail errorFromEmail =
+    let
+        getErrors subject =
+            let
+                email =
+                    subjectToEmail subject
+            in
+            if isValidEmail email then
+                []
+            else
+                [ errorFromEmail email ]
+    in
+    Validator getErrors
+
+
+{-| Create a custom validator, by providing a function that returns a list of
+errors given a subject.
+
+    import Validate exposing (Validator, fromErrors)
+
+    modelValidator : Validator Model String
+    modelValidator =
+        fromErrors modelToErrors
+
+    modelToErrors : Model -> List String
+    modelToErrors model =
+        let
+            usernameLength =
+                String.length model.username
+        in
+        if usernameLength < minUsernameChars then
+            [ "Username not long enough" ]
+        else if usernameLength > maxUsernameChars then
+            [ "Username too long" ]
+        else
+            []
+
+-}
+fromErrors : (subject -> List error) -> Validator error subject
+fromErrors toErrors =
+    Validator toErrors
 
 
 {-| Return an error if a predicate returns `True` for the given
 subject.
 
-    import Validate exposing (ifTrue)
+    import Validate exposing (Validator, ifTrue)
 
     modelValidator : Validator Model String
     modelValidator =
@@ -199,7 +270,7 @@ ifTrue test error =
 {-| Return an error if a predicate returns `False` for the given
 subject.
 
-    import Validate exposing (ifFalse)
+    import Validate exposing (Validator, ifFalse)
 
     modelValidator : Validator Model String
     modelValidator =
@@ -226,7 +297,7 @@ ifFalse test error =
 {-| Run each of the given validators, in order, and return their concatenated
 error lists.
 
-    import Validate exposing (ifBlank, ifNotInt)
+    import Validate exposing (Validator, ifBlank, ifNotInt)
 
     modelValidator : Validator Model String
     modelValidator =
@@ -253,7 +324,7 @@ all validators =
 {-| Run each of the given validators, in order, stopping after the first error
 and returning it. If no errors are encountered, return `Nothing`.
 
-    import Validate exposing (ifBlank, ifInvalidEmail, ifNotInt)
+    import Validate exposing (Validator, ifBlank, ifInvalidEmail, ifNotInt)
 
 
     type alias Model =
@@ -337,7 +408,7 @@ isBlank str =
     Regex.contains lacksNonWhitespaceChars str
 
 
-{-| Returns `True` if the email is malformed.
+{-| Returns `True` if the email is valid.
 
 [`ifInvalidEmail`](#ifInvalidEmail) uses this under the hood.
 
