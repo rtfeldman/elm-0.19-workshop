@@ -18,6 +18,23 @@ initialModel =
 
 
 
+-- UPDATE --
+
+
+update msg model =
+    if msg.operation == "SELECT_TAG" then
+        {- TODO Return `model` with the `selectedTag` field set to `msg.data`
+
+           HINT: Record update syntax looks like this:
+
+               { model | foo = bar }
+        -}
+        model
+    else
+        model
+
+
+
 -- VIEW --
 
 
@@ -47,48 +64,53 @@ viewBanner =
         ]
 
 
-viewTags model =
-    div [ class "tag-list" ] (List.map viewTag model.tags)
+{-| TODO Give this function a new first argument called `selectedTag`, like so:
 
+BEFORE:
 
+    viewTag tagName =
+
+AFTER:
+
+    viewTag selectedTag tagName =
+
+HINT: This will cause a compiler error. See where the error message takes you!
+
+-}
 viewTag tagName =
     let
         classname =
-            {- TODO Change this if-expression to be more useful:
-
-                  if tagName == selectedTag then
-
-               Then change viewTag to take selectedTag as its first argument:
-
-                  viewTag selectedTag tagName =
+            {- TODO Set the classname to "tag-pill tag-selected" only
+               when tagName == selectedTag
             -}
-            if tagName == tagName then
-                "tag-pill tag-default"
-            else
+            if False then
                 "tag-pill tag-selected"
+            else
+                "tag-pill tag-default"
     in
+    {- TODO add an onClick handler here which selects `tagName`
+
+       HINT: Take look at `update` above, to check what it expects `msg`
+             to be. It will look something like this:
+
+        button
+            [ class classname
+            , onClick { operation = "SOMETHING", data = "tag name goes here" }
+            ]
+            [ text tagName ]
+    -}
     button
         [ class classname
-
-        {- TODO add an onClick handler here which selects the given tag.
-
-           HINT: This will require coordination with the update function!
-        -}
         ]
         [ text tagName ]
 
 
+{-| HINT: Take a look at how initialModel is defined at the top of this file.
+-}
+viewTags model =
+    div [ class "tag-list" ]
+        (List.map (\tag -> viewTag tag) model.tags)
+
+
 viewFeed feed =
     div [ class "feed-toggle" ] [ text "(We’ll display some articles here later.)" ]
-
-
-
--- UPDATE --
-
-
-update msg model =
-    if msg.operation == "SELECT_TAG" then
-        -- TODO Return `model` with the `selectedTag` field set to `msg.data`
-        model
-    else
-        model
