@@ -33,7 +33,7 @@ init session =
             if session.user == Nothing then
                 SelectList.singleton globalFeed
             else
-                SelectList.fromLists [] yourFeed [ globalFeed ]
+                SelectList.fromLists [] globalFeed [ yourFeed ]
 
         loadTags =
             Request.Article.tags
