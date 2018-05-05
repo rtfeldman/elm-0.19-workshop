@@ -93,7 +93,7 @@ view session model =
         , div [ class "user-info" ]
             [ div [ class "container" ]
                 [ div [ class "row" ]
-                    [ viewProfileInfo isMyProfile profile ]
+                    [ viewProfileInfo profile ]
                 ]
             ]
         , div [ class "container" ]
@@ -101,8 +101,18 @@ view session model =
         ]
 
 
-viewProfileInfo : Bool -> Profile -> Html Msg
-viewProfileInfo isMyProfile profile =
+viewProfileInfo : Profile -> Html Msg
+viewProfileInfo profile =
+    let
+        {- TODO delete this hardcoded isMyProfile declaration, and have
+           viewProfileInfo accept isMyProfile as an argument instead.
+
+           HINT: The module will no longer compile after this change! Follow
+           the compiler's error messages to resolve this.
+        -}
+        isMyProfile =
+            False
+    in
     div [ class "col-xs-12 col-md-10 offset-md-1" ]
         [ img [ class "user-img", UserPhoto.src profile.image ] []
         , h4 [] [ User.usernameToHtml profile.username ]
