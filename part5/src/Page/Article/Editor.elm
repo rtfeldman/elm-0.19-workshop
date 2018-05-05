@@ -238,14 +238,14 @@ modelValidator =
 -- INTERNAL --
 
 
-redirectToArticle : Article.Slug -> Cmd msg
-redirectToArticle =
-    Route.modifyUrl << Route.Article
-
-
 tagsFromString : String -> List String
 tagsFromString str =
     str
         |> String.split " "
         |> List.map String.trim
         |> List.filter (not << String.isEmpty)
+
+
+redirectToArticle : Article.Slug -> Cmd msg
+redirectToArticle =
+    Route.modifyUrl << Route.Article
