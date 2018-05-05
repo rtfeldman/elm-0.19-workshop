@@ -99,10 +99,16 @@ viewForm model =
     Html.form [ onSubmit Save ]
         [ fieldset []
             [ Form.input
-                -- TODO when the user enters some input in here,
-                -- we want to update the `title` field in the Model.
-                --
-                --    HINT: look at how the model.description field works.
+                {- TODO Sign up for an account (you can enter nonsense for all
+                   the signup fields) and then click `New Post` in the header to
+                   view the Article Editor.
+
+                   When the user enters some input for Article Title,
+                   we want to update the `title` field in the Model.
+
+                   HINT: We'll need to add something to the definition of Msg to
+                   do this. Look at how SetDescription is used in the next field!
+                -}
                 [ class "form-control-lg"
                 , placeholder "Article Title"
                 , value model.title
@@ -122,11 +128,8 @@ viewForm model =
                 ]
                 []
             , Form.input
-                -- TODO when the user enters some input in here,
-                -- we want to update the `tags` field in the Model.
-                --
-                --    HINT: this will have the same `view` logic as `title` did.
                 [ placeholder "Enter tags"
+                , onInput SetTags
                 , value (String.join " " model.tags)
                 ]
                 []
@@ -144,6 +147,7 @@ type Msg
     = Save
     | SetDescription String
     | SetBody String
+    | SetTags String
     | CreateCompleted (Result Http.Error (Article Body))
     | EditCompleted (Result Http.Error (Article Body))
 
@@ -170,20 +174,21 @@ update user msg model =
                 errors ->
                     ( { model | errors = errors }, Cmd.none )
 
-        -- TODO add something here that sets the title based on user input.
-        --
-        --    HINT: take a look at how SetDescription does something similar!
-        --
+        ------------------------------------------------------------------------
+        --                                                                    --
+        --  TODO add something here that sets the title based on user input.  --
+        --                                                                    --
+        --  HINT: take a look at how SetDescription does something similar!   --
+        --                                                                    --
+        ------------------------------------------------------------------------
         SetDescription description ->
             ( { model | description = description }, Cmd.none )
 
-        -- TODO add something here that sets the tags based on user input.
-        --
-        --     HINT: take a look at the tagsFromString function,
-        --           which is at the end of this file!
-        --
         SetBody body ->
             ( { model | body = body }, Cmd.none )
+
+        SetTags tagsStr ->
+            ( { model | tags = tagsFromString tagsStr }, Cmd.none )
 
         CreateCompleted (Ok article) ->
             Route.Article article.slug
