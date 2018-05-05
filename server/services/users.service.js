@@ -361,7 +361,7 @@ module.exports = {
 		 */
 		transformProfile(ctx, user, loggedInUser) {
 			//user.image = user.image || "https://www.gravatar.com/avatar/" + crypto.createHash("md5").update(user.email).digest("hex") + "?d=robohash";
-			user.image = user.image || "https://static.productionready.io/images/smiley-cyrus.jpg";
+			user.image = user.image || "/assets/images/smiley-cyrus.jpg";
 
 			if (loggedInUser) {
 				return ctx.call("follows.has", { user: loggedInUser._id.toString(), follow: user._id.toString() })
