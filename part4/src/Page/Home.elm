@@ -74,29 +74,17 @@ view model =
 
 {-| TODO add a type annotation to viewTag
 -}
-viewTag selectedTag tagName =
+viewTag selectedTagName tagName =
     let
         classname =
-            {- TODO Change this if-expression to be more useful:
-
-                  if tagName == selectedTag then
-
-               Then change viewTag to take selectedTag as its first argument:
-
-                  viewTag selectedTag tagName =
-            -}
-            if tagName == tagName then
-                "tag-pill tag-default"
-            else
+            if tagName == selectedTagName then
                 "tag-pill tag-selected"
+            else
+                "tag-pill tag-default"
     in
     button
         [ class classname
-
-        {- TODO add an onClick handler here which selects the given tag.
-
-           HINT: This will require coordination with the update function!
-        -}
+        , onClick { operation = "SELECT_TAG", data = tagName }
         ]
         [ text tagName ]
 
@@ -109,7 +97,6 @@ viewTag selectedTag tagName =
 -}
 update msg model =
     if msg.operation == "SELECT_TAG" then
-        -- TODO Return `model` with the `selectedTag` field set to `msg.data`
-        model
+        { model | selectedTag = msg.data }
     else
         model
