@@ -7,10 +7,20 @@ import Data.Article exposing (Article)
 import Data.UserPhoto as UserPhoto exposing (UserPhoto)
 import Date.Format
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, classList, href, id, src)
+import Html.Attributes exposing (attribute, class, classList, href, id, placeholder, src)
 import Route exposing (Route)
 import Views.Article.Favorite as Favorite
 import Views.Author
+
+
+-- VIEWS --
+
+
+{-| Some pages want to view just the timestamp, not the whole article.
+-}
+viewTimestamp : Article a -> Html msg
+viewTimestamp article =
+    span [ class "date" ] [ text (formattedTimestamp article) ]
 
 
 view : (Article a -> msg) -> Article a -> Html msg
@@ -25,7 +35,7 @@ view toggleFavorite article =
                 [ img [ UserPhoto.src author.image ] [] ]
             , div [ class "info" ]
                 [ Views.Author.view author.username
-                , viewTimestamp article
+                , span [ class "date" ] [ text (formattedTimestamp article) ]
                 ]
             , Favorite.button
                 toggleFavorite
@@ -41,9 +51,8 @@ view toggleFavorite article =
         ]
 
 
-viewTimestamp : Article a -> Html msg
-viewTimestamp article =
-    span [ class "date" ] [ text (formattedTimestamp article) ]
+
+-- INTERNAL --
 
 
 formattedTimestamp : Article a -> String
