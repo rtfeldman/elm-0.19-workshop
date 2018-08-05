@@ -153,6 +153,15 @@ fullDecoder maybeCred =
         |> required "body" "👉 TODO use `Body.decoder` (which is a `Decoder Body`) to decode the body into this Article Full"
 
 
+
+{- If you're unfamiliar with Decode Pipeline, here's how ☝️ would look without it:
+
+   Decode.map2 Article
+       (internalsDecoder maybeCred)
+       (Decode.field "body" "use `Body.decoder` (which is a `Decoder Body`) to decode the body into this Article Full")
+-}
+
+
 internalsDecoder : Maybe Cred -> Decoder Internals
 internalsDecoder maybeCred =
     Decode.succeed Internals
