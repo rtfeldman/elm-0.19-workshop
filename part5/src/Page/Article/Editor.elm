@@ -99,18 +99,9 @@ viewForm model =
     Html.form [ onSubmit Save ]
         [ fieldset []
             [ Form.input
-                {- TODO Sign up for an account (you can enter nonsense for all
-                   the signup fields) and then click `New Post` in the header to
-                   view the Article Editor.
-
-                   When the user enters some input for Article Title,
-                   we want to update the `title` field in the Model.
-
-                   HINT: We'll need to add something to the definition of Msg to
-                   do this. Look at how SetDescription is used in the next field!
-                -}
                 [ class "form-control-lg"
                 , placeholder "Article Title"
+                , onInput SetTitle
                 , value model.title
                 ]
                 []
@@ -146,6 +137,7 @@ viewForm model =
 type Msg
     = Save
     | SetDescription String
+    | SetTitle String
     | SetBody String
     | SetTags String
     | CreateCompleted (Result Http.Error (Article Body))
@@ -174,13 +166,9 @@ update user msg model =
                 errors ->
                     ( { model | errors = errors }, Cmd.none )
 
-        ------------------------------------------------------------------------
-        --                                                                    --
-        --  TODO add something here that sets the title based on user input.  --
-        --                                                                    --
-        --  HINT: take a look at how SetDescription does something similar!   --
-        --                                                                    --
-        ------------------------------------------------------------------------
+        SetTitle title ->
+            ( { model | title = title }, Cmd.none )
+
         SetDescription description ->
             ( { model | description = description }, Cmd.none )
 

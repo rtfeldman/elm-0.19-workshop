@@ -12,7 +12,7 @@ import Html.Events exposing (onClick)
 
 
 initialModel =
-    { tags = [ "foo", "bar", "dragons" ]
+    { tags = [ "foo", "bar", "baz", "dragons", "tag name goes here" ]
     , selectedTag = ""
     }
 
@@ -23,13 +23,7 @@ initialModel =
 
 update msg model =
     if msg.operation == "SELECT_TAG" then
-        {- TODO Return `model` with the `selectedTag` field set to `msg.data`
-
-           HINT: Record update syntax looks like this:
-
-               { model | foo = bar }
-        -}
-        model
+        { model | selectedTag = msg.data }
     else
         model
 
@@ -66,28 +60,15 @@ viewBanner =
 
 viewTag selectedTagName tagName =
     let
-        {- TODO Set the classname to "tag-pill tag-selected" only when the
-           current tagName is equal to the selected one.
-        -}
         classname =
-            if False then
+            if tagName == selectedTagName then
                 "tag-pill tag-selected"
             else
                 "tag-pill tag-default"
     in
-    {- TODO add an onClick handler here which selects `tagName`
-
-       HINT: Take look at `update` above, to check what it expects `msg`
-             to be. It will look something like this:
-
-        button
-            [ class classname
-            , onClick { operation = "SOMETHING", data = "tag name goes here" }
-            ]
-            [ text tagName ]
-    -}
     button
         [ class classname
+        , onClick { operation = "SELECT_TAG", data = tagName }
         ]
         [ text tagName ]
 

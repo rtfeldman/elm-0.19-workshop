@@ -75,25 +75,20 @@ view session model =
         loggedInUser =
             session.user
 
-        {- TODO figure out if this is the loggedInUser's profile
-           or not, based on whether that user's username matches this
-           profile's username.
-
-           HINT: The type of Maybe is:
-
-                type Maybe val
-                    = Just val
-                    | Nothing
-        -}
         isMyProfile =
-            False
+            case loggedInUser of
+                Just user ->
+                    profile.username == user.username
+
+                Nothing ->
+                    True
     in
     div [ class "profile-page" ]
         [ Errors.view DismissErrors model.errors
         , div [ class "user-info" ]
             [ div [ class "container" ]
                 [ div [ class "row" ]
-                    [ viewProfileInfo profile ]
+                    [ viewProfileInfo isMyProfile profile ]
                 ]
             ]
         , div [ class "container" ]
@@ -101,18 +96,8 @@ view session model =
         ]
 
 
-viewProfileInfo : Profile -> Html Msg
-viewProfileInfo profile =
-    let
-        {- TODO delete this hardcoded isMyProfile declaration, and have
-           viewProfileInfo accept isMyProfile as an argument instead.
-
-           HINT: The module will no longer compile after this change! Follow
-           the compiler's error messages to resolve this.
-        -}
-        isMyProfile =
-            False
-    in
+viewProfileInfo : Bool -> Profile -> Html Msg
+viewProfileInfo isMyProfile profile =
     div [ class "col-xs-12 col-md-10 offset-md-1" ]
         [ img [ class "user-img", UserPhoto.src profile.image ] []
         , h4 [] [ User.usernameToHtml profile.username ]
