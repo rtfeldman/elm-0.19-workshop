@@ -11,7 +11,7 @@ Run this at the terminal:
 
 ```shell
 git clone https://github.com/rtfeldman/elm-0.19-workshop.git
-cd elm-workshop
+cd elm-0.19-workshop
 ```
 
 3. Continue with either the [`intro`](https://github.com/rtfeldman/elm-0.19-workshop/blob/master/intro/README.md) or [`advanced`](https://github.com/rtfeldman/elm-0.19-workshop/blob/master/advanced/README.md) instructions, depending on which workshop you're doing!
