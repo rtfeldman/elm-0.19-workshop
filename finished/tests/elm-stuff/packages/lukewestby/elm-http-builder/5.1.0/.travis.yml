@@ -1,7 +1,0 @@
-language: node_js
-node_js:
-  - "node"
-install:
-  - npm install -g elm
-  - npm install -g elm-test
-script: sh ./scripts/test.sh
