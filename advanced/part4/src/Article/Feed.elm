@@ -143,8 +143,8 @@ viewPaginatedList paginatedList resultsPerPage =
         Html.text ""
 
 
-pageLink : (Int -> msg) -> Int -> Bool -> Html msg
-pageLink toMsg targetPage isActive =
+pageLink : Int -> Bool -> Html Msg
+pageLink targetPage isActive =
     li [ classList [ ( "page-item", True ), ( "active", isActive ) ] ]
         [ a
             [ class "page-link"
