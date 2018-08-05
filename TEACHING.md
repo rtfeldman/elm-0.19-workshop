@@ -33,9 +33,9 @@ on [Elm Slack](http://elmlang.herokuapp.com/).
 
 ## Schedule
 
-This is designed to be a full-day workshop. You may not have a full day to
-work with, but I figure it’ll be helpful to cover how I use this material. The
-schedule I follow is typically something like:
+The Intro and Advanced courses are each designed to be a full-day workshop.
+You may not have a full day to work with, but I figure it’ll be helpful to cover
+how I use this material. The schedule I follow is typically something like:
 
 * 30 minutes - help everyone get set up, buffer for late arrivals
 * 2.5 hours - cover parts 1-4
@@ -45,11 +45,10 @@ schedule I follow is typically something like:
 Definitely get through part 4 before lunch if possible. Teaching gets harder
 after lunch because [humans are programmed to get sleepy in the early
 afternoon](https://www.webmd.com/balance/features/afternoon-energy-boosters#1).
-Part 4 introduces types, and you don’t want to introduce types to sleepy
-students.
+Part 4 introduces types in the Intro workshop, and you don’t want to introduce
+types to sleepy students.
 
-
-## Teaching Tips
+## Teaching Tips for the Intro Workshop
 
 I gave a talk about [teaching Elm to beginners](https://www.youtube.com/watch?v=G-GhUxeYc1U)
 which has a bunch of my thoughts on the subject.  The
