@@ -42,6 +42,11 @@ Then run this to build the Elm code for the first time:
 elm make src/Main.elm --output=../server/public/elm.js
 ```
 
+Now open [http://localhost:3000](http://localhost:3000)
+in your browser. You should see this in it:
+
+<img width="375" alt="A screenshot showing “You’re all set!”" src="https://user-images.githubusercontent.com/1094080/39399636-63605a72-4aef-11e8-82bc-2b94e85369d1.png">
+
 If things aren’t working, the instructor will be happy to help!
 
 ## Links
