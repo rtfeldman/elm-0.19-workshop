@@ -16,7 +16,7 @@ Getting Started
 > **Note:** Make sure not to run this command with `sudo`! If it gives you an `EACCESS` error, apply [**this fix**](https://docs.npmjs.com/getting-started/fixing-npm-permissions#option-two-change-npms-default-directory) and then re-run the command (still without `sudo`).
 
 ```shell
-npm install -g elm@0.18.0 elm-test@0.18.12 elm-live@2.7.5 elm-format@0.7.0-exp
+npm install -g elm@0.19.0 elm-test@0.19.0 elm-live@2.7.5 elm-format@0.7.0-rc
 ```
 
 You can confirm this worked by running:
@@ -25,14 +25,14 @@ You can confirm this worked by running:
 elm --version
 ```
 
-It should print `0.18.0` if everything worked!
+It should print `0.19.0` if everything worked!
 
 ## Clone this repository
 
 Run this at the terminal:
 
 ```shell
-git clone https://github.com/rtfeldman/elm-0.18-workshop.git
+git clone https://github.com/rtfeldman/elm-0.19-workshop.git
 cd elm-workshop
 ```
 
@@ -77,7 +77,7 @@ If things aren’t working, the instructor will be happy to help!
 
 ## Links
 
-* [Slides](https://docs.google.com/presentation/d/1sNx5k3_fHwJcgm9QEY1LsMH_TyF5SnnOSDKb8HvFsEU/edit?usp=sharing) accompanying this workshop, including speaker notes in case you’d like to [run this workshop yourself](https://github.com/rtfeldman/elm-0.18-workshop/blob/master/TEACHING.md)
+* [Slides](https://docs.google.com/presentation/d/1sNx5k3_fHwJcgm9QEY1LsMH_TyF5SnnOSDKb8HvFsEU/edit?usp=sharing) accompanying this workshop, including speaker notes in case you’d like to [run this workshop yourself](https://github.com/rtfeldman/elm-0.19-workshop/blob/master/TEACHING.md)
 * [Elm in Action](https://www.manning.com/books/elm-in-action?a_aid=elm_in_action&a_bid=b15edc5c), a book by [Richard Feldman](https://twitter.com/rtfeldman), creator of this workshop
 * [Official Elm Guide](https://guide.elm-lang.org/) by [Evan Czaplicki](https://twitter.com/czaplic), creator of Elm
 * [Elm Slack](http://elmlang.herokuapp.com/) - amazingly helpful chat community. People in [the `#beginners` channel](https://elmlang.slack.com/messages/C192T0Q1E/) are happy to answer questions!
