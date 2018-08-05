@@ -39,15 +39,8 @@ In the new termnal, `cd` into the `elm-workshop/server/` directory again.
 Then run this to build the Elm code for the first time:
 
 ```shell
-elm make src/Main.elm --output=../server/public/elm.js --dir=../server/public --pushstate
+elm make src/Main.elm --output=../server/public/elm.js
 ```
-
-> It should say "Server running at" and "LiveReload running on" - but we'll ignore both of those, because we'll instead be using the server we already started running in the previous step!
-
-Leave `elm-live` running and open [http://localhost:3000](http://localhost:3000)
-in your browser. You should see this in it:
-
-<img width="375" alt="A screenshot showing “You’re all set!”" src="https://user-images.githubusercontent.com/1094080/39399636-63605a72-4aef-11e8-82bc-2b94e85369d1.png">
 
 If things aren’t working, the instructor will be happy to help!
 
