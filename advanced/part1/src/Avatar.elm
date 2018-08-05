@@ -63,4 +63,4 @@ avatarToUrl (Avatar maybeUrl) =
 
 defaultPhotoUrl : String
 defaultPhotoUrl =
-    "https://static.productionready.io/images/smiley-cyrus.jpg"
+    "http://localhost:3000/images/smiley-cyrus.jpg"
