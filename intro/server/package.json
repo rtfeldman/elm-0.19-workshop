@@ -1,0 +1,47 @@
+{
+  "name": "moleculer-realworld-example-app",
+  "version": "1.0.0",
+  "description": "RealWorld example app with Moleculer microservices framework",
+  "scripts": {
+    "start": "moleculer-runner services"
+  },
+  "keywords": [
+    "microservices",
+    "moleculer",
+    "realworld"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "4.11.0",
+    "jest": "21.2.1",
+    "jest-cli": "21.2.1",
+    "moleculer-repl": "^0.3.0",
+    "npm-check": "5.5.2"
+  },
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "jsonwebtoken": "8.1.0",
+    "lodash": "4.17.4",
+    "moleculer": "^0.11.0",
+    "moleculer-db": "0.7.0",
+    "moleculer-db-adapter-mongo": "0.1.6",
+    "moleculer-web": "0.6.0-beta7",
+    "nats": "0.7.24",
+    "slug": "0.9.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ice-services/moleculer-realworld-example-app.git"
+  },
+  "engines": {
+    "node": ">= 6.x.x"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "rootDir": "./services",
+    "roots": [
+      "../test"
+    ]
+  }
+}
