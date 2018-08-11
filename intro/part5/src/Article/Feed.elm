@@ -1,11 +1,7 @@
 module Article.Feed
     exposing
-        ( FeedConfig
-        , ListConfig
-        , Model
+        ( Model
         , Msg
-        , defaultFeedConfig
-        , defaultListConfig
         , init
         , selectTag
         , update
@@ -39,6 +35,24 @@ import Timestamp
 import Username exposing (Username)
 import Viewer exposing (Viewer)
 import Viewer.Cred as Cred exposing (Cred)
+
+
+{-| NOTE: This module has its own Model, view, and update. This is not normal!
+If you find yourself doing this often, please watch <https://www.youtube.com/watch?v=DoA4Txr4GUs>
+
+This is the reusable Article Feed that appears on both the Home page as well as
+on the Profile page. There's a lot of logic here, so it's more convenient to use
+the heavyweight approach of giving this its own Model, view, and update.
+
+This means callers must use Html.map and Cmd.map to use this thing, but in
+this case that's totally worth it because of the amount of logic wrapped up
+in this thing.
+
+For every other reusable view in this application, this API would be totally
+overkill, so we use simpler APIs instead.
+
+-}
+
 
 
 -- MODEL
@@ -325,34 +339,42 @@ fetch maybeCred page feedSource =
         offset =
             (page - 1) * articlesPerPage
 
-        listConfig =
-            { defaultListConfig | offset = offset, limit = articlesPerPage }
+        params =
+            [ ( "limit", String.fromInt articlesPerPage )
+            , ( "offset", String.fromInt offset )
+            ]
     in
     Task.map (PaginatedList.mapPage (\_ -> page)) <|
         case feedSource of
             YourFeed cred ->
-                let
-                    feedConfig =
-                        { defaultFeedConfig | offset = offset, limit = articlesPerPage }
-                in
-                feed feedConfig cred
+                params
+                    |> buildFromQueryParams (Just cred) (Api.url [ "articles", "feed" ])
+                    |> Cred.addHeader cred
+                    |> HttpBuilder.toRequest
                     |> Http.toTask
 
             GlobalFeed ->
-                list listConfig maybeCred
-                    |> Http.toTask
+                list maybeCred params
 
             TagFeed tagName ->
-                list { listConfig | tag = Just tagName } maybeCred
-                    |> Http.toTask
+                list maybeCred (( "tag", Tag.toString tagName ) :: params)
 
             FavoritedFeed username ->
-                list { listConfig | favorited = Just username } maybeCred
-                    |> Http.toTask
+                list maybeCred (( "favorited", Username.toString username ) :: params)
 
             AuthorFeed username ->
-                list { listConfig | author = Just username } maybeCred
-                    |> Http.toTask
+                list maybeCred (( "author", Username.toString username ) :: params)
+
+
+list :
+    Maybe Cred
+    -> List ( String, String )
+    -> Task Http.Error (PaginatedList (Article Preview))
+list maybeCred params =
+    buildFromQueryParams maybeCred (Api.url [ "articles" ]) params
+        |> Cred.addHeaderIfAvailable maybeCred
+        |> HttpBuilder.toRequest
+        |> Http.toTask
 
 
 replaceArticle : Article a -> Article a -> Article a
@@ -362,70 +384,6 @@ replaceArticle newArticle oldArticle =
 
     else
         oldArticle
-
-
-
--- LIST
-
-
-type alias ListConfig =
-    { tag : Maybe Tag
-    , author : Maybe Username
-    , favorited : Maybe Username
-    , limit : Int
-    , offset : Int
-    }
-
-
-defaultListConfig : ListConfig
-defaultListConfig =
-    { tag = Nothing
-    , author = Nothing
-    , favorited = Nothing
-    , limit = 20
-    , offset = 0
-    }
-
-
-list : ListConfig -> Maybe Cred -> Http.Request (PaginatedList (Article Preview))
-list config maybeCred =
-    [ Maybe.map (\tag -> ( "tag", Tag.toString tag )) config.tag
-    , Maybe.map (\author -> ( "author", Username.toString author )) config.author
-    , Maybe.map (\favorited -> ( "favorited", Username.toString favorited )) config.favorited
-    , Just ( "limit", String.fromInt config.limit )
-    , Just ( "offset", String.fromInt config.offset )
-    ]
-        |> List.filterMap identity
-        |> buildFromQueryParams maybeCred (Api.url [ "articles" ])
-        |> Cred.addHeaderIfAvailable maybeCred
-        |> HttpBuilder.toRequest
-
-
-
--- FEED
-
-
-type alias FeedConfig =
-    { limit : Int
-    , offset : Int
-    }
-
-
-defaultFeedConfig : FeedConfig
-defaultFeedConfig =
-    { limit = 10
-    , offset = 0
-    }
-
-
-feed : FeedConfig -> Cred -> Http.Request (PaginatedList (Article Preview))
-feed config cred =
-    [ ( "limit", String.fromInt config.limit )
-    , ( "offset", String.fromInt config.offset )
-    ]
-        |> buildFromQueryParams (Just cred) (Api.url [ "articles", "feed" ])
-        |> Cred.addHeader cred
-        |> HttpBuilder.toRequest
 
 
 
