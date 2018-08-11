@@ -25,13 +25,8 @@ import Viewer.Cred as Cred exposing (Cred)
 
 
 type Session
-    = Session Internals
-
-
-type alias Internals =
-    { navKey : Nav.Key
-    , viewer : Maybe Viewer
-    }
+    = LoggedIn Nav.Key Viewer
+    | Guest Nav.Key
 
 
 
@@ -39,18 +34,28 @@ type alias Internals =
 
 
 viewer : Session -> Maybe Viewer
-viewer (Session info) =
-    info.viewer
+viewer session =
+    case session of
+        LoggedIn _ val ->
+            Just val
+
+        Guest _ ->
+            Nothing
 
 
 cred : Session -> Maybe Cred
-cred (Session info) =
-    Maybe.map Viewer.cred info.viewer
+cred session =
+    Maybe.map Viewer.cred (viewer session)
 
 
 navKey : Session -> Nav.Key
-navKey (Session info) =
-    info.navKey
+navKey session =
+    case session of
+        LoggedIn key _ ->
+            key
+
+        Guest key ->
+            key
 
 
 
@@ -83,8 +88,7 @@ port storeSession : Maybe String -> Cmd msg
 
 changes : (Session -> msg) -> Nav.Key -> Sub msg
 changes toMsg key =
-    onSessionChange (decode key)
-        |> Sub.map toMsg
+    onSessionChange (\val -> toMsg (decode key val))
 
 
 port onSessionChange : (Value -> msg) -> Sub msg
@@ -92,7 +96,16 @@ port onSessionChange : (Value -> msg) -> Sub msg
 
 decode : Nav.Key -> Value -> Session
 decode key value =
-    Session
-        { viewer = Result.toMaybe (Decode.decodeValue Viewer.decoder value)
-        , navKey = key
-        }
+    -- It's stored in localStorage as a JSON String;
+    -- first decode the Value as a String, then
+    -- decode that String as JSON.
+    case
+        Decode.decodeValue Decode.string value
+            |> Result.andThen (Decode.decodeString Viewer.decoder)
+            |> Result.toMaybe
+    of
+        Just decodedViewer ->
+            LoggedIn key decodedViewer
+
+        Nothing ->
+            Guest key
