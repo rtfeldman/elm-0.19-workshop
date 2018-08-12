@@ -1,6 +1,6 @@
 # Part 6
 
-Like last time, we'll be building `src/Main.elm`, but editing a different file.
+Like last time, we'll be building `src/Main.elm`, but editing different files.
 
 To build everything, `cd` into the `part6/` directory and run:
 
