@@ -31,7 +31,7 @@ loading =
 
 defaultAvatar : Image
 defaultAvatar =
-    Image "smiley-cyrus.jpg"
+    image "smiley-cyrus.jpg"
 
 
 image : String -> Image
