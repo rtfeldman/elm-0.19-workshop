@@ -12,6 +12,11 @@ Then open `http://localhost:3000` in your browser.
 
 ## Exercise
 
-We need to make login work. Currently it doesn't actually send a HTTP request to the server.
+Look at `intro/server/public/index.html` to see how the localforage ports are
+hooked up on the JavaScript side.
 
-We'll fix this by editing `src/Page/Login.elm` and resolving the TODOs there.
+The exercise is to add the corresponding ports to `src/Session.elm`. See the
+TODOs in that file for more information!
+
+When you're done, you should once again be able to sign up for a new account,
+log in, etc.
