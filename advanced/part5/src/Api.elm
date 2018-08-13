@@ -1,4 +1,4 @@
-module Api exposing (addServerError, listErrors, optionalError, url)
+module Api exposing (addServerError, decodeErrors, url)
 
 import Http
 import Json.Decode as Decode exposing (Decoder, decodeString, field, string)
@@ -30,22 +30,24 @@ addServerError list =
 
 {-| Many API endpoints include an "errors" field in their BadStatus responses.
 -}
-listErrors : Decoder (List String) -> Http.Error -> List String
-listErrors decoder error =
+decodeErrors : Http.Error -> List String
+decodeErrors error =
     case error of
         Http.BadStatus response ->
             response.body
-                |> decodeString (field "errors" decoder)
+                |> decodeString (field "errors" errorsDecoder)
                 |> Result.withDefault [ "Server error" ]
 
         err ->
             [ "Server error" ]
 
 
-optionalError : String -> Decoder (List String -> a) -> Decoder a
-optionalError fieldName =
-    let
-        errorToString errorMessage =
-            String.join " " [ fieldName, errorMessage ]
-    in
-    optional fieldName (Decode.list (Decode.map errorToString string)) []
+errorsDecoder : Decoder (List String)
+errorsDecoder =
+    Decode.keyValuePairs (Decode.list Decode.string)
+        |> Decode.map (List.concatMap fromPair)
+
+
+fromPair : ( String, List String ) -> List String
+fromPair ( field, errors ) =
+    List.map (\error -> field ++ " " ++ error) errors

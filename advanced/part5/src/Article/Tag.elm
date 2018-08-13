@@ -1,4 +1,4 @@
-module Article.Tag exposing (Tag, list, toString)
+module Article.Tag exposing (Tag, list, toString, validate)
 
 import Api
 import Http
@@ -30,6 +30,14 @@ list : Http.Request (List Tag)
 list =
     Decode.field "tags" (Decode.list decoder)
         |> Http.get (Api.url [ "tags" ])
+
+
+validate : String -> List String -> Bool
+validate str =
+    String.split " " str
+        |> List.map String.trim
+        |> List.filter (not << String.isEmpty)
+        |> (==)
 
 
 

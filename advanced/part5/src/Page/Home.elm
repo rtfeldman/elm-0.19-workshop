@@ -36,6 +36,7 @@ type alias Model =
 
 type Status a
     = Loading
+    | LoadingSlowly
     | Loaded a
     | Failed
 
@@ -66,6 +67,7 @@ init session =
         , Tag.list
             |> Http.send CompletedTagsLoad
         , Task.perform GotTimeZone Time.here
+        , Task.perform (\_ -> PassedSlowLoadThreshold) Loading.slowThreshold
         ]
     )
 
@@ -88,24 +90,30 @@ view model =
                                 viewFeed model.timeZone feed
 
                             Loading ->
+                                []
+
+                            LoadingSlowly ->
                                 [ Loading.icon ]
 
                             Failed ->
                                 [ Loading.error "feed" ]
-                    , div [ class "col-md-3" ]
-                        [ div [ class "sidebar" ] <|
-                            case model.tags of
-                                Loaded tags ->
+                    , div [ class "col-md-3" ] <|
+                        case model.tags of
+                            Loaded tags ->
+                                [ div [ class "sidebar" ] <|
                                     [ p [] [ text "Popular Tags" ]
                                     , viewTags tags
                                     ]
+                                ]
 
-                                Loading ->
-                                    [ Loading.icon ]
+                            Loading ->
+                                []
 
-                                Failed ->
-                                    [ Loading.error "tags" ]
-                        ]
+                            LoadingSlowly ->
+                                [ Loading.icon ]
+
+                            Failed ->
+                                [ Loading.error "tags" ]
                     ]
                 ]
             ]
@@ -157,6 +165,7 @@ type Msg
     | GotTimeZone Time.Zone
     | GotFeedMsg Feed.Msg
     | GotSession Session
+    | PassedSlowLoadThreshold
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -197,6 +206,9 @@ update msg model =
                 Loading ->
                     ( model, Log.error )
 
+                LoadingSlowly ->
+                    ( model, Log.error )
+
                 Failed ->
                     ( model, Log.error )
 
@@ -205,6 +217,28 @@ update msg model =
 
         GotSession session ->
             ( { model | session = session }, Cmd.none )
+
+        PassedSlowLoadThreshold ->
+            let
+                -- If any data is still Loading, change it to LoadingSlowly
+                -- so `view` knows to render a spinner.
+                feed =
+                    case model.feed of
+                        Loading ->
+                            LoadingSlowly
+
+                        other ->
+                            other
+
+                tags =
+                    case model.tags of
+                        Loading ->
+                            LoadingSlowly
+
+                        other ->
+                            other
+            in
+            ( { model | feed = feed, tags = tags }, Cmd.none )
 
 
 
