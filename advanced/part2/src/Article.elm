@@ -56,22 +56,64 @@ import Viewer.Cred as Cred exposing (Cred)
 -- TYPES
 
 
+{-| An article, optionally with an article body.
+
+To see the difference between { extraInfo : a } and { extraInfo : Maybe Body },
+consider the difference between the "view individual article" page (which
+renders one article, including its body) and the "article feed" -
+which displays multiple articles, but without bodies.
+
+This definition for `Article` means we can write:
+
+viewArticle : Article Full -> Html msg
+viewFeed : List (Article Preview) -> Html msg
+
+This indicates that `viewArticle` requires an article _with a `body` present_,
+wereas `viewFeed` accepts articles with no bodies. (We could also have written
+it as `List (Article a)` to specify that feeds can accept either articles that
+have `body` present or not. Either work, given that feeds do not attempt to
+read the `body` field from articles.)
+
+This is an important distinction, because in Request.Article, the `feed`
+function produces `List (Article Preview)` because the API does not return bodies.
+Those articles are useful to the feed, but not to the individual article view.
+
+-}
 type Article a
     = Article Internals a
 
 
+{-| Metadata about the article - its title, description, and so on.
 
--- 💡 HINT: We can use these `Preview` and/or `Full` types to store information...
+Importantly, this module's public API exposes a way to read this metadata, but
+not to alter it. This is read-only information!
 
+If we find ourselves using any particular piece of metadata often,
+for example `title`, we could expose a convenience function like this:
 
-type Preview
-    = Preview
+Article.title : Article a -> String
 
+If you like, it's totally reasonable to expose a function like that for every one
+of these fields!
 
-type Full
-    = Full
+(Okay, to be completely honest, exposing one function per field is how I prefer
+to do it, and that's how I originally wrote this module. However, I'm aware that
+this code base has become a common reference point for beginners, and I think it
+is _extremely important_ that slapping some "getters and setters" on a record
+does not become a habit for anyone who is getting started with Elm. The whole
+point of making the Article type opaque is to create guarantees through
+_selectively choosing boundaries_ around it. If you aren't selective about
+where those boundaries are, and instead expose a "getter and setter" for every
+field in the record, the result is an API with no more guarantees than if you'd
+exposed the entire record directly! It is so important to me that beginners not
+fall into the terrible "getters and setters" trap that I've exposed this
+Metadata record instead of exposing a single function for each of its fields,
+as I did originally. This record is not a bad way to do it, by any means,
+but if this seems at odds with <https://youtu.be/x1FU3e0sT1I> - now you know why!
+See commit c2640ae3abd60262cdaafe6adee3f41d84cd85c3 for how it looked before.
+)
 
-
+-}
 type alias Metadata =
     { description : String
     , title : String
@@ -87,6 +129,14 @@ type alias Internals =
     , author : Author
     , metadata : Metadata
     }
+
+
+type Preview
+    = Preview
+
+
+type Full
+    = Full Body
 
 
 
@@ -151,15 +201,6 @@ fullDecoder maybeCred =
     Decode.succeed Article
         |> custom (internalsDecoder maybeCred)
         |> required "body" "👉 TODO use `Body.decoder` (which is a `Decoder Body`) to decode the body into this Article Full"
-
-
-
-{- If you're unfamiliar with Decode Pipeline, here's how ☝️ would look without it:
-
-   Decode.map2 Article
-       (internalsDecoder maybeCred)
-       (Decode.field "body" "use `Body.decoder` (which is a `Decoder Body`) to decode the body into this Article Full")
--}
 
 
 internalsDecoder : Maybe Cred -> Decoder Internals

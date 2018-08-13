@@ -1,6 +1,6 @@
 module Page.Register exposing (Model, Msg, init, subscriptions, toSession, update, view)
 
-import Api exposing (optionalError)
+import Api
 import Browser.Navigation as Nav
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -11,7 +11,6 @@ import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as Encode
 import Route exposing (Route)
 import Session exposing (Session)
-import Validate exposing (Valid, Validator, fromValid, ifBlank, validate)
 import Viewer exposing (Viewer)
 import Viewer.Cred as Cred exposing (Cred)
 
@@ -22,7 +21,7 @@ import Viewer.Cred as Cred exposing (Cred)
 
 type alias Model =
     { session : Session
-    , errors : List Error
+    , problems : List Problem
     , form : Form
     }
 
@@ -34,10 +33,15 @@ type alias Form =
     }
 
 
+type Problem
+    = InvalidEntry ValidatedField String
+    | ServerError String
+
+
 init : Session -> ( Model, Cmd msg )
 init session =
     ( { session = session
-      , errors = []
+      , problems = []
       , form =
             { email = ""
             , username = ""
@@ -65,9 +69,8 @@ view model =
                             [ a [ Route.href Route.Login ]
                                 [ text "Have an account?" ]
                             ]
-                        , model.errors
-                            |> List.map (\( _, error ) -> li [] [ text error ])
-                            |> ul [ class "error-messages" ]
+                        , ul [ class "error-messages" ]
+                            (List.map viewProblem model.problems)
                         , viewForm model.form
                         ]
                     ]
@@ -112,6 +115,20 @@ viewForm form =
         ]
 
 
+viewProblem : Problem -> Html msg
+viewProblem problem =
+    let
+        errorMessage =
+            case problem of
+                InvalidEntry _ str ->
+                    str
+
+                ServerError str ->
+                    str
+    in
+    li [] [ text errorMessage ]
+
+
 
 -- UPDATE
 
@@ -129,14 +146,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SubmittedForm ->
-            case validate formValidator model.form of
+            case validate model.form of
                 Ok validForm ->
-                    ( { model | errors = [] }
+                    ( { model | problems = [] }
                     , Http.send CompletedRegister (register validForm)
                     )
 
-                Err errors ->
-                    ( { model | errors = errors }
+                Err problems ->
+                    ( { model | problems = problems }
                     , Cmd.none
                     )
 
@@ -152,21 +169,22 @@ update msg model =
         CompletedRegister (Err error) ->
             let
                 serverErrors =
-                    error
-                        |> Api.listErrors errorsDecoder
-                        |> List.map (\errorMessage -> ( Server, errorMessage ))
+                    Api.decodeErrors error
+                        |> List.map ServerError
             in
-            ( { model | errors = List.append model.errors serverErrors }
+            ( { model | problems = List.append model.problems serverErrors }
             , Cmd.none
             )
 
-        CompletedRegister (Ok cred) ->
+        CompletedRegister (Ok viewer) ->
             ( model
-            , Session.login cred
+            , Session.login viewer
             )
 
         GotSession session ->
-            ( { model | session = session }, Cmd.none )
+            ( { model | session = session }
+            , Route.replaceUrl (Session.navKey session) Route.Home
+            )
 
 
 {-| Helper function for `update`. Updates the form and returns Cmd.none and
@@ -196,61 +214,96 @@ toSession model =
 
 
 
--- VALIDATION
+-- FORM
 
 
-type ErrorSource
-    = Server
-    | Username
+{-| Marks that we've trimmed the form's fields, so we don't accidentally send
+it to the server without having trimmed it!
+-}
+type TrimmedForm
+    = Trimmed Form
+
+
+{-| When adding a variant here, add it to `fieldsToValidate` too!
+-}
+type ValidatedField
+    = Username
     | Email
     | Password
 
 
-type alias Error =
-    ( ErrorSource, String )
+fieldsToValidate : List ValidatedField
+fieldsToValidate =
+    [ Username
+    , Email
+    , Password
+    ]
 
 
-formValidator : Validator Error Form
-formValidator =
-    Validate.all
-        [ ifBlank .username ( Username, "username can't be blank." )
-        , ifBlank .email ( Email, "email can't be blank." )
-        , Validate.fromErrors passwordLength
-        ]
+{-| Trim the form and validate its fields. If there are problems, report them!
+-}
+validate : Form -> Result (List Problem) TrimmedForm
+validate form =
+    let
+        trimmedForm =
+            trimFields form
+    in
+    case List.concatMap (validateField trimmedForm) fieldsToValidate of
+        [] ->
+            Ok trimmedForm
+
+        problems ->
+            Err problems
 
 
-minPasswordChars : Int
-minPasswordChars =
-    6
+validateField : TrimmedForm -> ValidatedField -> List Problem
+validateField (Trimmed form) field =
+    List.map (InvalidEntry field) <|
+        case field of
+            Username ->
+                if String.isEmpty form.username then
+                    [ "username can't be blank." ]
+
+                else
+                    []
+
+            Email ->
+                if String.isEmpty form.email then
+                    [ "email can't be blank." ]
+
+                else
+                    []
+
+            Password ->
+                if String.isEmpty form.password then
+                    [ "password can't be blank." ]
+
+                else if String.length form.password < Viewer.minPasswordChars then
+                    [ "password must be at least " ++ String.fromInt Viewer.minPasswordChars ++ " characters long." ]
+
+                else
+                    []
 
 
-passwordLength : Form -> List Error
-passwordLength { password } =
-    if String.length password < minPasswordChars then
-        [ ( Password, "password must be at least " ++ String.fromInt minPasswordChars ++ " characters long." ) ]
-
-    else
-        []
-
-
-errorsDecoder : Decoder (List String)
-errorsDecoder =
-    Decode.succeed (\email username password -> List.concat [ email, username, password ])
-        |> optionalError "email"
-        |> optionalError "username"
-        |> optionalError "password"
+{-| Don't trim while the user is typing! That would be super annoying.
+Instead, trim only on submit.
+-}
+trimFields : Form -> TrimmedForm
+trimFields form =
+    Trimmed
+        { username = String.trim form.username
+        , email = String.trim form.email
+        , password = String.trim form.password
+        }
 
 
 
 -- HTTP
 
 
-register : Valid Form -> Http.Request Viewer
-register validForm =
+register : TrimmedForm -> Http.Request Viewer
+register (Trimmed form) =
     let
-        form =
-            fromValid validForm
-
         user =
             Encode.object
                 [ ( "username", Encode.string form.username )

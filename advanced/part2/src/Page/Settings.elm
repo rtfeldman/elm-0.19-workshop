@@ -1,6 +1,6 @@
 module Page.Settings exposing (Model, Msg, init, subscriptions, toSession, update, view)
 
-import Api exposing (optionalError)
+import Api
 import Avatar
 import Browser.Navigation as Nav
 import Email exposing (Email)
@@ -16,7 +16,6 @@ import Profile exposing (Profile)
 import Route
 import Session exposing (Session)
 import Username as Username exposing (Username)
-import Validate exposing (Valid, Validator, fromValid, ifBlank, validate)
 import Viewer exposing (Viewer)
 import Viewer.Cred as Cred exposing (Cred)
 
@@ -27,24 +26,29 @@ import Viewer.Cred as Cred exposing (Cred)
 
 type alias Model =
     { session : Session
-    , errors : List Error
+    , problems : List Problem
     , form : Form
     }
 
 
 type alias Form =
-    { avatar : Maybe String
+    { avatar : String
     , bio : String
     , email : String
     , username : String
-    , password : Maybe String
+    , password : String
     }
+
+
+type Problem
+    = InvalidEntry ValidatedField String
+    | ServerError String
 
 
 init : Session -> ( Model, Cmd msg )
 init session =
     ( { session = session
-      , errors = []
+      , problems = []
       , form =
             case Session.viewer session of
                 Just viewer ->
@@ -55,21 +59,21 @@ init session =
                         cred =
                             Viewer.cred viewer
                     in
-                    { avatar = Avatar.toMaybeString (Profile.avatar profile)
+                    { avatar = Maybe.withDefault "" (Avatar.toMaybeString (Profile.avatar profile))
                     , email = Email.toString (Viewer.email viewer)
                     , bio = Maybe.withDefault "" (Profile.bio profile)
                     , username = Username.toString (Cred.username cred)
-                    , password = Nothing
+                    , password = ""
                     }
 
                 Nothing ->
                     -- It's fine to store a blank form here. You won't be
                     -- able to submit it if you're not logged in anyway.
-                    { avatar = Nothing
+                    { avatar = ""
                     , email = ""
                     , bio = ""
                     , username = ""
-                    , password = Nothing
+                    , password = ""
                     }
       }
     , Cmd.none
@@ -103,9 +107,8 @@ view model =
                         [ div [ class "row" ]
                             [ div [ class "col-md-6 offset-md-3 col-xs-12" ]
                                 [ h1 [ class "text-xs-center" ] [ text "Your Settings" ]
-                                , model.errors
-                                    |> List.map (\( _, error ) -> li [] [ text error ])
-                                    |> ul [ class "error-messages" ]
+                                , ul [ class "error-messages" ]
+                                    (List.map viewProblem model.problems)
                                 , viewForm cred model.form
                                 ]
                             ]
@@ -125,8 +128,8 @@ viewForm cred form =
                 [ input
                     [ class "form-control"
                     , placeholder "URL of profile picture"
-                    , value (Maybe.withDefault "" form.avatar)
-                    , onInput EnteredImage
+                    , value form.avatar
+                    , onInput EnteredAvatar
                     ]
                     []
                 ]
@@ -163,7 +166,7 @@ viewForm cred form =
                     [ class "form-control form-control-lg"
                     , type_ "password"
                     , placeholder "Password"
-                    , value (Maybe.withDefault "" form.password)
+                    , value form.password
                     , onInput EnteredPassword
                     ]
                     []
@@ -173,6 +176,20 @@ viewForm cred form =
                 [ text "Update Settings" ]
             ]
         ]
+
+
+viewProblem : Problem -> Html msg
+viewProblem problem =
+    let
+        errorMessage =
+            case problem of
+                InvalidEntry _ message ->
+                    message
+
+                ServerError message ->
+                    message
+    in
+    li [] [ text errorMessage ]
 
 
 
@@ -185,7 +202,7 @@ type Msg
     | EnteredUsername String
     | EnteredPassword String
     | EnteredBio String
-    | EnteredImage String
+    | EnteredAvatar String
     | CompletedSave (Result Http.Error Viewer)
     | GotSession Session
 
@@ -194,15 +211,15 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SubmittedForm cred ->
-            case validate formValidator model.form of
+            case validate model.form of
                 Ok validForm ->
-                    ( { model | errors = [] }
+                    ( { model | problems = [] }
                     , edit cred validForm
                         |> Http.send CompletedSave
                     )
 
-                Err errors ->
-                    ( { model | errors = errors }
+                Err problems ->
+                    ( { model | problems = problems }
                     , Cmd.none
                     )
 
@@ -212,39 +229,22 @@ update msg model =
         EnteredUsername username ->
             updateForm (\form -> { form | username = username }) model
 
-        EnteredPassword passwordStr ->
-            let
-                password =
-                    if String.isEmpty passwordStr then
-                        Nothing
-
-                    else
-                        Just passwordStr
-            in
+        EnteredPassword password ->
             updateForm (\form -> { form | password = password }) model
 
         EnteredBio bio ->
             updateForm (\form -> { form | bio = bio }) model
 
-        EnteredImage avatarStr ->
-            let
-                avatar =
-                    if String.isEmpty avatarStr then
-                        Nothing
-
-                    else
-                        Just avatarStr
-            in
+        EnteredAvatar avatar ->
             updateForm (\form -> { form | avatar = avatar }) model
 
         CompletedSave (Err error) ->
             let
                 serverErrors =
-                    error
-                        |> Api.listErrors errorsDecoder
-                        |> List.map (\errorMessage -> ( Server, errorMessage ))
+                    Api.decodeErrors error
+                        |> List.map ServerError
             in
-            ( { model | errors = List.append model.errors serverErrors }
+            ( { model | problems = List.append model.problems serverErrors }
             , Cmd.none
             )
 
@@ -254,7 +254,9 @@ update msg model =
             )
 
         GotSession session ->
-            ( { model | session = session }, Cmd.none )
+            ( { model | session = session }
+            , Route.replaceUrl (Session.navKey session) Route.Home
+            )
 
 
 {-| Helper function for `update`. Updates the form and returns Cmd.none and
@@ -284,36 +286,93 @@ toSession model =
 
 
 
--- VALIDATION
+-- FORM
 
 
-type ErrorSource
-    = Server
-    | Username
+{-| Marks that we've trimmed the form's fields, so we don't accidentally send
+it to the server without having trimmed it!
+-}
+type TrimmedForm
+    = Trimmed Form
+
+
+{-| When adding a variant here, add it to `fieldsToValidate` too!
+
+NOTE: there are no ImageUrl or Bio variants here, because they aren't validated!
+
+-}
+type ValidatedField
+    = Username
     | Email
     | Password
-    | ImageUrl
-    | Bio
 
 
-type alias Error =
-    ( ErrorSource, String )
+fieldsToValidate : List ValidatedField
+fieldsToValidate =
+    [ Username
+    , Email
+    , Password
+    ]
 
 
-formValidator : Validator Error Form
-formValidator =
-    Validate.all
-        [ ifBlank .username ( Username, "username can't be blank." )
-        , ifBlank .email ( Email, "email can't be blank." )
-        ]
+{-| Trim the form and validate its fields. If there are problems, report them!
+-}
+validate : Form -> Result (List Problem) TrimmedForm
+validate form =
+    let
+        trimmedForm =
+            trimFields form
+    in
+    case List.concatMap (validateField trimmedForm) fieldsToValidate of
+        [] ->
+            Ok trimmedForm
+
+        problems ->
+            Err problems
 
 
-errorsDecoder : Decoder (List String)
-errorsDecoder =
-    Decode.succeed (\email username password -> List.concat [ email, username, password ])
-        |> optionalError "email"
-        |> optionalError "username"
-        |> optionalError "password"
+validateField : TrimmedForm -> ValidatedField -> List Problem
+validateField (Trimmed form) field =
+    List.map (InvalidEntry field) <|
+        case field of
+            Username ->
+                if String.isEmpty form.username then
+                    [ "username can't be blank." ]
+
+                else
+                    []
+
+            Email ->
+                if String.isEmpty form.email then
+                    [ "email can't be blank." ]
+
+                else
+                    []
+
+            Password ->
+                let
+                    passwordLength =
+                        String.length form.password
+                in
+                if passwordLength > 0 && passwordLength < Viewer.minPasswordChars then
+                    [ "password must be at least " ++ String.fromInt Viewer.minPasswordChars ++ " characters long." ]
+
+                else
+                    []
+
+
+{-| Don't trim while the user is typing! That would be super annoying.
+Instead, trim only on submit.
+-}
+trimFields : Form -> TrimmedForm
+trimFields form =
+    Trimmed
+        { avatar = String.trim form.avatar
+        , bio = String.trim form.bio
+        , email = String.trim form.email
+        , username = String.trim form.username
+        , password = String.trim form.password
+        }
 
 
 
@@ -323,25 +382,35 @@ errorsDecoder =
 {-| This takes a Valid Form as a reminder that it needs to have been validated
 first.
 -}
-edit : Cred -> Valid Form -> Http.Request Viewer
-edit cred validForm =
+edit : Cred -> TrimmedForm -> Http.Request Viewer
+edit cred (Trimmed form) =
     let
-        form =
-            fromValid validForm
+        encodedAvatar =
+            case form.avatar of
+                "" ->
+                    Encode.null
+
+                avatar ->
+                    Encode.string avatar
 
         updates =
-            [ Just ( "username", Encode.string form.username )
-            , Just ( "email", Encode.string form.email )
-            , Just ( "bio", Encode.string form.bio )
-            , Just ( "image", Maybe.withDefault Encode.null (Maybe.map Encode.string form.avatar) )
-            , Maybe.map (\pass -> ( "password", Encode.string pass )) form.password
+            [ ( "username", Encode.string form.username )
+            , ( "email", Encode.string form.email )
+            , ( "bio", Encode.string form.bio )
+            , ( "image", encodedAvatar )
             ]
-                |> List.filterMap identity
+
+        encodedUser =
+            Encode.object <|
+                case form.password of
+                    "" ->
+                        updates
+
+                    password ->
+                        ( "password", Encode.string password ) :: updates
 
         body =
-            ( "user", Encode.object updates )
-                |> List.singleton
-                |> Encode.object
+            Encode.object [ ( "user", encodedUser ) ]
                 |> Http.jsonBody
 
         expect =
@@ -354,3 +423,12 @@ edit cred validForm =
         |> HttpBuilder.withBody body
         |> Cred.addHeader cred
         |> HttpBuilder.toRequest
+
+
+nothingIfEmpty : String -> Maybe String
+nothingIfEmpty str =
+    if String.isEmpty str then
+        Nothing
+
+    else
+        Just str
