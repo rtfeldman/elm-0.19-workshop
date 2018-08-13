@@ -206,17 +206,14 @@ toggleFollowButton txt extraClasses msgWhenClicked uname =
 
 decoder : Maybe Cred -> Decoder Author
 decoder maybeCred =
-    {- 👉 TODO: Use this `Profile` and `Username` to decode an `Author`!
-
-       💡 HINT: `decoderHelp` will help here, but slightly altering its type may make things easier...
-    -}
-    Decode.succeed "..."
+    Decode.succeed Tuple.pair
         |> custom Profile.decoder
         |> required "username" Username.decoder
+        |> Decode.andThen (decodeFromPair maybeCred)
 
 
-decoderHelp : Maybe Cred -> Profile -> Username -> Decoder Author
-decoderHelp maybeCred prof uname =
+decodeFromPair : Maybe Cred -> ( Profile, Username ) -> Decoder Author
+decodeFromPair maybeCred ( prof, uname ) =
     case maybeCred of
         Nothing ->
             -- If you're logged out, you can't be following anyone!

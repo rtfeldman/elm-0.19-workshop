@@ -24,18 +24,17 @@ view timeZone timestamp =
 -}
 iso8601Decoder : Decoder Time.Posix
 iso8601Decoder =
-    Decode.string
-        |> Decode.andThen fromString
+    {- 👉 TODO: Use the following function to decode this Time.Posix value:
 
 
-fromString : String -> Decoder Time.Posix
-fromString str =
-    case Iso8601.toTime str of
-        Ok successValue ->
-            succeed successValue
+       Iso8601.toTime : String -> Result (List DeadEnd) Time.Posix
 
-        Err _ ->
-            fail ("Invalid date: " ++ str)
+
+       ❕ NOTE: You can disregard the (List DeadEnd) here. No need to use it to complete this exercise!
+
+       💡 HINT: Decode.andThen will be useful here.
+    -}
+    "..."
 
 
 
