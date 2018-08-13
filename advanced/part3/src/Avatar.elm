@@ -1,5 +1,6 @@
 module Avatar exposing (Avatar, decoder, encode, src, toMaybeString)
 
+import Asset
 import Html exposing (Attribute)
 import Html.Attributes
 import Json.Decode as Decode exposing (Decoder)
@@ -27,40 +28,31 @@ decoder =
 -- TRANSFORM
 
 
+src : Avatar -> Attribute msg
+src (Avatar maybeUrl) =
+    Html.Attributes.src (resolveAvatarUrl maybeUrl)
+
+
+resolveAvatarUrl : Maybe String -> String
+resolveAvatarUrl maybeUrl =
+    {- 👉 TODO #1 of 2: return the user's avatar from maybeUrl, if maybeUrl actually
+       contains one. If maybeUrl is Nothing, return this URL instead:
+
+          https://static.productionready.io/images/smiley-cyrus.jpg
+    -}
+    ""
+
+
 encode : Avatar -> Value
 encode (Avatar maybeUrl) =
-    maybeUrl
-        |> Maybe.map Encode.string
-        |> Maybe.withDefault Encode.null
+    case maybeUrl of
+        Just url ->
+            Encode.string url
 
-
-src : Avatar -> Attribute msg
-src avatar =
-    Html.Attributes.src (avatarToUrl avatar)
+        Nothing ->
+            Encode.null
 
 
 toMaybeString : Avatar -> Maybe String
 toMaybeString (Avatar maybeUrl) =
     maybeUrl
-
-
-
--- INTERNAL
-
-
-avatarToUrl : Avatar -> String
-avatarToUrl (Avatar maybeUrl) =
-    case maybeUrl of
-        Nothing ->
-            defaultPhotoUrl
-
-        Just "" ->
-            defaultPhotoUrl
-
-        Just url ->
-            url
-
-
-defaultPhotoUrl : String
-defaultPhotoUrl =
-    "http://localhost:3000/images/smiley-cyrus.jpg"

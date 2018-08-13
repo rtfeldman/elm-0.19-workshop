@@ -3,7 +3,7 @@ module Page.Login exposing (Model, Msg, init, subscriptions, toSession, update, 
 {-| The login page.
 -}
 
-import Api exposing (optionalError)
+import Api
 import Browser.Navigation as Nav
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -14,7 +14,6 @@ import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as Encode
 import Route exposing (Route)
 import Session exposing (Session)
-import Validate exposing (Valid, Validator, fromValid, ifBlank, validate)
 import Viewer exposing (Viewer)
 import Viewer.Cred as Cred exposing (Cred)
 
@@ -25,9 +24,38 @@ import Viewer.Cred as Cred exposing (Cred)
 
 type alias Model =
     { session : Session
-    , errors : List Error
+    , problems : List Problem
     , form : Form
     }
+
+
+{-| Recording validation problems on a per-field basis facilitates displaying
+them inline next to the field where the error occurred.
+
+I implemented it this way out of habit, then realized the spec called for
+displaying all the errors at the top. I thought about simplifying it, but then
+figured it'd be useful to show how I would normally model this data - assuming
+the intended UX was to render errors per field.
+
+(The other part of this is having a view function like this:
+
+viewFieldErrors : ValidatedField -> List Problem -> Html msg
+
+...and it filters the list of problems to render only InvalidEntry ones for the
+given ValidatedField. That way you can call this:
+
+viewFieldErrors Email problems
+
+...next to the `email` field, and call `viewFieldErrors Password problems`
+next to the `password` field, and so on.
+
+The `LoginError` should be displayed elsewhere, since it doesn't correspond to
+a particular field.
+
+-}
+type Problem
+    = InvalidEntry ValidatedField String
+    | ServerError String
 
 
 type alias Form =
@@ -39,7 +67,7 @@ type alias Form =
 init : Session -> ( Model, Cmd msg )
 init session =
     ( { session = session
-      , errors = []
+      , problems = []
       , form =
             { email = ""
             , password = ""
@@ -66,14 +94,28 @@ view model =
                             [ a [ Route.href Route.Register ]
                                 [ text "Need an account?" ]
                             ]
-                        , ul [ class "error-messages" ] <|
-                            List.map (\( _, error ) -> li [] [ text error ]) model.errors
+                        , ul [ class "error-messages" ]
+                            (List.map viewProblem model.problems)
                         , viewForm model.form
                         ]
                     ]
                 ]
             ]
     }
+
+
+viewProblem : Problem -> Html msg
+viewProblem problem =
+    let
+        errorMessage =
+            case problem of
+                InvalidEntry _ str ->
+                    str
+
+                ServerError str ->
+                    str
+    in
+    li [] [ text errorMessage ]
 
 
 viewForm : Form -> Html Msg
@@ -119,14 +161,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SubmittedForm ->
-            case validate formValidator model.form of
+            case validate model.form of
                 Ok validForm ->
-                    ( { model | errors = [] }
+                    ( { model | problems = [] }
                     , Http.send CompletedLogin (login validForm)
                     )
 
-                Err errors ->
-                    ( { model | errors = errors }
+                Err problems ->
+                    ( { model | problems = problems }
                     , Cmd.none
                     )
 
@@ -139,22 +181,22 @@ update msg model =
         CompletedLogin (Err error) ->
             let
                 serverErrors =
-                    error
-                        |> Api.listErrors errorsDecoder
-                        |> List.map (\errorMessage -> ( Server, errorMessage ))
-                        |> List.append model.errors
+                    Api.decodeErrors error
+                        |> List.map ServerError
             in
-            ( { model | errors = List.append model.errors serverErrors }
+            ( { model | problems = List.append model.problems serverErrors }
             , Cmd.none
             )
 
-        CompletedLogin (Ok cred) ->
+        CompletedLogin (Ok viewer) ->
             ( model
-            , Session.login cred
+            , Session.login viewer
             )
 
         GotSession session ->
-            ( { model | session = session }, Cmd.none )
+            ( { model | session = session }
+            , Route.replaceUrl (Session.navKey session) Route.Home
+            )
 
 
 {-| Helper function for `update`. Updates the form and returns Cmd.none and
@@ -175,67 +217,83 @@ subscriptions model =
 
 
 
--- VALIDATION
+-- FORM
 
 
-type ErrorSource
-    = Server
-    | Email
+{-| Marks that we've trimmed the form's fields, so we don't accidentally send
+it to the server without having trimmed it!
+-}
+type TrimmedForm
+    = Trimmed Form
+
+
+{-| When adding a variant here, add it to `fieldsToValidate` too!
+-}
+type ValidatedField
+    = Email
     | Password
 
 
-{-| Recording validation errors on a per-field basis facilitates displaying
-them inline next to the field where the error occurred.
+fieldsToValidate : List ValidatedField
+fieldsToValidate =
+    [ Email
+    , Password
+    ]
 
-I implemented it this way out of habit, then realized the spec called for
-displaying all the errors at the top. I thought about simplifying it, but then
-figured it'd be useful to show how I would normally model this data - assuming
-the intended UX was to render errors per field.
 
-(The other part of this is having a view function like this:
-
-viewFormErrors : Field -> List Error -> Html msg
-
-...and it filters the list of errors to render only the ones for the given
-Field. This way you can call this:
-
-viewFormErrors Email model.errors
-
-...next to the `email` field, and call `viewFormErrors Password model.errors`
-next to the `password` field, and so on.
-
+{-| Trim the form and validate its fields. If there are problems, report them!
 -}
-type alias Error =
-    ( ErrorSource, String )
+validate : Form -> Result (List Problem) TrimmedForm
+validate form =
+    let
+        trimmedForm =
+            trimFields form
+    in
+    case List.concatMap (validateField trimmedForm) fieldsToValidate of
+        [] ->
+            Ok trimmedForm
+
+        problems ->
+            Err problems
 
 
-formValidator : Validator Error Form
-formValidator =
-    Validate.all
-        [ ifBlank .email ( Email, "email can't be blank." )
-        , ifBlank .password ( Password, "password can't be blank." )
-        ]
+validateField : TrimmedForm -> ValidatedField -> List Problem
+validateField (Trimmed form) field =
+    List.map (InvalidEntry field) <|
+        case field of
+            Email ->
+                if String.isEmpty form.email then
+                    [ "email can't be blank." ]
+
+                else
+                    []
+
+            Password ->
+                if String.isEmpty form.password then
+                    [ "password can't be blank." ]
+
+                else
+                    []
 
 
-errorsDecoder : Decoder (List String)
-errorsDecoder =
-    Decode.succeed (\emailOrPassword email username password -> List.concat [ emailOrPassword, email, username, password ])
-        |> optionalError "email or password"
-        |> optionalError "email"
-        |> optionalError "username"
-        |> optionalError "password"
+{-| Don't trim while the user is typing! That would be super annoying.
+Instead, trim only on submit.
+-}
+trimFields : Form -> TrimmedForm
+trimFields form =
+    Trimmed
+        { email = String.trim form.email
+        , password = String.trim form.password
+        }
 
 
 
 -- HTTP
 
 
-login : Valid Form -> Http.Request Viewer
-login validForm =
+login : TrimmedForm -> Http.Request Viewer
+login (Trimmed form) =
     let
-        form =
-            fromValid validForm
-
         user =
             Encode.object
                 [ ( "email", Encode.string form.email )
