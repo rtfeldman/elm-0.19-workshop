@@ -19,7 +19,6 @@ import Route
 import Session exposing (Session)
 import Task exposing (Task)
 import Time
-import Validate exposing (Valid, Validator, fromValid, ifBlank, validate)
 import Viewer exposing (Viewer)
 import Viewer.Cred as Cred exposing (Cred)
 
@@ -38,12 +37,18 @@ type
     Status
     -- Edit Article
     = Loading Slug
+    | LoadingSlowly Slug
     | LoadingFailed Slug
     | Saving Slug Form
-    | Editing Slug (List Error) Form
+    | Editing Slug (List Problem) Form
       -- New Article
-    | EditingNew (List Error) Form
+    | EditingNew (List Problem) Form
     | Creating Form
+
+
+type Problem
+    = InvalidEntry ValidatedField String
+    | ServerError String
 
 
 type alias Form =
@@ -74,12 +79,15 @@ initEdit session slug =
     ( { session = session
       , status = Loading slug
       }
-    , Article.fetch (Session.cred session) slug
-        |> Http.toTask
-        -- If init fails, store the slug that failed in the msg, so we can
-        -- at least have it later to display the page's title properly!
-        |> Task.mapError (\httpError -> ( slug, httpError ))
-        |> Task.attempt CompletedArticleLoad
+    , Cmd.batch
+        [ Article.fetch (Session.cred session) slug
+            |> Http.toTask
+            -- If init fails, store the slug that failed in the msg, so we can
+            -- at least have it later to display the page's title properly!
+            |> Task.mapError (\httpError -> ( slug, httpError ))
+            |> Task.attempt CompletedArticleLoad
+        , Task.perform (\_ -> PassedSlowLoadThreshold) Loading.slowThreshold
+        ]
     )
 
 
@@ -106,12 +114,35 @@ view model =
     }
 
 
+viewProblems : List Problem -> Html msg
+viewProblems problems =
+    ul [ class "error-messages" ]
+        (List.map viewProblem problems)
+
+
+viewProblem : Problem -> Html msg
+viewProblem problem =
+    let
+        errorMessage =
+            case problem of
+                InvalidEntry _ message ->
+                    message
+
+                ServerError message ->
+                    message
+    in
+    li [] [ text errorMessage ]
+
+
 viewAuthenticated : Cred -> Model -> Html Msg
 viewAuthenticated cred model =
     let
         formHtml =
             case model.status of
                 Loading _ ->
+                    []
+
+                LoadingSlowly _ ->
                     [ Loading.icon ]
 
                 Saving slug form ->
@@ -120,17 +151,13 @@ viewAuthenticated cred model =
                 Creating form ->
                     [ viewForm cred form (newArticleSaveButton [ disabled True ]) ]
 
-                Editing slug errors form ->
-                    [ errors
-                        |> List.map (\( _, error ) -> li [] [ text error ])
-                        |> ul [ class "error-messages" ]
+                Editing slug problems form ->
+                    [ viewProblems problems
                     , viewForm cred form (editArticleSaveButton [])
                     ]
 
-                EditingNew errors form ->
-                    [ errors
-                        |> List.map (\( _, error ) -> li [] [ text error ])
-                        |> ul [ class "error-messages" ]
+                EditingNew problems form ->
+                    [ viewProblems problems
                     , viewForm cred form (newArticleSaveButton [])
                     ]
 
@@ -223,6 +250,7 @@ type Msg
     | CompletedEdit (Result Http.Error (Article Full))
     | CompletedArticleLoad (Result ( Slug, Http.Error ) (Article Full))
     | GotSession Session
+    | PassedSlowLoadThreshold
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -252,7 +280,7 @@ update msg model =
             )
 
         CompletedCreate (Err error) ->
-            ( { model | status = savingError model.status }
+            ( { model | status = savingError error model.status }
             , Cmd.none
             )
 
@@ -263,7 +291,7 @@ update msg model =
             )
 
         CompletedEdit (Err error) ->
-            ( { model | status = savingError model.status }
+            ( { model | status = savingError error model.status }
             , Cmd.none
             )
 
@@ -291,35 +319,51 @@ update msg model =
             )
 
         GotSession session ->
-            ( { model | session = session }, Cmd.none )
+            ( { model | session = session }
+            , Route.replaceUrl (Session.navKey session) Route.Home
+            )
+
+        PassedSlowLoadThreshold ->
+            let
+                -- If any data is still Loading, change it to LoadingSlowly
+                -- so `view` knows to render a spinner.
+                status =
+                    case model.status of
+                        Loading slug ->
+                            LoadingSlowly slug
+
+                        other ->
+                            other
+            in
+            ( { model | status = status }, Cmd.none )
 
 
 save : Cred -> Status -> ( Status, Cmd Msg )
 save cred status =
     case status of
-        Editing slug _ fields ->
-            case validate formValidator fields of
+        Editing slug _ form ->
+            case validate form of
                 Ok validForm ->
-                    ( Saving slug fields
+                    ( Saving slug form
                     , edit slug validForm cred
                         |> Http.send CompletedEdit
                     )
 
-                Err errors ->
-                    ( Editing slug errors fields
+                Err problems ->
+                    ( Editing slug problems form
                     , Cmd.none
                     )
 
-        EditingNew _ fields ->
-            case validate formValidator fields of
+        EditingNew _ form ->
+            case validate form of
                 Ok validForm ->
-                    ( Creating fields
+                    ( Creating form
                     , create validForm cred
                         |> Http.send CompletedCreate
                     )
 
-                Err errors ->
-                    ( EditingNew errors fields
+                Err problems ->
+                    ( EditingNew problems form
                     , Cmd.none
                     )
 
@@ -333,18 +377,18 @@ save cred status =
             ( status, Cmd.none )
 
 
-savingError : Status -> Status
-savingError status =
+savingError : Http.Error -> Status -> Status
+savingError error status =
     let
-        errors =
-            [ ( Server, "Error saving article" ) ]
+        problems =
+            [ ServerError "Error saving article" ]
     in
     case status of
         Saving slug form ->
-            Editing slug errors form
+            Editing slug problems form
 
         Creating form ->
-            EditingNew errors form
+            EditingNew problems form
 
         _ ->
             status
@@ -365,6 +409,9 @@ updateForm transform model =
         newModel =
             case model.status of
                 Loading _ ->
+                    model
+
+                LoadingSlowly _ ->
                     model
 
                 LoadingFailed _ ->
@@ -395,37 +442,85 @@ subscriptions model =
 
 
 
--- VALIDATION
+-- FORM
 
 
-type ErrorSource
-    = Server
-    | Title
+{-| Marks that we've trimmed the form's fields, so we don't accidentally send
+it to the server without having trimmed it!
+-}
+type TrimmedForm
+    = Trimmed Form
+
+
+{-| When adding a variant here, add it to `fieldsToValidate` too!
+-}
+type ValidatedField
+    = Title
     | Body
 
 
-type alias Error =
-    ( ErrorSource, String )
+fieldsToValidate : List ValidatedField
+fieldsToValidate =
+    [ Title
+    , Body
+    ]
 
 
-formValidator : Validator Error Form
-formValidator =
-    Validate.all
-        [ ifBlank .title ( Title, "title can't be blank." )
-        , ifBlank .body ( Body, "body can't be blank." )
-        ]
+{-| Trim the form and validate its fields. If there are problems, report them!
+-}
+validate : Form -> Result (List Problem) TrimmedForm
+validate form =
+    let
+        trimmedForm =
+            trimFields form
+    in
+    case List.concatMap (validateField trimmedForm) fieldsToValidate of
+        [] ->
+            Ok trimmedForm
+
+        problems ->
+            Err problems
+
+
+validateField : TrimmedForm -> ValidatedField -> List Problem
+validateField (Trimmed form) field =
+    List.map (InvalidEntry field) <|
+        case field of
+            Title ->
+                if String.isEmpty form.title then
+                    [ "title can't be blank." ]
+
+                else
+                    []
+
+            Body ->
+                if String.isEmpty form.body then
+                    [ "body can't be blank." ]
+
+                else
+                    []
+
+
+{-| Don't trim while the user is typing! That would be super annoying.
+Instead, trim only on submit.
+-}
+trimFields : Form -> TrimmedForm
+trimFields form =
+    Trimmed
+        { title = String.trim form.title
+        , body = String.trim form.body
+        , description = String.trim form.description
+        , tags = String.trim form.tags
+        }
 
 
 
 -- HTTP
 
 
-create : Valid Form -> Cred -> Http.Request (Article Full)
-create validForm cred =
+create : TrimmedForm -> Cred -> Http.Request (Article Full)
+create (Trimmed form) cred =
     let
-        form =
-            fromValid validForm
-
         expect =
             Article.fullDecoder (Just cred)
                 |> Decode.field "article"
@@ -459,12 +554,9 @@ tagsFromString str =
         |> List.filter (not << String.isEmpty)
 
 
-edit : Slug -> Valid Form -> Cred -> Http.Request (Article Full)
-edit articleSlug validForm cred =
+edit : Slug -> TrimmedForm -> Cred -> Http.Request (Article Full)
+edit articleSlug (Trimmed form) cred =
     let
-        form =
-            fromValid validForm
-
         expect =
             Article.fullDecoder (Just cred)
                 |> Decode.field "article"
@@ -508,6 +600,9 @@ getSlug : Status -> Maybe Slug
 getSlug status =
     case status of
         Loading slug ->
+            Just slug
+
+        LoadingSlowly slug ->
             Just slug
 
         LoadingFailed slug ->

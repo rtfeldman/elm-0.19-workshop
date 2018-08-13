@@ -1,6 +1,6 @@
 module Page.NotFound exposing (view)
 
-import Assets
+import Asset
 import Html exposing (Html, div, h1, img, main_, text)
 import Html.Attributes exposing (alt, class, id, src, tabindex)
 
@@ -16,6 +16,6 @@ view =
         main_ [ id "content", class "container", tabindex -1 ]
             [ h1 [] [ text "Not Found" ]
             , div [ class "row" ]
-                [ img [ Assets.src Assets.error ] [] ]
+                [ img [ Asset.src Asset.error ] [] ]
             ]
     }
