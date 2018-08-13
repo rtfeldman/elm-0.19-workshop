@@ -88,7 +88,7 @@ view model =
                     titleForOther (Author.username author)
 
                 Loading username ->
-                    if Just username == Maybe.map Cred.username (Session.cred model.session) then
+                    if Just username == Maybe.map .username (Session.cred model.session) then
                         myProfileTitle
 
                     else
@@ -96,7 +96,7 @@ view model =
 
                 Failed username ->
                     -- We can't follow if it hasn't finished loading yet
-                    if Just username == Maybe.map Cred.username (Session.cred model.session) then
+                    if Just username == Maybe.map .username (Session.cred model.session) then
                         myProfileTitle
 
                     else

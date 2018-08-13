@@ -95,7 +95,7 @@ username : Author -> Username
 username author =
     case author of
         IsViewer cred _ ->
-            cred.username
+            Cred.username cred
 
         IsFollowing (FollowedAuthor val _) ->
             val
@@ -220,7 +220,7 @@ decodeFromPair maybeCred ( prof, uname ) =
             Decode.succeed (IsNotFollowing (UnfollowedAuthor uname prof))
 
         Just cred ->
-            if uname == cred.username then
+            if uname == Cred.username cred then
                 Decode.succeed (IsViewer cred prof)
 
             else

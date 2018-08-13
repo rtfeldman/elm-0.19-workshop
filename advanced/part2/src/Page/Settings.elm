@@ -58,7 +58,7 @@ init session =
                     { avatar = Avatar.toMaybeString (Profile.avatar profile)
                     , email = Email.toString (Viewer.email viewer)
                     , bio = Maybe.withDefault "" (Profile.bio profile)
-                    , username = Username.toString cred.username
+                    , username = Username.toString (Cred.username cred)
                     , password = Nothing
                     }
 

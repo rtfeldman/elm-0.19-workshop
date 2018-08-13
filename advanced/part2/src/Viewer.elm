@@ -55,7 +55,7 @@ encode : Viewer -> Value
 encode (Viewer info) =
     Encode.object
         [ ( "email", Email.encode info.email )
-        , ( "username", Username.encode info.cred.username )
+        , ( "username", Username.encode (Cred.username info.cred) )
         , ( "bio", Maybe.withDefault Encode.null (Maybe.map Encode.string (Profile.bio info.profile)) )
         , ( "image", Avatar.encode (Profile.avatar info.profile) )
         , ( "token", Cred.encodeToken info.cred )
