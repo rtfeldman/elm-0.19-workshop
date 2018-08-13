@@ -3,7 +3,7 @@ module Page.Profile exposing (Model, Msg, init, subscriptions, toSession, update
 {-| An Author's profile.
 -}
 
-import Article.Feed as Feed exposing (ListConfig)
+import Article.Feed as Feed
 import Article.FeedSources as FeedSources exposing (FeedSources, Source(..))
 import Author exposing (Author(..), FollowedAuthor, UnfollowedAuthor)
 import Avatar exposing (Avatar)
@@ -14,6 +14,7 @@ import Loading
 import Log
 import Page
 import Profile exposing (Profile)
+import Route
 import Session exposing (Session)
 import Task exposing (Task)
 import Time
@@ -39,6 +40,7 @@ type alias Model =
 
 type Status a
     = Loading Username
+    | LoadingSlowly Username
     | Loaded a
     | Failed Username
 
@@ -65,6 +67,7 @@ init session username =
             |> Task.mapError (Tuple.pair username)
             |> Task.attempt CompletedFeedLoad
         , Task.perform GotTimeZone Time.here
+        , Task.perform (\_ -> PassedSlowLoadThreshold) Loading.slowThreshold
         ]
     )
 
@@ -88,19 +91,13 @@ view model =
                     titleForOther (Author.username author)
 
                 Loading username ->
-                    if Just username == Maybe.map Cred.username (Session.cred model.session) then
-                        myProfileTitle
+                    titleForMe (Session.cred model.session) username
 
-                    else
-                        defaultTitle
+                LoadingSlowly username ->
+                    titleForMe (Session.cred model.session) username
 
                 Failed username ->
-                    -- We can't follow if it hasn't finished loading yet
-                    if Just username == Maybe.map Cred.username (Session.cred model.session) then
-                        myProfileTitle
-
-                    else
-                        defaultTitle
+                    titleForMe (Session.cred model.session) username
     in
     { title = title
     , content =
@@ -122,10 +119,10 @@ view model =
                                         text ""
 
                                     IsFollowing followedAuthor ->
-                                        Author.unfollowButton (ClickedUnfollow cred) followedAuthor
+                                        Author.unfollowButton ClickedUnfollow cred followedAuthor
 
                                     IsNotFollowing unfollowedAuthor ->
-                                        Author.followButton (ClickedFollow cred) unfollowedAuthor
+                                        Author.followButton ClickedFollow cred unfollowedAuthor
 
                             Nothing ->
                                 -- We can't follow if we're logged out
@@ -151,6 +148,9 @@ view model =
                                 [ div [ class "row" ] [ viewFeed model.timeZone feed ] ]
 
                         Loading _ ->
+                            text ""
+
+                        LoadingSlowly _ ->
                             Loading.icon
 
                         Failed _ ->
@@ -158,6 +158,9 @@ view model =
                     ]
 
             Loading _ ->
+                text ""
+
+            LoadingSlowly _ ->
                 Loading.icon
 
             Failed _ ->
@@ -172,6 +175,20 @@ view model =
 titleForOther : Username -> String
 titleForOther otherUsername =
     "Profile — " ++ Username.toString otherUsername
+
+
+titleForMe : Maybe Cred -> Username -> String
+titleForMe maybeCred username =
+    case maybeCred of
+        Just cred ->
+            if username == Cred.username cred then
+                myProfileTitle
+
+            else
+                defaultTitle
+
+        Nothing ->
+            defaultTitle
 
 
 myProfileTitle : String
@@ -210,6 +227,7 @@ type Msg
     | GotTimeZone Time.Zone
     | GotFeedMsg Feed.Msg
     | GotSession Session
+    | PassedSlowLoadThreshold
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -272,6 +290,9 @@ update msg model =
                 Loading _ ->
                     ( model, Log.error )
 
+                LoadingSlowly _ ->
+                    ( model, Log.error )
+
                 Failed _ ->
                     ( model, Log.error )
 
@@ -279,7 +300,23 @@ update msg model =
             ( { model | timeZone = tz }, Cmd.none )
 
         GotSession session ->
-            ( { model | session = session }, Cmd.none )
+            ( { model | session = session }
+            , Route.replaceUrl (Session.navKey session) Route.Home
+            )
+
+        PassedSlowLoadThreshold ->
+            let
+                -- If any data is still Loading, change it to LoadingSlowly
+                -- so `view` knows to render a spinner.
+                feed =
+                    case model.feed of
+                        Loading username ->
+                            LoadingSlowly username
+
+                        other ->
+                            other
+            in
+            ( { model | feed = feed }, Cmd.none )
 
 
 

@@ -32,7 +32,7 @@ import Viewer.Cred as Cred exposing (Cred)
 -- Avoid putting things in here unless there is no alternative!
 
 
-type ViewingPage
+type Model
     = Redirect Session
     | NotFound Session
     | Home Home.Model
@@ -48,18 +48,10 @@ type ViewingPage
 -- MODEL
 
 
-type alias Model =
-    { navKey : Nav.Key
-    , page : ViewingPage
-    }
-
-
 init : Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url navKey =
     changeRouteTo (Route.fromUrl url)
-        { navKey = navKey
-        , page = Redirect (Session.decode navKey flags)
-        }
+        (Redirect (Session.decode navKey flags))
 
 
 
@@ -72,13 +64,13 @@ view model =
         viewPage page toMsg config =
             let
                 { title, body } =
-                    Page.view (Session.viewer (toSession model.page)) page config
+                    Page.view (Session.viewer (toSession model)) page config
             in
             { title = title
             , body = List.map (Html.map toMsg) body
             }
     in
-    case model.page of
+    case model of
         Redirect _ ->
             viewPage Page.Other (\_ -> Ignored) Blank.view
 
@@ -126,9 +118,10 @@ type Msg
     | GotProfileMsg Profile.Msg
     | GotArticleMsg Article.Msg
     | GotEditorMsg Editor.Msg
+    | GotSession Session
 
 
-toSession : ViewingPage -> Session
+toSession : Model -> Session
 toSession page =
     case page of
         Redirect session ->
@@ -163,14 +156,14 @@ changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
 changeRouteTo maybeRoute model =
     let
         session =
-            toSession model.page
+            toSession model
     in
     case maybeRoute of
         Nothing ->
-            ( { model | page = NotFound session }, Cmd.none )
+            ( NotFound session, Cmd.none )
 
         Just Route.Root ->
-            ( model, Route.replaceUrl model.navKey Route.Home )
+            ( model, Route.replaceUrl (Session.navKey session) Route.Home )
 
         Just Route.Logout ->
             ( model, Session.logout )
@@ -210,7 +203,7 @@ changeRouteTo maybeRoute model =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case ( msg, model.page ) of
+    case ( msg, model ) of
         ( Ignored, _ ) ->
             ( model, Cmd.none )
 
@@ -231,7 +224,7 @@ update msg model =
 
                         Just _ ->
                             ( model
-                            , Nav.pushUrl model.navKey (Url.toString url)
+                            , Nav.pushUrl (Session.navKey (toSession model)) (Url.toString url)
                             )
 
                 Browser.External href ->
@@ -273,14 +266,19 @@ update msg model =
             Editor.update subMsg editor
                 |> updateWith (Editor slug) GotEditorMsg model
 
+        ( GotSession session, Redirect _ ) ->
+            ( Redirect session
+            , Route.replaceUrl (Session.navKey session) Route.Home
+            )
+
         ( _, _ ) ->
             -- Disregard messages that arrived for the wrong page.
             ( model, Cmd.none )
 
 
-updateWith : (subModel -> ViewingPage) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
-updateWith toViewingPage toMsg model ( subModel, subCmd ) =
-    ( { model | page = toViewingPage subModel }
+updateWith : (subModel -> Model) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
+updateWith toModel toMsg model ( subModel, subCmd ) =
+    ( toModel subModel
     , Cmd.map toMsg subCmd
     )
 
@@ -291,12 +289,12 @@ updateWith toViewingPage toMsg model ( subModel, subCmd ) =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case model.page of
+    case model of
         NotFound _ ->
             Sub.none
 
         Redirect _ ->
-            Sub.none
+            Session.changes GotSession (Session.navKey (toSession model))
 
         Settings settings ->
             Sub.map GotSettingsMsg (Settings.subscriptions settings)

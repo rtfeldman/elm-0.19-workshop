@@ -169,19 +169,19 @@ requestHelp builderFromUrl uname cred =
         |> HttpBuilder.toRequest
 
 
-followButton : (UnfollowedAuthor -> msg) -> UnfollowedAuthor -> Html msg
-followButton toMsg ((UnfollowedAuthor uname _) as author) =
+followButton : (Cred -> UnfollowedAuthor -> msg) -> Cred -> UnfollowedAuthor -> Html msg
+followButton toMsg cred ((UnfollowedAuthor uname _) as author) =
     toggleFollowButton "Follow"
         [ "btn-outline-secondary" ]
-        (toMsg author)
+        (toMsg cred author)
         uname
 
 
-unfollowButton : (FollowedAuthor -> msg) -> FollowedAuthor -> Html msg
-unfollowButton toMsg ((FollowedAuthor uname _) as author) =
+unfollowButton : (Cred -> FollowedAuthor -> msg) -> Cred -> FollowedAuthor -> Html msg
+unfollowButton toMsg cred ((FollowedAuthor uname _) as author) =
     toggleFollowButton "Unfollow"
         [ "btn-secondary" ]
-        (toMsg author)
+        (toMsg cred author)
         uname
 
 

@@ -45,7 +45,12 @@ viewer session =
 
 cred : Session -> Maybe Cred
 cred session =
-    Maybe.map Viewer.cred (viewer session)
+    case session of
+        LoggedIn _ val ->
+            Just (Viewer.cred val)
+
+        Guest _ ->
+            Nothing
 
 
 navKey : Session -> Nav.Key

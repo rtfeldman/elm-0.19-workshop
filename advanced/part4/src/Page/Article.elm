@@ -7,7 +7,6 @@ import Api
 import Article exposing (Article, Full, Preview)
 import Article.Body exposing (Body)
 import Article.Comment as Comment exposing (Comment)
-import Article.Preview
 import Article.Slug as Slug exposing (Slug)
 import Author exposing (Author(..), FollowedAuthor, UnfollowedAuthor)
 import Avatar
@@ -49,6 +48,7 @@ type alias Model =
 
 type Status a
     = Loading
+    | LoadingSlowly
     | Loaded a
     | Failed
 
@@ -76,6 +76,7 @@ init session slug =
         , Comment.list maybeCred slug
             |> Http.send CompletedLoadComments
         , Task.perform GotTimeZone Time.here
+        , Task.perform (\_ -> PassedSlowLoadThreshold) Loading.slowThreshold
         ]
     )
 
@@ -154,6 +155,9 @@ view model =
                                 -- Don't render the comments until the article has loaded!
                                 case model.comments of
                                     Loading ->
+                                        []
+
+                                    LoadingSlowly ->
                                         [ Loading.icon ]
 
                                     Loaded ( commentText, comments ) ->
@@ -172,6 +176,9 @@ view model =
             }
 
         Loading ->
+            { title = "Article", content = text "" }
+
+        LoadingSlowly ->
             { title = "Article", content = Loading.icon }
 
         Failed ->
@@ -228,13 +235,13 @@ viewButtons : Cred -> Article Full -> Author -> List (Html Msg)
 viewButtons cred article author =
     case author of
         IsFollowing followedAuthor ->
-            [ Author.unfollowButton (ClickedUnfollow cred) followedAuthor
+            [ Author.unfollowButton ClickedUnfollow cred followedAuthor
             , text " "
             , favoriteButton cred article
             ]
 
         IsNotFollowing unfollowedAuthor ->
-            [ Author.followButton (ClickedFollow cred) unfollowedAuthor
+            [ Author.followButton ClickedFollow cred unfollowedAuthor
             , text " "
             , favoriteButton cred article
             ]
@@ -318,6 +325,7 @@ type Msg
     | CompletedPostComment (Result Http.Error Comment)
     | GotTimeZone Time.Zone
     | GotSession Session
+    | PassedSlowLoadThreshold
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -468,7 +476,31 @@ update msg model =
             ( { model | timeZone = tz }, Cmd.none )
 
         GotSession session ->
-            ( { model | session = session }, Cmd.none )
+            ( { model | session = session }
+            , Route.replaceUrl (Session.navKey session) Route.Home
+            )
+
+        PassedSlowLoadThreshold ->
+            let
+                -- If any data is still Loading, change it to LoadingSlowly
+                -- so `view` knows to render a spinner.
+                article =
+                    case model.article of
+                        Loading ->
+                            LoadingSlowly
+
+                        other ->
+                            other
+
+                comments =
+                    case model.comments of
+                        Loading ->
+                            LoadingSlowly
+
+                        other ->
+                            other
+            in
+            ( { model | article = article, comments = comments }, Cmd.none )
 
 
 

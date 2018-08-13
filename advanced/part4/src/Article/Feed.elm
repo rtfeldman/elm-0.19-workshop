@@ -1,11 +1,7 @@
 module Article.Feed
     exposing
-        ( FeedConfig
-        , ListConfig
-        , Model
+        ( Model
         , Msg
-        , defaultFeedConfig
-        , defaultListConfig
         , init
         , selectTag
         , update
@@ -16,9 +12,10 @@ module Article.Feed
 import Api
 import Article exposing (Article, Preview)
 import Article.FeedSources as FeedSources exposing (FeedSources, Source(..))
-import Article.Preview
 import Article.Slug as ArticleSlug exposing (Slug)
 import Article.Tag as Tag exposing (Tag)
+import Author
+import Avatar exposing (Avatar)
 import Browser.Dom as Dom
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, classList, href, id, placeholder, src)
@@ -30,9 +27,11 @@ import Json.Decode.Pipeline exposing (required)
 import Page
 import PaginatedList exposing (PaginatedList)
 import Profile
+import Route exposing (Route)
 import Session exposing (Session)
 import Task exposing (Task)
 import Time
+import Timestamp
 import Username exposing (Username)
 import Viewer exposing (Viewer)
 import Viewer.Cred as Cred exposing (Cred)
@@ -118,9 +117,7 @@ viewArticles timeZone (Model { articles, sources, session }) =
 
 {-| 👉 TODO Move this logic into PaginatedList.view and make it reusable,
 so we can use it on other pages too!
-
 💡 HINT: Make `PaginatedList.view` return `Html msg` instead of `Html Msg`. (The function will need to accept an extra argument for this to work.)
-
 -}
 viewPaginatedList : PaginatedList a -> Int -> Html Msg
 viewPaginatedList paginatedList resultsPerPage =
@@ -132,7 +129,7 @@ viewPaginatedList paginatedList resultsPerPage =
             PaginatedList.page paginatedList
 
         viewPageLink currentPage =
-            pageLink ClickedFeedPage currentPage (currentPage == activePage)
+            pageLink currentPage (currentPage == activePage)
     in
     if totalPages > 1 then
         List.range 1 totalPages
@@ -148,7 +145,7 @@ pageLink targetPage isActive =
     li [ classList [ ( "page-item", True ), ( "active", isActive ) ] ]
         [ a
             [ class "page-link"
-            , onClick (toMsg targetPage)
+            , onClick (ClickedFeedPage targetPage)
 
             -- The RealWorld CSS requires an href to work properly.
             , href ""
@@ -163,19 +160,54 @@ viewPreview maybeCred timeZone article =
         slug =
             Article.slug article
 
-        config =
+        { title, description, createdAt } =
+            Article.metadata article
+
+        author =
+            Article.author article
+
+        profile =
+            Author.profile author
+
+        username =
+            Author.username author
+
+        faveButton =
             case maybeCred of
                 Just cred ->
-                    Just
-                        { cred = cred
-                        , favorite = ClickedFavorite cred slug
-                        , unfavorite = ClickedUnfavorite cred slug
-                        }
+                    let
+                        { favoritesCount, favorited } =
+                            Article.metadata article
+
+                        viewButton =
+                            if favorited then
+                                Article.unfavoriteButton cred (ClickedUnfavorite cred slug)
+
+                            else
+                                Article.favoriteButton cred (ClickedFavorite cred slug)
+                    in
+                    viewButton [ class "pull-xs-right" ]
+                        [ text (" " ++ String.fromInt favoritesCount) ]
 
                 Nothing ->
-                    Nothing
+                    text ""
     in
-    Article.Preview.view config timeZone article
+    div [ class "article-preview" ]
+        [ div [ class "article-meta" ]
+            [ a [ Route.href (Route.Profile username) ]
+                [ img [ Avatar.src (Profile.avatar profile) ] [] ]
+            , div [ class "info" ]
+                [ Author.view username
+                , Timestamp.view timeZone createdAt
+                ]
+            , faveButton
+            ]
+        , a [ class "preview-link", Route.href (Route.Article (Article.slug article)) ]
+            [ h1 [] [ text title ]
+            , p [] [ text description ]
+            , span [] [ text "Read more..." ]
+            ]
+        ]
 
 
 viewFeedSources : Model -> Html Msg
@@ -346,34 +378,42 @@ fetch maybeCred page feedSource =
         offset =
             (page - 1) * articlesPerPage
 
-        listConfig =
-            { defaultListConfig | offset = offset, limit = articlesPerPage }
+        params =
+            [ ( "limit", String.fromInt articlesPerPage )
+            , ( "offset", String.fromInt offset )
+            ]
     in
     Task.map (PaginatedList.mapPage (\_ -> page)) <|
         case feedSource of
             YourFeed cred ->
-                let
-                    feedConfig =
-                        { defaultFeedConfig | offset = offset, limit = articlesPerPage }
-                in
-                feed feedConfig cred
+                params
+                    |> buildFromQueryParams (Just cred) (Api.url [ "articles", "feed" ])
+                    |> Cred.addHeader cred
+                    |> HttpBuilder.toRequest
                     |> Http.toTask
 
             GlobalFeed ->
-                list listConfig maybeCred
-                    |> Http.toTask
+                list maybeCred params
 
             TagFeed tagName ->
-                list { listConfig | tag = Just tagName } maybeCred
-                    |> Http.toTask
+                list maybeCred (( "tag", Tag.toString tagName ) :: params)
 
             FavoritedFeed username ->
-                list { listConfig | favorited = Just username } maybeCred
-                    |> Http.toTask
+                list maybeCred (( "favorited", Username.toString username ) :: params)
 
             AuthorFeed username ->
-                list { listConfig | author = Just username } maybeCred
-                    |> Http.toTask
+                list maybeCred (( "author", Username.toString username ) :: params)
+
+
+list :
+    Maybe Cred
+    -> List ( String, String )
+    -> Task Http.Error (PaginatedList (Article Preview))
+list maybeCred params =
+    buildFromQueryParams maybeCred (Api.url [ "articles" ]) params
+        |> Cred.addHeaderIfAvailable maybeCred
+        |> HttpBuilder.toRequest
+        |> Http.toTask
 
 
 replaceArticle : Article a -> Article a -> Article a
@@ -383,70 +423,6 @@ replaceArticle newArticle oldArticle =
 
     else
         oldArticle
-
-
-
--- LIST
-
-
-type alias ListConfig =
-    { tag : Maybe Tag
-    , author : Maybe Username
-    , favorited : Maybe Username
-    , limit : Int
-    , offset : Int
-    }
-
-
-defaultListConfig : ListConfig
-defaultListConfig =
-    { tag = Nothing
-    , author = Nothing
-    , favorited = Nothing
-    , limit = 20
-    , offset = 0
-    }
-
-
-list : ListConfig -> Maybe Cred -> Http.Request (PaginatedList (Article Preview))
-list config maybeCred =
-    [ Maybe.map (\tag -> ( "tag", Tag.toString tag )) config.tag
-    , Maybe.map (\author -> ( "author", Username.toString author )) config.author
-    , Maybe.map (\favorited -> ( "favorited", Username.toString favorited )) config.favorited
-    , Just ( "limit", String.fromInt config.limit )
-    , Just ( "offset", String.fromInt config.offset )
-    ]
-        |> List.filterMap identity
-        |> buildFromQueryParams maybeCred (Api.url [ "articles" ])
-        |> Cred.addHeaderIfAvailable maybeCred
-        |> HttpBuilder.toRequest
-
-
-
--- FEED
-
-
-type alias FeedConfig =
-    { limit : Int
-    , offset : Int
-    }
-
-
-defaultFeedConfig : FeedConfig
-defaultFeedConfig =
-    { limit = 10
-    , offset = 0
-    }
-
-
-feed : FeedConfig -> Cred -> Http.Request (PaginatedList (Article Preview))
-feed config cred =
-    [ ( "limit", String.fromInt config.limit )
-    , ( "offset", String.fromInt config.offset )
-    ]
-        |> buildFromQueryParams (Just cred) (Api.url [ "articles", "feed" ])
-        |> Cred.addHeader cred
-        |> HttpBuilder.toRequest
 
 
 
