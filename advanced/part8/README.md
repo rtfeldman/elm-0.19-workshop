@@ -1,6 +1,6 @@
-# Part 5
+# Part 8
 
-To build everything, `cd` into this `part5/` directory and run:
+To build everything, `cd` into this `part8/` directory and run:
 
 ```shell
 elm make src/Main.elm --output=../server/public/elm.js
