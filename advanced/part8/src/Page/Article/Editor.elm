@@ -4,7 +4,6 @@ import Api
 import Article exposing (Article, Full)
 import Article.Body exposing (Body)
 import Article.Slug as Slug exposing (Slug)
-import Article.Tag
 import Browser.Navigation as Nav
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, disabled, href, id, placeholder, type_, value)
@@ -498,14 +497,8 @@ validateField (Trimmed form) field =
                 if String.isEmpty form.body then
                     [ "body can't be blank." ]
 
-                else if String.trim form.tags /= "" && List.all String.isEmpty (toTagList form.tags) then
-                    [ "close, but not quite! Is your filter condition returning True when it should be returning False?" ]
-
-                else if Article.Tag.validate form.tags (toTagList form.tags) then
-                    []
-
                 else
-                    [ "some tags were empty." ]
+                    []
 
 
 {-| Don't trim while the user is typing! That would be super annoying.
@@ -538,7 +531,7 @@ create (Trimmed form) cred =
                 [ ( "title", Encode.string form.title )
                 , ( "description", Encode.string form.description )
                 , ( "body", Encode.string form.body )
-                , ( "tagList", Encode.list Encode.string (toTagList form.tags) )
+                , ( "tagList", Encode.list Encode.string (tagsFromString form.tags) )
                 ]
 
         jsonBody =
@@ -553,25 +546,11 @@ create (Trimmed form) cred =
         |> HttpBuilder.toRequest
 
 
-toTagList : String -> List String
-toTagList tagString =
-    {- 👉 TODO #2 of 2: add another |> to the end of this pipeline,
-       which filters out any remaining empty strings.
-
-       To see if the bug is fixed, visit http://localhost:3000/#/editor
-       (you'll need to be logged in) and create an article with tags that have
-       multiple spaces between them, e.g. "tag1     tag2     tag3"
-
-       If the bug has not been fixed, trying to save an article with those tags
-       will result in an error! If it has been fixed, saving will work and the
-       tags will be accepted.
-
-       💡 HINT: Here's how to remove all the "foo" strings from a list of strings:
-
-       List.filter (\str -> str == "foo") listOfStrings
-    -}
-    String.split " " tagString
+tagsFromString : String -> List String
+tagsFromString str =
+    String.split " " str
         |> List.map String.trim
+        |> List.filter (not << String.isEmpty)
 
 
 edit : Slug -> TrimmedForm -> Cred -> Http.Request (Article Full)

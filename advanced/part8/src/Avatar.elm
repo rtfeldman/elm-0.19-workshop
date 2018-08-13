@@ -28,21 +28,6 @@ decoder =
 -- TRANSFORM
 
 
-src : Avatar -> Attribute msg
-src (Avatar maybeUrl) =
-    Html.Attributes.src (resolveAvatarUrl maybeUrl)
-
-
-resolveAvatarUrl : Maybe String -> String
-resolveAvatarUrl maybeUrl =
-    {- 👉 TODO #1 of 2: return the user's avatar from maybeUrl, if maybeUrl actually
-       contains one. If maybeUrl is Nothing, return this URL instead:
-
-          https://static.productionready.io/images/smiley-cyrus.jpg
-    -}
-    ""
-
-
 encode : Avatar -> Value
 encode (Avatar maybeUrl) =
     case maybeUrl of
@@ -51,6 +36,19 @@ encode (Avatar maybeUrl) =
 
         Nothing ->
             Encode.null
+
+
+src : Avatar -> Attribute msg
+src (Avatar maybeUrl) =
+    case maybeUrl of
+        Nothing ->
+            Asset.src Asset.defaultAvatar
+
+        Just "" ->
+            Asset.src Asset.defaultAvatar
+
+        Just url ->
+            Html.Attributes.src url
 
 
 toMaybeString : Avatar -> Maybe String
