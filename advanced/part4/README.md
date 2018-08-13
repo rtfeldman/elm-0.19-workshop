@@ -10,4 +10,7 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Exercise
 
-Open `src/Article/Feed.elm` in your editor and resolve the TODO there.
+Resolve the TODOs in these files:
+* `src/Page/Home.elm`
+* `src/Page/Settings.elm`
+* `src/Page/Article.elm`

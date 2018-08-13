@@ -84,19 +84,8 @@ view model =
             [ viewBanner
             , div [ class "container page" ]
                 [ div [ class "row" ]
-                    [ div [ class "col-md-9" ] <|
-                        case model.feed of
-                            Loaded feed ->
-                                viewFeed model.timeZone feed
-
-                            Loading ->
-                                []
-
-                            LoadingSlowly ->
-                                [ Loading.icon ]
-
-                            Failed ->
-                                [ Loading.error "feed" ]
+                    [ div [ class "col-md-9" ]
+                        (viewFeed model)
                     , div [ class "col-md-3" ] <|
                         case model.tags of
                             Loaded tags ->
@@ -130,11 +119,25 @@ viewBanner =
         ]
 
 
-viewFeed : Time.Zone -> Feed.Model -> List (Html Msg)
-viewFeed timeZone feed =
-    div [ class "feed-toggle" ]
-        [ Feed.viewFeedSources feed |> Html.map GotFeedMsg ]
-        :: (Feed.viewArticles timeZone feed |> List.map (Html.map GotFeedMsg))
+{-| 👉 TODO refactor this to accept narrower types than the entire Model.
+💡 HINT: It may end up with multiple arguments!
+-}
+viewFeed : Model -> List (Html Msg)
+viewFeed model =
+    case model.feed of
+        Loaded feed ->
+            div [ class "feed-toggle" ]
+                [ Feed.viewFeedSources feed |> Html.map GotFeedMsg ]
+                :: (Feed.viewArticles model.timeZone feed |> List.map (Html.map GotFeedMsg))
+
+        Loading ->
+            []
+
+        LoadingSlowly ->
+            [ Loading.icon ]
+
+        Failed ->
+            [ Loading.error "feed" ]
 
 
 viewTags : List Tag -> Html Msg
