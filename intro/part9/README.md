@@ -18,5 +18,4 @@ hooked up on the JavaScript side.
 The exercise is to add the corresponding ports to `src/Session.elm`. See the
 TODOs in that file for more information!
 
-When you're done, you should once again be able to sign up for a new account,
-log in, etc.
+When you're done, you should once again be able to sign up for a new account.
