@@ -10,4 +10,7 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Exercise
 
-Open `src/Article.elm` in your editor and resolve the TODOs there.
+Resolve the TODOs in these files:
+
+- `src/Timestamp.elm`
+- `src/Author.elm`
