@@ -7,7 +7,6 @@ module Article.Feed
         , init
         , update
         , viewArticles
-        , viewPagination
         , viewTabs
         )
 
@@ -193,11 +192,6 @@ viewTab attrs ( name, msg ) =
           a (class "nav-link" :: onClick msg :: href "" :: attrs)
             [ text name ]
         ]
-
-
-viewPagination : (Int -> msg) -> Model -> Html msg
-viewPagination toMsg (Model feed) =
-    PaginatedList.view toMsg feed.articles
 
 
 viewTag : String -> Html msg

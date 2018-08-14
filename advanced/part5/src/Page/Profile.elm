@@ -218,7 +218,7 @@ view model =
                                                 [ [ viewTabs model.feedTab ]
                                                 , Feed.viewArticles model.timeZone feed
                                                     |> List.map (Html.map GotFeedMsg)
-                                                , [ Feed.viewPagination ClickedFeedPage feed ]
+                                                , [ viewPagination (Feed.articles feed) ]
                                                 ]
                                         ]
                                     ]
