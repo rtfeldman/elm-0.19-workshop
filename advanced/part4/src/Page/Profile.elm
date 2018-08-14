@@ -3,6 +3,8 @@ module Page.Profile exposing (Model, Msg, init, subscriptions, toSession, update
 {-| An Author's profile.
 -}
 
+import Api
+import Article exposing (Article, Preview)
 import Article.Feed as Feed
 import Article.FeedSources as FeedSources exposing (FeedSources, Source(..))
 import Author exposing (Author(..), FollowedAuthor, UnfollowedAuthor)
@@ -10,9 +12,11 @@ import Avatar exposing (Avatar)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
+import HttpBuilder exposing (RequestBuilder)
 import Loading
 import Log
 import Page
+import PaginatedList exposing (PaginatedList)
 import Profile exposing (Profile)
 import Route
 import Session exposing (Session)
@@ -31,11 +35,18 @@ type alias Model =
     { session : Session
     , timeZone : Time.Zone
     , errors : List String
+    , feedTab : FeedTab
+    , feedPage : Int
 
     -- Loaded independently from server
     , author : Status Author
     , feed : Status Feed.Model
     }
+
+
+type FeedTab
+    = MyArticles
+    | FavoritedArticles
 
 
 type Status a
@@ -54,6 +65,8 @@ init session username =
     ( { session = session
       , timeZone = Time.utc
       , errors = []
+      , feedTab = defaultFeedTab
+      , feedPage = 1
       , author = Loading username
       , feed = Loading username
       }
@@ -62,14 +75,66 @@ init session username =
             |> Http.toTask
             |> Task.mapError (Tuple.pair username)
             |> Task.attempt CompletedAuthorLoad
-        , defaultFeedSources username
-            |> Feed.init session
-            |> Task.mapError (Tuple.pair username)
-            |> Task.attempt CompletedFeedLoad
+        , fetchFeed session defaultFeedTab username 1
         , Task.perform GotTimeZone Time.here
         , Task.perform (\_ -> PassedSlowLoadThreshold) Loading.slowThreshold
         ]
     )
+
+
+currentUsername : Model -> Username
+currentUsername model =
+    case model.author of
+        Loading username ->
+            username
+
+        LoadingSlowly username ->
+            username
+
+        Loaded author ->
+            Author.username author
+
+        Failed username ->
+            username
+
+
+defaultFeedTab : FeedTab
+defaultFeedTab =
+    MyArticles
+
+
+
+-- HTTP
+
+
+fetchFeed : Session -> FeedTab -> Username -> Int -> Cmd Msg
+fetchFeed session feedTabs username page =
+    let
+        maybeCred =
+            Session.cred session
+
+        ( extraParamName, extraParamVal ) =
+            case feedTabs of
+                MyArticles ->
+                    ( "author", Username.toString username )
+
+                FavoritedArticles ->
+                    ( "favorited", Username.toString username )
+    in
+    Api.url [ "articles" ]
+        |> HttpBuilder.get
+        |> HttpBuilder.withExpect (Http.expectJson (Feed.decoder maybeCred articlesPerPage))
+        |> HttpBuilder.withQueryParam extraParamName extraParamVal
+        |> Cred.addHeaderIfAvailable maybeCred
+        |> PaginatedList.fromRequestBuilder articlesPerPage page
+        |> Task.map (Feed.init session)
+        |> Task.mapError (Tuple.pair username)
+        |> Task.attempt CompletedFeedLoad
+
+
+articlesPerPage : Int
+articlesPerPage =
+    5
 
 
 
@@ -145,7 +210,13 @@ view model =
                     , case model.feed of
                         Loaded feed ->
                             div [ class "container" ]
-                                [ div [ class "row" ] [ viewFeed model.timeZone feed ] ]
+                                [ div [ class "row" ]
+                                    [ div [ class "col-xs-12 col-md-10 offset-md-1" ] <|
+                                        div [ class "articles-toggle" ]
+                                            [ viewTabs model.feedTab ]
+                                            :: (Feed.viewArticles model.timeZone feed |> List.map (Html.map GotFeedMsg))
+                                    ]
+                                ]
 
                         Loading _ ->
                             text ""
@@ -202,15 +273,27 @@ defaultTitle =
 
 
 
--- FEED
+-- TABS
 
 
-viewFeed : Time.Zone -> Feed.Model -> Html Msg
-viewFeed timeZone feed =
-    div [ class "col-xs-12 col-md-10 offset-md-1" ] <|
-        div [ class "articles-toggle" ]
-            [ Feed.viewFeedSources feed |> Html.map GotFeedMsg ]
-            :: (Feed.viewArticles timeZone feed |> List.map (Html.map GotFeedMsg))
+viewTabs : FeedTab -> Html Msg
+viewTabs tab =
+    case tab of
+        MyArticles ->
+            Feed.viewTabs [] myArticles [ favoritedArticles ]
+
+        FavoritedArticles ->
+            Feed.viewTabs [ myArticles ] favoritedArticles []
+
+
+myArticles : ( String, Msg )
+myArticles =
+    ( "My Articles", ClickedTab MyArticles )
+
+
+favoritedArticles : ( String, Msg )
+favoritedArticles =
+    ( "Favorited Articles", ClickedTab FavoritedArticles )
 
 
 
@@ -221,6 +304,7 @@ type Msg
     = ClickedDismissErrors
     | ClickedFollow Cred UnfollowedAuthor
     | ClickedUnfollow Cred FollowedAuthor
+    | ClickedTab FeedTab
     | CompletedFollowChange (Result Http.Error Author)
     | CompletedAuthorLoad (Result ( Username, Http.Error ) Author)
     | CompletedFeedLoad (Result ( Username, Http.Error ) Feed.Model)
@@ -246,6 +330,11 @@ update msg model =
             ( model
             , Author.requestFollow unfollowedAuthor cred
                 |> Http.send CompletedFollowChange
+            )
+
+        ClickedTab tab ->
+            ( { model | feedTab = tab }
+            , fetchFeed model.session tab (currentUsername model) 1
             )
 
         CompletedFollowChange (Ok newAuthor) ->
@@ -335,12 +424,3 @@ subscriptions model =
 toSession : Model -> Session
 toSession model =
     model.session
-
-
-
--- INTERNAL
-
-
-defaultFeedSources : Username -> FeedSources
-defaultFeedSources username =
-    FeedSources.fromLists (AuthorFeed username) [ FavoritedFeed username ]
