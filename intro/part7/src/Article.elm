@@ -182,26 +182,12 @@ type alias Metadata =
 
 metadataDecoder : Decoder Metadata
 metadataDecoder =
-    {- 👉 TODO: replace the calls to `hardcoded` with calls to `required`
-          in order to decode these fields:
-
-       --- "description" -------> description : String
-       --- "title" -------------> title : String
-       --- "tagList" -----------> tags : List String
-       --- "favorited" ---------> favorited : Bool
-       --- "favoritesCount" ----> favoritesCount : Int
-
-       Once this is done, the articles in the feed should look normal again.
-
-       💡 HINT: Order matters! These must be decoded in the same order
-       as the order of the fields in `type alias Metadata` above. ☝️
-    -}
     Decode.succeed Metadata
-        |> hardcoded "(needs decoding!)"
-        |> hardcoded "(needs decoding!)"
-        |> hardcoded []
-        |> hardcoded False
-        |> hardcoded 0
+        |> required "description" string
+        |> required "title" string
+        |> required "tagList" (list string)
+        |> required "favorited" bool
+        |> required "favoritesCount" int
         |> required "createdAt" Timestamp.iso8601Decoder
 
 
