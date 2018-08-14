@@ -211,10 +211,15 @@ view model =
                         Loaded feed ->
                             div [ class "container" ]
                                 [ div [ class "row" ]
-                                    [ div [ class "col-xs-12 col-md-10 offset-md-1" ] <|
-                                        div [ class "articles-toggle" ]
-                                            [ viewTabs model.feedTab ]
-                                            :: (Feed.viewArticles model.timeZone feed |> List.map (Html.map GotFeedMsg))
+                                    [ div [ class "col-xs-12 col-md-10 offset-md-1" ]
+                                        [ div [ class "articles-toggle" ] <|
+                                            List.concat
+                                                [ [ viewTabs model.feedTab ]
+                                                , Feed.viewArticles model.timeZone feed
+                                                    |> List.map (Html.map GotFeedMsg)
+                                                , [ Feed.viewPagination ClickedFeedPage feed ]
+                                                ]
+                                        ]
                                     ]
                                 ]
 
@@ -305,6 +310,7 @@ type Msg
     | ClickedFollow Cred UnfollowedAuthor
     | ClickedUnfollow Cred FollowedAuthor
     | ClickedTab FeedTab
+    | ClickedFeedPage Int
     | CompletedFollowChange (Result Http.Error Author)
     | CompletedAuthorLoad (Result ( Username, Http.Error ) Author)
     | CompletedFeedLoad (Result ( Username, Http.Error ) Feed.Model)
@@ -335,6 +341,11 @@ update msg model =
         ClickedTab tab ->
             ( { model | feedTab = tab }
             , fetchFeed model.session tab (currentUsername model) 1
+            )
+
+        ClickedFeedPage page ->
+            ( { model | feedPage = page }
+            , fetchFeed model.session model.feedTab (currentUsername model) page
             )
 
         CompletedFollowChange (Ok newAuthor) ->
