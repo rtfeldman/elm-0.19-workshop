@@ -86,11 +86,7 @@ viewForm form =
             [ input
                 [ class "form-control form-control-lg"
                 , placeholder "Username"
-
-                {- 👉 TODO: when the user inputs a username, update it in the Model.
-
-                   💡 HINT: Look at how the Email input below does this. 👇
-                -}
+                , onInput EnteredUsername
                 , value form.username
                 ]
                 []
@@ -141,6 +137,7 @@ type Msg
     = SubmittedForm
     | EnteredEmail String
     | EnteredPassword String
+    | EnteredUsername String
     | CompletedRegister (Result Http.Error Viewer)
     | GotSession Session
 
@@ -153,6 +150,9 @@ update msg model =
 
         EnteredPassword password ->
             updateForm (\form -> { form | password = password }) model
+
+        EnteredUsername username ->
+            updateForm (\form -> { form | username = username }) model
 
         SubmittedForm ->
             case validate model.form of
