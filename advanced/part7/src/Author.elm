@@ -54,7 +54,7 @@ import Html.Events exposing (onClick)
 import Http
 import HttpBuilder exposing (RequestBuilder, withExpect)
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline exposing (custom, required)
+import Json.Decode.Pipeline exposing (custom, optional, required)
 import Json.Encode as Encode exposing (Value)
 import Profile exposing (Profile)
 import Route exposing (Route)
@@ -232,8 +232,8 @@ decoderHelp maybeCred prof uname =
 
 nonViewerDecoder : Profile -> Username -> Decoder Author
 nonViewerDecoder prof uname =
-    Decode.field "following" Decode.bool
-        |> Decode.map (authorFromFollowing prof uname)
+    Decode.succeed (authorFromFollowing prof uname)
+        |> optional "following" Decode.bool False
 
 
 authorFromFollowing : Profile -> Username -> Bool -> Author
