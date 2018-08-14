@@ -1,8 +1,11 @@
-module PaginatedList exposing (PaginatedList, fromList, map, mapPage, page, total, values)
+module PaginatedList exposing (PaginatedList, fromList, fromRequestBuilder, map, page, total, values)
 
 import Html exposing (Html, a, li, text, ul)
 import Html.Attributes exposing (class, classList, href)
 import Html.Events exposing (onClick)
+import Http
+import HttpBuilder exposing (RequestBuilder)
+import Task exposing (Task)
 
 
 
@@ -54,9 +57,32 @@ map transform (PaginatedList info) =
     PaginatedList { info | values = List.map transform info.values }
 
 
-mapPage : (Int -> Int) -> PaginatedList a -> PaginatedList a
-mapPage transform (PaginatedList info) =
-    PaginatedList { info | page = transform info.page }
+
+-- HTTP
+
+
+{-| I considered accepting a record here so I don't mess up the argument order.
+-}
+fromRequestBuilder :
+    Int
+    -> Int
+    -> RequestBuilder (PaginatedList a)
+    -> Task Http.Error (PaginatedList a)
+fromRequestBuilder resultsPerPage pageNumber builder =
+    let
+        offset =
+            (pageNumber - 1) * resultsPerPage
+
+        params =
+            [ ( "limit", String.fromInt resultsPerPage )
+            , ( "offset", String.fromInt offset )
+            ]
+    in
+    builder
+        |> HttpBuilder.withQueryParams params
+        |> HttpBuilder.toRequest
+        |> Http.toTask
+        |> Task.map (\(PaginatedList info) -> PaginatedList { info | page = pageNumber })
 
 
 
