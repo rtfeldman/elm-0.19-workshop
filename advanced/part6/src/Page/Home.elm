@@ -155,46 +155,27 @@ viewBanner =
 -- TABS
 
 
-{-| TODO: Have viewTabs render all the tabs, using `activeTab` as the
-single source of truth for their state.
-
-    The specification for how the tabs work is:
-
-    1. If the user is logged in, render `yourFeed` as the first tab. Examples:
-
-    "Your Feed"    "Global Feed"
-    "Your Feed"    "Global Feed"  "#dragons"
-
-    2. If the user is NOT logged in, do not render `yourFeed` at all. Examples:
-
-    "Global Feed"
-    "Global Feed"  "#dragons"
-
-    3. If the active tab is a `TagFeed`, render that tab last. Show the tag it contains with a "#" in front.
-
-    "Global Feed"  "#dragons"
-    "Your Feed"    "Global Feed"  "#dragons"
-
-    3. If the active tab is NOT a `TagFeed`, do not render a tag tab at all.
-
-    "Your Feed"    "Global Feed"
-    "Global Feed"
-
-    💡 HINT: The 4 declarations after `viewTabs` may be helpful!
-
--}
 viewTabs : Bool -> FeedTab -> Html Msg
 viewTabs isLoggedIn activeTab =
     ul [ class "nav nav-pills outline-active" ] <|
-        case activeTab of
-            YourFeed ->
-                []
+        List.singleton <|
+            case activeTab of
+                YourFeed ->
+                    tabBar [] yourFeed [ globalFeed ]
 
-            GlobalFeed ->
-                []
+                GlobalFeed ->
+                    if isLoggedIn then
+                        tabBar [ yourFeed ] globalFeed []
 
-            TagFeed tagName ->
-                []
+                    else
+                        tabBar [] globalFeed []
+
+                TagFeed tagName ->
+                    if isLoggedIn then
+                        tabBar [ yourFeed, globalFeed ] (tagFeed tagName) []
+
+                    else
+                        tabBar [ globalFeed ] (tagFeed tagName) []
 
 
 tabBar :
