@@ -197,15 +197,26 @@ viewTabs isLoggedIn activeTab =
                 []
 
 
-viewTab : Bool -> ( String, msg ) -> Html msg
-viewTab isActive ( tabName, msg ) =
-    li [ class "nav-item" ]
-        [ a
-            [ classList [ ( "nav-link", True ), ( "active", isActive ) ]
-            , onClick msg
-            , href ""
+tabBar :
+    List ( String, msg )
+    -> ( String, msg )
+    -> List ( String, msg )
+    -> Html msg
+tabBar before selected after =
+    ul [ class "nav nav-pills outline-active" ] <|
+        List.concat
+            [ List.map (viewTab []) before
+            , [ viewTab [ class "active" ] selected ]
+            , List.map (viewTab []) after
             ]
-            [ text tabName ]
+
+
+viewTab : List (Attribute msg) -> ( String, msg ) -> Html msg
+viewTab attrs ( name, msg ) =
+    li [ class "nav-item" ]
+        [ -- Note: The RealWorld CSS requires an href to work properly.
+          a (class "nav-link" :: onClick msg :: href "" :: attrs)
+            [ text name ]
         ]
 
 
