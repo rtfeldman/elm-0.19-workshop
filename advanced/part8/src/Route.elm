@@ -38,8 +38,8 @@ parser =
         -- 👉 TODO /settings       →  Settings
         -- 👉 TODO /register       →  Register
         -- 👉 TODO /article/[slug] →  Article [slug]
-        -- 👉 TODO /editor/[slug]  →  EditArticle [slug]
         -- 👉 TODO /editor         →  NewArticle
+        -- 👉 TODO /editor/[slug]  →  EditArticle [slug]
         --
         -- 💡 HINT: Article and EditArticle work similarly to how Profile works.
         ]
