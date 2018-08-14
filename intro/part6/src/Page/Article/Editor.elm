@@ -572,6 +572,7 @@ toTagList tagString =
     -}
     String.split " " tagString
         |> List.map String.trim
+        |> List.filter (\str -> str /= "")
 
 
 edit : Slug -> TrimmedForm -> Cred -> Http.Request (Article Full)
