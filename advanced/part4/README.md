@@ -13,4 +13,4 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 Resolve the TODOs in these files:
 * `src/Page/Home.elm`
 * `src/Page/Settings.elm`
-* `src/Page/Article.elm`
+* `src/Page/Profile.elm`
