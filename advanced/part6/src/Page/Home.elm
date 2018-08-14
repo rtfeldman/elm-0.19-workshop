@@ -49,9 +49,9 @@ type Status a
 
 
 type FeedTab
-    = YourFeed Cred
+    = YourFeed
     | GlobalFeed
-    | TagFeed Tag
+    | TagFeed String
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -59,8 +59,8 @@ init session =
     let
         feedTab =
             case Session.cred session of
-                Just cred ->
-                    YourFeed cred
+                Just _ ->
+                    YourFeed
 
                 Nothing ->
                     GlobalFeed
@@ -103,10 +103,7 @@ view model =
                             Loaded feed ->
                                 [ div [ class "feed-toggle" ] <|
                                     List.concat
-                                        [ [ viewTabs
-                                                (Session.cred model.session)
-                                                model.feedTab
-                                          ]
+                                        [ [ viewTabs (Session.cred model.session /= Nothing) model.feedTab ]
                                         , Feed.viewArticles model.timeZone feed
                                             |> List.map (Html.map GotFeedMsg)
                                         , [ Feed.viewPagination ClickedFeedPage feed ]
@@ -158,40 +155,63 @@ viewBanner =
 -- TABS
 
 
-viewTabs : Maybe Cred -> FeedTab -> Html Msg
-viewTabs maybeCred tab =
-    case tab of
-        YourFeed cred ->
-            Feed.viewTabs [] (yourFeed cred) [ globalFeed ]
+{-| TODO: Have viewTabs render all the tabs, using `activeTab` as the
+single source of truth for their state.
 
-        GlobalFeed ->
-            let
-                otherTabs =
-                    case maybeCred of
-                        Just cred ->
-                            [ yourFeed cred ]
+    The specification for how the tabs work is:
 
-                        Nothing ->
-                            []
-            in
-            Feed.viewTabs otherTabs globalFeed []
+    1. If the user is logged in, render `yourFeed` as the first tab. Examples:
 
-        TagFeed tag ->
-            let
-                otherTabs =
-                    case maybeCred of
-                        Just cred ->
-                            [ yourFeed cred, globalFeed ]
+    "Your Feed"    "Global Feed"
+    "Your Feed"    "Global Feed"  "#dragons"
 
-                        Nothing ->
-                            [ globalFeed ]
-            in
-            Feed.viewTabs otherTabs (tagFeed tag) []
+    2. If the user is NOT logged in, do not render `yourFeed` at all. Examples:
+
+    "Global Feed"
+    "Global Feed"  "#dragons"
+
+    3. If the active tab is a `TagFeed`, render that tab last. Show the tag it contains with a "#" in front.
+
+    "Global Feed"  "#dragons"
+    "Your Feed"    "Global Feed"  "#dragons"
+
+    3. If the active tab is NOT a `TagFeed`, do not render a tag tab at all.
+
+    "Your Feed"    "Global Feed"
+    "Global Feed"
+
+    💡 HINT: The 4 declarations after `viewTabs` may be helpful!
+
+-}
+viewTabs : Bool -> FeedTab -> Html Msg
+viewTabs isLoggedIn activeTab =
+    ul [ class "nav nav-pills outline-active" ] <|
+        case activeTab of
+            YourFeed ->
+                []
+
+            GlobalFeed ->
+                []
+
+            TagFeed tagName ->
+                []
 
 
-yourFeed : Cred -> ( String, Msg )
-yourFeed cred =
-    ( "Your Feed", ClickedTab (YourFeed cred) )
+viewTab : Bool -> String -> msg -> Html msg
+viewTab isActive tabName msg =
+    li [ class "nav-item" ]
+        [ a
+            [ classList [ ( "nav-link", True ), ( "active", isActive ) ]
+            , onClick msg
+            , href ""
+            ]
+            [ text tabName ]
+        ]
+
+
+yourFeed : ( String, Msg )
+yourFeed =
+    ( "Your Feed", ClickedTab YourFeed )
 
 
 globalFeed : ( String, Msg )
@@ -199,9 +219,9 @@ globalFeed =
     ( "Global Feed", ClickedTab GlobalFeed )
 
 
-tagFeed : Tag -> ( String, Msg )
+tagFeed : String -> ( String, Msg )
 tagFeed tag =
-    ( "#" ++ Tag.toString tag, ClickedTab (TagFeed tag) )
+    ( "#" ++ tag, ClickedTab (TagFeed tag) )
 
 
 
@@ -247,7 +267,7 @@ update msg model =
         ClickedTag tag ->
             let
                 feedTab =
-                    TagFeed tag
+                    TagFeed (Tag.toString tag)
             in
             ( { model | feedTab = feedTab }
             , fetchFeed model.session feedTab 1
@@ -342,21 +362,21 @@ fetchFeed session feedTabs page =
 
         builder =
             case feedTabs of
-                YourFeed cred ->
+                YourFeed ->
                     Api.url [ "articles", "feed" ]
                         |> HttpBuilder.get
-                        |> Cred.addHeader cred
+                        |> Cred.addHeaderIfAvailable maybeCred
 
                 GlobalFeed ->
                     Api.url [ "articles" ]
                         |> HttpBuilder.get
                         |> Cred.addHeaderIfAvailable maybeCred
 
-                TagFeed tag ->
+                TagFeed tagName ->
                     Api.url [ "articles" ]
                         |> HttpBuilder.get
                         |> Cred.addHeaderIfAvailable maybeCred
-                        |> HttpBuilder.withQueryParam "tag" (Tag.toString tag)
+                        |> HttpBuilder.withQueryParam "tag" tagName
     in
     builder
         |> HttpBuilder.withExpect (Http.expectJson (Feed.decoder maybeCred articlesPerPage))
