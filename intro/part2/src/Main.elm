@@ -7,14 +7,14 @@ import Html.Attributes exposing (..)
 viewTags tags =
     let
         renderedTags =
-            -- 👉 TODO use `List.map` and `viewTag` to render the tags
+            -- 👉 TODO: use `List.map` and `viewTag` to render the tags
             []
     in
     div [ class "tag-list" ] renderedTags
 
 
 viewTag tagName =
-    {- 👉 TODO render something like this:
+    {- 👉 TODO: render something like this:
 
        <button class="tag-pill tag-default">tag name goes here</button>
     -}
@@ -35,7 +35,7 @@ main =
                     [ div [ class "sidebar" ]
                         [ p [] [ text "Popular Tags" ]
 
-                        -- 👉 TODO instead of passing [] to viewTags, pass the actual tags
+                        -- 👉 TODO: instead of passing [] to viewTags, pass the actual tags
                         , viewTags []
                         ]
                     ]
