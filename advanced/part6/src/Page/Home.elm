@@ -197,8 +197,8 @@ viewTabs isLoggedIn activeTab =
                 []
 
 
-viewTab : Bool -> String -> msg -> Html msg
-viewTab isActive tabName msg =
+viewTab : Bool -> ( String, msg ) -> Html msg
+viewTab isActive ( tabName, msg ) =
     li [ class "nav-item" ]
         [ a
             [ classList [ ( "nav-link", True ), ( "active", isActive ) ]

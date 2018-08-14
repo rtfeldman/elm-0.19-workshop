@@ -10,4 +10,4 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Exercise
 
-Open `src/Article.elm` in your editor and resolve the TODOs there.
+Open `src/Page/Home.elm` in your editor and resolve the TODOs there.
