@@ -257,7 +257,7 @@ titleForMe : Maybe Cred -> Username -> String
 titleForMe maybeCred username =
     case maybeCred of
         Just cred ->
-            if username == Cred.username cred then
+            if username == cred.username then
                 myProfileTitle
 
             else
