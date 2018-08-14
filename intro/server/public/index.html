@@ -31,7 +31,7 @@
       localforage.getItem("session", function(err, session) {
         var app = Elm.Main.init({flags: session});
 
-        app.ports.storeSession.subscribe(function(newErr, newSession) {
+        app.ports.storeSession.subscribe(function(newSession) {
           localforage.setItem("session", newSession, function() {
             app.ports.onSessionChange.send(newSession);
           });
