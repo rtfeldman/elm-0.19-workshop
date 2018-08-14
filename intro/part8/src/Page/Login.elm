@@ -161,45 +161,16 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SubmittedForm ->
-            let
-                requestBody : Http.Body
-                requestBody =
-                    encodeJsonBody model.form
+            case validate model.form of
+                Ok validForm ->
+                    ( { model | problems = [] }
+                    , Http.send CompletedLogin (login validForm)
+                    )
 
-                responseDecoder : Decoder Viewer
-                responseDecoder =
-                    Decode.field "user" Viewer.decoder
-
-                {- 👉 TODO: Create a Http.Request value that represents
-                      a POST request to "/api/users/login"
-
-                   💡 HINT 1: Documentation for `Http.post` is here:
-
-                       http://package.elm-lang.org/packages/elm-lang/http/1.0.0/Http#post
-
-                   💡 HINT 2: Look at the values defined above in this
-                   let-expression. What are their types? What are the types the
-                   `Http.post` function is looking for?
-                -}
-                request : Http.Request Viewer
-                request =
-                    Debug.todo "Call Http.post to represent a POST to /api/users/login"
-
-                {- 👉 TODO: Use Http.send to turn the request we just defined
-                   into a Cmd for `update` to execute.
-
-                   💡 HINT 1: Documentation for `Http.send` is here:
-
-                    http://package.elm-lang.org/packages/elm-lang/http/1.0.0/Http#send
-
-                   💡 HINT 2: The `CompletedLogin` variant defined in `type Msg`
-                    will be useful here!
-                -}
-                cmd : Cmd Msg
-                cmd =
-                    Cmd.none
-            in
-            ( { model | problems = [] }, cmd )
+                Err problems ->
+                    ( { model | problems = problems }
+                    , Cmd.none
+                    )
 
         EnteredEmail email ->
             updateForm (\form -> { form | email = email }) model
@@ -234,19 +205,6 @@ Useful for recording form fields!
 updateForm : (Form -> Form) -> Model -> ( Model, Cmd Msg )
 updateForm transform model =
     ( { model | form = transform model.form }, Cmd.none )
-
-
-encodeJsonBody : Form -> Http.Body
-encodeJsonBody form =
-    let
-        user =
-            Encode.object
-                [ ( "email", Encode.string form.email )
-                , ( "password", Encode.string form.password )
-                ]
-    in
-    Encode.object [ ( "user", user ) ]
-        |> Http.jsonBody
 
 
 
@@ -327,6 +285,27 @@ trimFields form =
         { email = String.trim form.email
         , password = String.trim form.password
         }
+
+
+
+-- HTTP
+
+
+login : TrimmedForm -> Http.Request Viewer
+login (Trimmed form) =
+    let
+        user =
+            Encode.object
+                [ ( "email", Encode.string form.email )
+                , ( "password", Encode.string form.password )
+                ]
+
+        body =
+            Encode.object [ ( "user", user ) ]
+                |> Http.jsonBody
+    in
+    Decode.field "user" Viewer.decoder
+        |> Http.post (Api.url [ "users", "login" ]) body
 
 
 
