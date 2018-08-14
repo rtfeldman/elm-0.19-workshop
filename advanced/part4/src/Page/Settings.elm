@@ -100,7 +100,7 @@ view : Model -> { title : String, content : Html Msg }
 view model =
     let
         form =
-            viewForm model
+            viewForm (Session.cred model.session) model.form
     in
     { title = "Settings"
     , content =
@@ -124,16 +124,9 @@ view model =
     }
 
 
-{-| 👉 TODO refactor this to accept narrower types than the entire Model.
-💡 HINT: It may end up with multiple arguments!
--}
-viewForm : Model -> Html Msg
-viewForm model =
-    let
-        form =
-            model.form
-    in
-    case Session.cred model.session of
+viewForm : Maybe Cred -> Form -> Html Msg
+viewForm maybeCred form =
+    case maybeCred of
         Nothing ->
             text ""
 
