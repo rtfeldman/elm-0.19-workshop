@@ -1,12 +1,13 @@
 module Main exposing (main)
 
--- 👇 You can see our new `Article` module in `src/Article.elm`
+-- FYI: 👇 You can see our new `Article` module in `src/Article.elm`
 
 import Article
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+
 
 
 -- MODEL
@@ -27,11 +28,9 @@ update msg model =
     {- 👉 TODO: If `msg.description` is "ClickedTag", then
                 set the model's `selectedTag` field to be `msg.data`
 
-       💡 HINT 1: record update syntax looks like this:
+       💡 HINT: record update syntax looks like this:
 
                 { model | foo = bar }
-
-       💡 HINT 2: Don't forget, every `if` must have an `else`!
 
     -}
     model
@@ -43,7 +42,7 @@ update msg model =
 
 view model =
     let
-        {- 👉 TODO: Filter the articles down to onl the ones
+        {- 👉 TODO: Filter the articles down to only the ones
                     that include the currently selected tag.
 
            💡 HINT: Replace `True` below with something involving
@@ -96,6 +95,7 @@ viewTag selectedTagName tagName =
         otherClass =
             if tagName == selectedTagName then
                 "tag-selected"
+
             else
                 "tag-default"
     in
