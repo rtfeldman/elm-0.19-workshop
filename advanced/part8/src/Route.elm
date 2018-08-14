@@ -34,14 +34,11 @@ parser =
         , Parser.map Login (s "login")
         , Parser.map Logout (s "logout")
         , Parser.map Profile (s "profile" </> Username.urlParser)
-
-        -- 👉 TODO /settings       →  Settings
-        -- 👉 TODO /register       →  Register
-        -- 👉 TODO /article/[slug] →  Article [slug]
-        -- 👉 TODO /editor         →  NewArticle
-        -- 👉 TODO /editor/[slug]  →  EditArticle [slug]
-        --
-        -- 💡 HINT: Article and EditArticle work similarly to how Profile works.
+        , Parser.map Settings (s "settings")
+        , Parser.map Register (s "settings")
+        , Parser.map Article (s "article" </> Slug.urlParser)
+        , Parser.map EditArticle (s "editor" </> Slug.urlParser)
+        , Parser.map NewArticle (s "editor")
         ]
 
 
