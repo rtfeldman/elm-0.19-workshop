@@ -30,7 +30,12 @@ decoder =
 
 src : Avatar -> Attribute msg
 src (Avatar maybeUrl) =
-    Html.Attributes.src (resolveAvatarUrl maybeUrl)
+    Html.Attributes.src <|
+        if maybeUrl == Just "" then
+            resolveAvatarUrl Nothing
+
+        else
+            resolveAvatarUrl maybeUrl
 
 
 resolveAvatarUrl : Maybe String -> String
