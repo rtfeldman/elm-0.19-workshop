@@ -7,6 +7,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 
 
+
 -- MODEL
 
 
@@ -56,6 +57,7 @@ type alias Msg =
 update msg model =
     if msg.description == "ClickedTag" then
         { model | selectedTag = msg.data }
+
     else
         model
 
@@ -101,9 +103,8 @@ viewArticle article =
         ]
 
 
-{-| 👉 TODO: Replace this comment with a type annotation for `view`
+{-| 👉 TODO: Replace this comment with a type annotation for `viewBanner`
 -}
-viewBanner : Html Msg
 viewBanner =
     div [ class "banner" ]
         [ div [ class "container" ]
@@ -113,13 +114,14 @@ viewBanner =
         ]
 
 
-{-| 👉 TODO: Replace this comment with a type annotation for `view`
+{-| 👉 TODO: Replace this comment with a type annotation for `viewTag`
 -}
 viewTag selectedTagName tagName =
     let
         otherClass =
             if tagName == selectedTagName then
                 "tag-selected"
+
             else
                 "tag-default"
     in
