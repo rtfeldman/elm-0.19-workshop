@@ -43,6 +43,7 @@ If things aren’t working, the instructor will be happy to help!
 
 ## Links
 
+* [The solutions to these exercises](https://github.com/rtfeldman/elm-0.19-workshop/tree/solutions/advanced)
 * [Elm in Action](https://www.manning.com/books/elm-in-action?a_aid=elm_in_action&a_bid=b15edc5c), a book by [Richard Feldman](https://twitter.com/rtfeldman), creator of this workshop
 * [Official Elm Guide](https://guide.elm-lang.org/) by [Evan Czaplicki](https://twitter.com/czaplic), creator of Elm
 * [Elm Slack](http://elmlang.herokuapp.com/) - amazingly helpful chat community. People in [the `#beginners` channel](https://elmlang.slack.com/messages/C192T0Q1E/) are happy to answer questions!
