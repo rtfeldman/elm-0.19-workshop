@@ -1,8 +1,8 @@
-# Part 8
+# Part 9
 
 Once again, we'll be building `src/Main.elm`, but editing a different file.
 
-To build everything, `cd` into the `part8/` directory and run8
+To build everything, `cd` into the `part9/` directory and run:
 
 ```shell
 elm make src/Main.elm --output ../server/public/elm.js
