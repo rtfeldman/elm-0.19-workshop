@@ -168,7 +168,7 @@ update msg model =
                 -}
                 request : Http.Request Viewer
                 request =
-                    Debug.todo "Call Http.post to represent a POST to /api/users/login"
+                    Debug.todo "Call Http.post to represent a POST to /api/users"
 
                 {- 👉 TODO: Use Http.send to turn the request we just defined
                    into a Cmd for `update` to execute.
