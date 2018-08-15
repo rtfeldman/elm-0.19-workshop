@@ -17,7 +17,7 @@ banner =
                </div>
           </div>
 
-       💡 HINT 1: the <div class="row"> above is an element with 2 child nodes.
+       💡 HINT 1: the <div class="container"> above is an element with 2 child nodes.
 
        💡 HINT 2: the <div class="feed-toggle"> below is an element with text.
     -}
