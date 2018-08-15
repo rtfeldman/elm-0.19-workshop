@@ -14,4 +14,4 @@ Then open `http://localhost:3000` in your browser.
 
 We need to make login work. Currently it doesn't actually send a HTTP request to the server.
 
-We'll fix this by editing `src/Page/Login.elm` and resolving the TODOs there.
+We'll fix this by editing `src/Page/Register.elm` and resolving the TODOs there.
