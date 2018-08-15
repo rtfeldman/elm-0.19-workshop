@@ -12,6 +12,6 @@ Then open `http://localhost:3000` in your browser.
 
 ## Exercise
 
-We need to make login work. Currently it doesn't actually send a HTTP request to the server.
+We need to make signup work again. Currently it doesn't actually send a HTTP request to the server.
 
 We'll fix this by editing `src/Page/Register.elm` and resolving the TODOs there.
