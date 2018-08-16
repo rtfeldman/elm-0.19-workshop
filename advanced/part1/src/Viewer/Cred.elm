@@ -14,7 +14,7 @@ import Username exposing (Username)
 type alias Cred =
     -- 👉 TODO make Cred an opaque type, then fix the resulting compiler errors.
     -- Afterwards, it should no longer be possible for any other module to access
-    -- this `token` vale directly!
+    -- this `token` value directly!
     --
     -- 💡 HINT: Other modules still depend on being able to access the
     -- `username` value. Expand this module's API to expose a new way for them
