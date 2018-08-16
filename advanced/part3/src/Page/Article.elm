@@ -77,8 +77,8 @@ init session slug =
 
            Relevant docs:
 
-           https://alpha.elm-lang.org/packages/elm/core/latest/Task#attempt
-           https://alpha.elm-lang.org/packages/elm/core/latest/Task#perform
+           https://package.elm-lang.org/packages/elm/core/latest/Task#attempt
+           https://package.elm-lang.org/packages/elm/core/latest/Task#perform
         -}
         [ Article.fetch maybeCred slug
             |> Http.toTask
