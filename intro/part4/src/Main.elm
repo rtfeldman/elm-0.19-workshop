@@ -93,7 +93,7 @@ view model =
         ]
 
 
-{-| 👉 TODO: Replace this comment with a type annotation for `view`
+{-| 👉 TODO: Replace this comment with a type annotation for `viewArticle`
 -}
 viewArticle article =
     div [ class "article-preview" ]
