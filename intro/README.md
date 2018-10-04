@@ -1,7 +1,7 @@
 Introduction to Elm Workshop
 ============================
 
-If you haven't already, follow the [Getting Started instructions](https://github.com/rtfeldman/elm-0.19-workshop/blob/master/intro/README.md
+If you haven't already, follow the [Getting Started instructions](https://github.com/rtfeldman/elm-0.19-workshop#getting-started
 ) at the root of this repository, then continue here!
 
 ## Start the server
