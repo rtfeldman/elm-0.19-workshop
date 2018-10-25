@@ -24,7 +24,7 @@ of the workshop, so **don't close it** until the workshop is over!
 
 Leave the existing terminal running, and open a **second** terminal.
 
-In the new termnal, `cd` into the `elm-0.19-workshop/intro/server/` directory again.
+In the new terminal, `cd` into the `elm-0.19-workshop/intro/server/` directory again.
 
 Then run this to build the Elm code for the first time:
 
