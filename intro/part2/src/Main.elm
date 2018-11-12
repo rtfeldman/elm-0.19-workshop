@@ -7,7 +7,7 @@ import Html.Attributes exposing (..)
 viewTags tags =
     let
         renderedTags =
-            List.map viewTag tags
+            (\x -> List.map viewTag tags)
     in
     div [ class "tag-list" ] renderedTags
 
