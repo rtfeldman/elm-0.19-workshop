@@ -1,5 +1,8 @@
 module Main exposing (main)
 
+-- NOTE: Make sure to follow the instructions in the README for part3
+-- to install the elm/browser package before running elm make!
+--
 -- FYI: 👇 You can see our new `Article` module in `src/Article.elm`
 
 import Article
