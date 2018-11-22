@@ -15,7 +15,7 @@ some info about it that may be helpful in teaching this workshop.
 
 ## Slides
 
-The [slides](https://docs.google.com/presentation/d/1sNx5k3_fHwJcgm9QEY1LsMH_TyF5SnnOSDKb8HvFsEU/edit?usp=sharing)
+The [slides](https://docs.google.com/presentation/d/1LM_W2BRs_ItT-SPDe70C10cbwhGNHGQlJ1fVnAdnRIY/edit?usp=sharing)
 I use with the workshop include speaker notes. If you’ve seen me give this
 workshop before, you may notice that I’m not following these notes very closely.
 
