@@ -45,6 +45,7 @@ If things aren’t working, the instructor will be happy to help!
 
 * [The solutions to these exercises](https://github.com/rtfeldman/elm-0.19-workshop/tree/solutions/advanced)
 * [Slides for the Frontend Masters workshop that goes with this repo](https://docs.google.com/presentation/d/1aFZBXs9kzlZww2JN6iDmrYiQaxKlCAz6a5zpt882GHk/edit?usp=sharing)
+* [Advanced Elm Video Course](https://frontendmasters.com/courses/advanced-elm/) that goes with this repo
 * [The Life of a File](https://www.youtube.com/watch?v=XpDsk374LDE) - Evan Czaplicki
 * [The Importance of Ports](https://www.youtube.com/watch?v=P3pL85n9_5s) - Murphy Randle
 * [Working with Maybe](https://www.youtube.com/watch?v=43eM4kNbb6c) - Joël Quenneville

@@ -28,10 +28,10 @@ cd elm-0.19-workshop
 
 6. Continue with either the [`intro`](https://github.com/rtfeldman/elm-0.19-workshop/blob/master/intro/README.md) or [`advanced`](https://github.com/rtfeldman/elm-0.19-workshop/blob/master/advanced/README.md) instructions, depending on which workshop you're doing!
 
-Videos of this Workshop
+Video Course of this Workshop
 =======================
 
 I recorded full-length videos for [Frontend Masters](https://frontendmasters.com/), in which I teach both of these workshops start to finish:
 
-* [Intro](https://frontendmasters.com/courses/intro-elm/) video
-* [Advanced](https://frontendmasters.com/courses/advanced-elm/) video
+* [Introduction to Elm](https://frontendmasters.com/courses/intro-elm/) video course
+* [Advanced Elm](https://frontendmasters.com/courses/advanced-elm/) video course

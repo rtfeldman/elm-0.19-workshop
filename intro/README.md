@@ -44,7 +44,8 @@ If things aren’t working, the instructor will be happy to help!
 ## Links
 
 * [The solutions to these exercises](https://github.com/rtfeldman/elm-0.19-workshop/tree/solutions/intro)
-* [Slides for the Frontend Masters workshop that goes with this repo](https://docs.google.com/presentation/d/1LM_W2BRs_ItT-SPDe70C10cbwhGNHGQlJ1fVnAdnRIY/edit?usp=sharing)
+* [Slides for the Frontend Masters video course that goes with this repo](https://docs.google.com/presentation/d/1LM_W2BRs_ItT-SPDe70C10cbwhGNHGQlJ1fVnAdnRIY/edit?usp=sharing)
+* [Introduction to Elm Video Course](https://frontendmasters.com/courses/intro-elm/) that goes along with this repo.
 * [Elm in Action](https://www.manning.com/books/elm-in-action?a_aid=elm_in_action&a_bid=b15edc5c), a book by [Richard Feldman](https://twitter.com/rtfeldman), creator of this workshop
 * [Official Elm Guide](https://guide.elm-lang.org/) by [Evan Czaplicki](https://twitter.com/czaplic), creator of Elm
 * [Elm Slack](http://elmlang.herokuapp.com/) - amazingly helpful chat community. People in [the `#beginners` channel](https://elmlang.slack.com/messages/C192T0Q1E/) are happy to answer questions!
