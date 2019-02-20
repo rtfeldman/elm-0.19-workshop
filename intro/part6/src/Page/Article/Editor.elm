@@ -568,7 +568,7 @@ toTagList tagString =
 
        💡 HINT: Here's how to remove all the "foo" strings from a list of strings:
 
-       List.filter (\str -> str == "foo") listOfStrings
+       List.filter (\str -> not (str == "foo")) listOfStrings
     -}
     String.split " " tagString
         |> List.map String.trim
