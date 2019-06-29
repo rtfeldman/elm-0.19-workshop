@@ -566,7 +566,7 @@ toTagList tagString =
        will result in an error! If it has been fixed, saving will work and the
        tags will be accepted.
 
-       💡 HINT: Here's how to remove all the "foo" strings from a list of strings:
+       💡 HINT: Here's how to keep only the "foo" strings in a list of strings:
 
        List.filter (\str -> str == "foo") listOfStrings
     -}
