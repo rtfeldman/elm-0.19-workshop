@@ -14,7 +14,7 @@ Getting Started
 > **Note:** Make sure not to run this command with `sudo`! If it gives you an `EACCESS` error, apply [**this fix**](https://docs.npmjs.com/getting-started/fixing-npm-permissions#option-two-change-npms-default-directory) and then re-run the command (still without `sudo`).
 
 ```shell
-npm install -g elm elm-test@elm-0.19.0 elm-format
+npm install -g elm elm-test@elm0.19.0 elm-format
 ```
 
 5. Clone this repository
