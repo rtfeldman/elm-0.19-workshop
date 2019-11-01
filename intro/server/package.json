@@ -13,7 +13,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "4.11.0",
+    "eslint": "4.18.2",
     "jest": "21.2.1",
     "jest-cli": "21.2.1",
     "moleculer-repl": "^0.3.0",
