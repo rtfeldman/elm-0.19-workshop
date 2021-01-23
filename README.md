@@ -5,7 +5,7 @@ Getting Started
 
 1. Install [Node.js](http://nodejs.org) 7.0.0 or higher
 
-2. Add a plugin for your editor of choice: [Atom](https://atom.io/packages/language-elm), [Sublime Text](https://packagecontrol.io/packages/Elm%20Language%20Support), [VS Code](https://github.com/sbrink/vscode-elm), [Light Table](https://github.com/rundis/elm-light), [Vim](https://github.com/lambdatoast/elm.vim), [Emacs](https://github.com/jcollard/elm-mode), [Brackets](https://github.com/lepinay/elm-brackets)
+2. Add a plugin for your editor of choice: [Atom](https://atom.io/packages/language-elm), [Sublime Text](https://packagecontrol.io/packages/Elm%20Language%20Support), [VS Code](https://github.com/elm-tooling/elm-language-client-vscode), [Light Table](https://github.com/rundis/elm-light), [Vim](https://github.com/lambdatoast/elm.vim), [Emacs](https://github.com/jcollard/elm-mode), [Brackets](https://github.com/lepinay/elm-brackets)
 
 3. Not required, but **highly** recommended: enable "[`elm-format`](https://github.com/avh4/elm-format) on save" in your editor.
 
@@ -33,5 +33,5 @@ Video Course of this Workshop
 
 I recorded full-length videos for [Frontend Masters](https://frontendmasters.com/), in which I teach both of these workshops start to finish:
 
-* [Introduction to Elm](https://frontendmasters.com/courses/intro-elm/) video course ([slides](https://docs.google.com/presentation/d/1LM_W2BRs_ItT-SPDe70C10cbwhGNHGQlJ1fVnAdnRIY/edit?usp=sharing)
+* [Introduction to Elm](https://frontendmasters.com/courses/intro-elm/) video course ([slides](https://docs.google.com/presentation/d/1LM_W2BRs_ItT-SPDe70C10cbwhGNHGQlJ1fVnAdnRIY/edit?usp=sharing))
 * [Advanced Elm](https://frontendmasters.com/courses/advanced-elm/) video course ([slides](https://docs.google.com/presentation/d/1aFZBXs9kzlZww2JN6iDmrYiQaxKlCAz6a5zpt882GHk/edit?usp=sharing))
