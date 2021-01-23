@@ -33,5 +33,5 @@ Video Course of this Workshop
 
 I recorded full-length videos for [Frontend Masters](https://frontendmasters.com/), in which I teach both of these workshops start to finish:
 
-* [Introduction to Elm](https://frontendmasters.com/courses/intro-elm/) video course ([slides](https://docs.google.com/presentation/d/1LM_W2BRs_ItT-SPDe70C10cbwhGNHGQlJ1fVnAdnRIY/edit?usp=sharing)
+* [Introduction to Elm](https://frontendmasters.com/courses/intro-elm/) video course ([slides](https://docs.google.com/presentation/d/1LM_W2BRs_ItT-SPDe70C10cbwhGNHGQlJ1fVnAdnRIY/edit?usp=sharing))
 * [Advanced Elm](https://frontendmasters.com/courses/advanced-elm/) video course ([slides](https://docs.google.com/presentation/d/1aFZBXs9kzlZww2JN6iDmrYiQaxKlCAz6a5zpt882GHk/edit?usp=sharing))
