@@ -45,7 +45,12 @@ resolveAvatarUrl maybeUrl =
 
           https://static.productionready.io/images/smiley-cyrus.jpg
     -}
-    ""
+    case maybeUrl of
+        Just str ->
+            str
+
+        Nothing ->
+            "https://static.productionready.io/images/smiley-cyrus.jpg"
 
 
 encode : Avatar -> Value

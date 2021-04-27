@@ -1,23 +1,22 @@
-module Article
-    exposing
-        ( Article
-        , Full
-        , Preview
-        , author
-        , body
-        , favorite
-        , favoriteButton
-        , fetch
-        , fromPreview
-        , fullDecoder
-        , mapAuthor
-        , metadata
-        , previewDecoder
-        , slug
-        , unfavorite
-        , unfavoriteButton
-        , url
-        )
+module Article exposing
+    ( Article
+    , Full
+    , Preview
+    , author
+    , body
+    , favorite
+    , favoriteButton
+    , fetch
+    , fromPreview
+    , fullDecoder
+    , mapAuthor
+    , metadata
+    , previewDecoder
+    , slug
+    , unfavorite
+    , unfavoriteButton
+    , url
+    )
 
 {-| The interface to the Article data structure.
 
@@ -35,12 +34,12 @@ import Article.Body as Body exposing (Body)
 import Article.Slug as Slug exposing (Slug)
 import Article.Tag as Tag exposing (Tag)
 import Author exposing (Author)
-import Html exposing (Attribute, Html, i)
+import Html exposing (Attribute, Html, i, option)
 import Html.Attributes exposing (class)
 import Html.Events exposing (stopPropagationOn)
 import Http
 import HttpBuilder exposing (RequestBuilder, withBody, withExpect, withQueryParams)
-import Json.Decode as Decode exposing (Decoder, bool, int, list, string)
+import Json.Decode as Decode exposing (Decoder, bool, int, list, nullable, string)
 import Json.Decode.Pipeline exposing (custom, hardcoded, required)
 import Json.Encode as Encode
 import Markdown
@@ -197,11 +196,11 @@ metadataDecoder =
        as the order of the fields in `type alias Metadata` above. ☝️
     -}
     Decode.succeed Metadata
-        |> hardcoded "(needs decoding!)"
-        |> hardcoded "(needs decoding!)"
-        |> hardcoded []
-        |> hardcoded False
-        |> hardcoded 0
+        |> required "description" string
+        |> required "title" string
+        |> required "tagList" (list string)
+        |> required "favorited" bool
+        |> required "favoritesCount" int
         |> required "createdAt" Timestamp.iso8601Decoder
 
 
