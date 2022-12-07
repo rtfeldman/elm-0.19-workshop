@@ -26,7 +26,7 @@
     "moleculer": "^0.11.0",
     "moleculer-db": "0.7.0",
     "moleculer-db-adapter-mongo": "0.1.6",
-    "moleculer-web": "0.6.0-beta7",
+    "moleculer-web": "0.10.4",
     "nats": "0.7.24",
     "slug": "0.9.1"
   },
